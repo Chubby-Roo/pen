@@ -1,4 +1,4 @@
-# pen-js
+# pen.js
 A small library for creating elements in the browser.
 
 This semi-small library will allow you to easily create **elements** in the browser.
@@ -18,3 +18,12 @@ var para = pen.p("Some Other text", {id:'Time'})
 document.body.appendChild(para)
 </script>
 ```
+
+Now there is no comments in the main file **Pen.js|Pen.coffee**,
+Reason being is because I know for a fact that even comments takes up driver space, So it is kept to a minimum.
+Documentation will be completed soon.
+
+## Contribution
+
+If you want to contribute then you can either suggest any types of request or mess around with it until an error comes up.
+This is not a fully fledged library, and it's not special either.
