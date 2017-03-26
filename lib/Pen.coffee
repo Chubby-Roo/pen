@@ -73,3 +73,9 @@ class Pen
 
   li: (obj, txt, oel) ->
     @automaticHandler 'li', txt, obj, oel
+
+  code: (obj, txt) ->
+    @automaticHandler 'li', txt, obj
+
+  pre: (obj, txt) ->
+    @automaticHandler 'li', txt, obj
