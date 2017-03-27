@@ -85,6 +85,8 @@ class Pen
     else if type.match /source|src/gi
       el.src = if obj.src? then obj.src else throw new Error "'src' must be defined in the object parameter"
     return el
+  dividerHandler: (el) ->
+    return el
   automaticHandler: (el, txt, obj, oel) ->
     el = @create el
     el = @objHandler el, obj, txt
@@ -105,6 +107,10 @@ class Pen
     el = @create el
     el = @areaHandler el, obj, txt
     @autoAppend el
+  automaticDividerHandler: (el) ->
+    el = @create el
+    el = @dividerHandler el
+    @autoAppend el
 
   ###
   # ^^^^^
@@ -120,16 +126,19 @@ class Pen
     if typeof txt is 'function'
       txt = txt(el)
     el.innerHTML = txt
-    return
+    return el
   Css: (el, txt) ->
     el.style = txt
-    return
+    return el
   Id: (el, txt) ->
     el.id = txt
-    return
+    return el
   Type: (el, txt) ->
     el.type = txt
-    return
+    return el
+  Append: (el, el2) ->
+    el.appendChild el2
+    return el
 
   ###
   # ^^^^^
@@ -176,3 +185,10 @@ class Pen
     @automaticHandler 'script', txt, obj
   canvas: (obj, txt) ->
     @automaticHandler 'canvas', txt, obj
+  br: () ->
+    @automaticDividerHandler 'br'
+
+  # write: (txt) ->
+  #   divv = @div id:'console', style:'background-color:rgba(55,55,55,0.5);', class:'console', '',  ->
+  #       @p txt, id:'log', style:'color:rgba(195,195,195,1);', class:'log'
+  #   return divv

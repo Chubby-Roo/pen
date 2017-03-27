@@ -140,6 +140,10 @@ Pen = class Pen {
     return el;
   }
 
+  dividerHandler(el) {
+    return el;
+  }
+
   automaticHandler(el, txt, obj, oel) {
     el = this.create(el);
     el = this.objHandler(el, obj, txt);
@@ -170,6 +174,12 @@ Pen = class Pen {
     return this.autoAppend(el);
   }
 
+  automaticDividerHandler(el) {
+    el = this.create(el);
+    el = this.dividerHandler(el);
+    return this.autoAppend(el);
+  }
+
 
   /*
    * ^^^^^
@@ -187,18 +197,27 @@ Pen = class Pen {
       txt = txt(el);
     }
     el.innerHTML = txt;
+    return el;
   }
 
   Css(el, txt) {
     el.style = txt;
+    return el;
   }
 
   Id(el, txt) {
     el.id = txt;
+    return el;
   }
 
   Type(el, txt) {
     el.type = txt;
+    return el;
+  }
+
+  Append(el, el2) {
+    el.appendChild(el2);
+    return el;
   }
 
 
@@ -280,6 +299,10 @@ Pen = class Pen {
 
   canvas(obj, txt) {
     return this.automaticHandler('canvas', txt, obj);
+  }
+
+  br() {
+    return this.automaticDividerHandler('br');
   }
 
 };
