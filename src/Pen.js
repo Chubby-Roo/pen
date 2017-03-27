@@ -100,7 +100,7 @@ Pen = class Pen {
     return el;
   }
 
-  inputHandler(el, obj, txt) {
+  inputHandler(el, obj, type, txt) {
     el.value = txt != null ? txt : '';
     el.title = obj.title != null ? obj.title : '';
     el.style = obj.style != null ? obj.style : '';
@@ -151,7 +151,7 @@ Pen = class Pen {
 
   automaticInputHandler(el, type, txt, obj) {
     el = this.create(el);
-    el = this.inputHandler(el, obj, txt);
+    el = this.inputHandler(el, obj, type, txt);
     return this.autoAppend(el);
   }
 
@@ -253,6 +253,10 @@ Pen = class Pen {
 
   style(txt, obj) {
     return this.automaticHandler('style', txt, obj);
+  }
+
+  script(txt, obj) {
+    return this.automaticHandler('script', txt, obj);
   }
 
 };

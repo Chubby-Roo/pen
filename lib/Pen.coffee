@@ -65,7 +65,7 @@ class Pen
     el.onclick = if obj.click? then obj.click else ''
     el.classList += if obj.class? then obj.class else ''
     return el
-  inputHandler: (el,obj,txt) ->
+  inputHandler: (el,obj,type,txt) ->
     el.value = if txt? then txt else ''
     el.title = if obj.title? then obj.title else ''
     el.style = if obj.style? then obj.style else ''
@@ -93,7 +93,7 @@ class Pen
     @autoAppend el
   automaticInputHandler: (el, type, txt, obj) ->
     el = @create el
-    el = @inputHandler el, obj, txt
+    el = @inputHandler el, obj, type, txt
     @autoAppend el
 
 
@@ -161,3 +161,5 @@ class Pen
     @automaticHandler 'abbr', txt, obj
   style: (txt, obj) ->
     @automaticHandler 'style', txt, obj
+  script: (txt, obj) ->
+    @automaticHandler 'script', txt, obj
