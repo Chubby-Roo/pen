@@ -71,8 +71,12 @@ Pen = class Pen {
     if (!oel) {
       return el;
     } else {
-      el.appendChild(oel);
-      return el;
+      if (typeof oel === 'function') {
+        return el.appendChild(oel(el));
+      } else {
+        el.appendChild(oel);
+        return el;
+      }
     }
   }
 
@@ -100,13 +104,18 @@ Pen = class Pen {
     return el;
   }
 
+  areaHandler(el, obj, txt) {
+    el = this.objHandler(el, obj, txt);
+    el.width = obj.width != null ? obj.click : '';
+    el.height = obj.height != null ? obj.height : '';
+    return el;
+  }
+
   inputHandler(el, obj, type, txt) {
+    el = this.objHandler(el, obj);
     el.value = txt != null ? txt : '';
-    el.title = obj.title != null ? obj.title : '';
-    el.style = obj.style != null ? obj.style : '';
     el.type = obj.type != null ? obj.type : '';
-    el.id = obj.id != null ? obj.id : '';
-    return el.classList += obj["class"] != null ? obj["class"] : '';
+    return el;
   }
 
   linkAndSourceHandler(el, obj, txt, type) {
@@ -152,6 +161,12 @@ Pen = class Pen {
   automaticInputHandler(el, type, txt, obj) {
     el = this.create(el);
     el = this.inputHandler(el, obj, type, txt);
+    return this.autoAppend(el);
+  }
+
+  automaticAreaHandler(el, txt, obj) {
+    el = this.create(el);
+    el = this.areaHandler(el, obj, txt);
     return this.autoAppend(el);
   }
 
@@ -239,6 +254,10 @@ Pen = class Pen {
     return this.automaticHandler('form', txt, obj, oel);
   }
 
+  fieldset(obj, txt, oel) {
+    return this.automaticHandler('fieldset', txt, obj, oel);
+  }
+
   input(obj, type, txt) {
     return this.automaticInputHandler('input', type, txt, obj);
   }
@@ -257,6 +276,10 @@ Pen = class Pen {
 
   script(txt, obj) {
     return this.automaticHandler('script', txt, obj);
+  }
+
+  canvas(obj, txt) {
+    return this.automaticHandler('canvas', txt, obj);
   }
 
 };

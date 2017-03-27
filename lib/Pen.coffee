@@ -41,8 +41,11 @@ class Pen
     if not oel
       return el
     else
-      el.appendChild oel
-      return el
+      if typeof oel is 'function'
+        el.appendChild oel(el)
+      else
+        el.appendChild oel
+        return el
   createAppend: (el) ->
     el = @create el
     @autoAppend el
@@ -65,13 +68,16 @@ class Pen
     el.onclick = if obj.click? then obj.click else ''
     el.classList += if obj.class? then obj.class else ''
     return el
+  areaHandler: (el, obj, txt) ->
+    el = @objHandler el, obj, txt
+    el.width = if obj.width? then obj.click else ''
+    el.height = if obj.height? then obj.height else ''
+    return el
   inputHandler: (el,obj,type,txt) ->
+    el = @objHandler el, obj
     el.value = if txt? then txt else ''
-    el.title = if obj.title? then obj.title else ''
-    el.style = if obj.style? then obj.style else ''
     el.type = if obj.type? then obj.type else ''
-    el.id = if obj.id? then obj.id else ''
-    el.classList += if obj.class? then obj.class else ''
+    return el
   linkAndSourceHandler: (el, obj, txt, type) ->
     el = @objHandler el, obj, txt
     if type.match /link|href/gi
@@ -95,7 +101,10 @@ class Pen
     el = @create el
     el = @inputHandler el, obj, type, txt
     @autoAppend el
-
+  automaticAreaHandler: (el, txt, obj) ->
+    el = @create el
+    el = @areaHandler el, obj, txt
+    @autoAppend el
 
   ###
   # ^^^^^
@@ -153,6 +162,8 @@ class Pen
     @automaticHandler 'legend', txt, obj
   form: (obj, txt, oel) ->
     @automaticHandler 'form', txt, obj, oel
+  fieldset: (obj, txt, oel) ->
+    @automaticHandler 'fieldset', txt, obj, oel
   input: (obj, type, txt) ->
     @automaticInputHandler 'input', type, txt, obj
   button: (obj, txt) ->
@@ -163,3 +174,5 @@ class Pen
     @automaticHandler 'style', txt, obj
   script: (txt, obj) ->
     @automaticHandler 'script', txt, obj
+  canvas: (obj, txt) ->
+    @automaticHandler 'canvas', txt, obj
