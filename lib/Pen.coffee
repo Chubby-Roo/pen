@@ -106,3 +106,5 @@ class Pen
     @automaticHandler 'form', txt, obj, oel
   iText: (obj, type, txt) ->
     @automaticLinkHandler 'input', type, txt, obj
+  abbr: (obj,txt) ->
+    @automaticHandler 'abbr', txt, obj

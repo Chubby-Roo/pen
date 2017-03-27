@@ -175,4 +175,8 @@ Pen = class Pen {
     return this.automaticLinkHandler('input', type, txt, obj);
   }
 
+  abbr(obj, txt) {
+    return this.automaticHandler('abbr', txt, obj);
+  }
+
 };
