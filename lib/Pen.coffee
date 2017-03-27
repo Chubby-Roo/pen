@@ -1,10 +1,25 @@
 log = console.log
-
+doc = document
+{
+  body
+  head} = doc
 class Pen
   constructor: (@auto) ->
 
   create: (el) ->
-    return document.createElement el
+    return doc.createElement el
+
+  getIdOf: (el) ->
+    return doc.getElementById el
+
+  getNameOf: (el) ->
+    return doc.getElementsByName el
+
+  getClassOf: (el) ->
+    return doc.getElementsByClassName el
+
+  getTagsOf: (el) ->
+    return doc.getElementsByTagName el
 
   checker: () ->
     if @auto is on
@@ -14,7 +29,7 @@ class Pen
 
   autoAppend: (el) ->
     if @checker() is on
-      document.body.appendChild el
+      body.appendChild el
       return el
     else
       return el
@@ -82,3 +97,6 @@ class Pen
 
   label: (obj, txt) ->
     @automaticHandler 'label', txt, obj
+
+  legend: (ob, txt) ->
+    @automaticHandler 'legend', txt, obj
