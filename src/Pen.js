@@ -5,7 +5,17 @@ log = console.log;
 
 doc = document;
 
-body = doc.body, head = doc.head;
+if (doc.body != null) {
+  body = doc.body;
+} else {
+  alert("Body is not defined in the html document.");
+}
+
+if (doc.head != null) {
+  head = doc.head;
+} else {
+  alert("Head is not defined in the html document.");
+}
 
 Pen = class Pen {
   constructor(auto) {

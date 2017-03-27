@@ -1,8 +1,15 @@
 log = console.log
 doc = document
-{
-  body
-  head} = doc
+
+if doc.body?
+  body = doc.body
+else
+  alert "Body is not defined in the html document."
+if doc.head?
+  head = doc.head
+else
+  alert "Head is not defined in the html document."
+
 class Pen
   constructor: (@auto) ->
   create: (el) ->
