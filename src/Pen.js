@@ -67,6 +67,15 @@ Pen = class Pen {
     return el;
   }
 
+  inputHandler(el, obj, txt) {
+    el.value = txt != null ? txt : '';
+    el.title = obj.title != null ? obj.title : '';
+    el.style = obj.style != null ? obj.style : '';
+    el.type = obj.type != null ? obj.type : '';
+    el.id = obj.id != null ? obj.id : '';
+    return el.classList += obj["class"] != null ? obj["class"] : '';
+  }
+
   linkAndSourceHandler(el, obj, txt, type) {
     el = this.objHandler(el, obj, txt);
     if (type.match(/link|href/gi)) {
@@ -107,6 +116,12 @@ Pen = class Pen {
     return this.autoAppend(el);
   }
 
+  automaticInputHandler(el, type, txt, obj) {
+    el = this.create(el);
+    el = this.inputHandler(el, obj, txt);
+    return this.autoAppend(el);
+  }
+
   p(txt, obj) {
     return this.automaticHandler('p', txt, obj);
   }
@@ -143,8 +158,16 @@ Pen = class Pen {
     return this.automaticHandler('label', txt, obj);
   }
 
-  legend(ob, txt) {
+  legend(obj, txt) {
     return this.automaticHandler('legend', txt, obj);
+  }
+
+  form(obj, txt, oel) {
+    return this.automaticHandler('form', txt, obj, oel);
+  }
+
+  iText(obj, type, txt) {
+    return this.automaticLinkHandler('input', type, txt, obj);
   }
 
 };
