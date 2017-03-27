@@ -15,6 +15,10 @@ class Pen
     return doc.getElementsByClassName el
   getTagsOf: (el) ->
     return doc.getElementsByTagName el
+  select: (txt) ->
+    return doc.querySelector txt
+  selectAll: (txt) ->
+    return doc.querySelectorAll txt
   checker: () ->
     if @auto is on
       return on
@@ -51,6 +55,7 @@ class Pen
     el.title = if obj.title? then obj.title else ''
     el.style = if obj.style? then obj.style else ''
     el.id = if obj.id? then obj.id else ''
+    el.onclick = if obj.click? then obj.click else ''
     el.classList += if obj.class? then obj.class else ''
     return el
   inputHandler: (el,obj,txt) ->
@@ -89,9 +94,26 @@ class Pen
   # ^^^^^
   # Handlers
   # -------
+  # Methods
+  # vvvvv
+  ###
+
+  Html: (el, txt) ->
+    if typeof txt is 'object'
+      JSON.parse txt
+    if typeof txt is 'function'
+      txt(el)
+    el.innerHTML = txt
+    return
+
+  ###
+  # ^^^^^
+  # Methods
+  # -------
   # Tags
   # vvvvv
   ###
+
 
   p: (txt, obj) ->
     @automaticHandler 'p', txt, obj

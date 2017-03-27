@@ -32,6 +32,14 @@ Pen = class Pen {
     return doc.getElementsByTagName(el);
   }
 
+  select(txt) {
+    return doc.querySelector(txt);
+  }
+
+  selectAll(txt) {
+    return doc.querySelectorAll(txt);
+  }
+
   checker() {
     if (this.auto === true) {
       return true;
@@ -77,6 +85,7 @@ Pen = class Pen {
     el.title = obj.title != null ? obj.title : '';
     el.style = obj.style != null ? obj.style : '';
     el.id = obj.id != null ? obj.id : '';
+    el.onclick = obj.click != null ? obj.click : '';
     el.classList += obj["class"] != null ? obj["class"] : '';
     return el;
   }
@@ -140,6 +149,25 @@ Pen = class Pen {
   /*
    * ^^^^^
    * Handlers
+   * -------
+   * Methods
+   * vvvvv
+   */
+
+  Html(el, txt) {
+    if (typeof txt === 'object') {
+      JSON.parse(txt);
+    }
+    if (typeof txt === 'function') {
+      txt(el);
+    }
+    el.innerHTML = txt;
+  }
+
+
+  /*
+   * ^^^^^
+   * Methods
    * -------
    * Tags
    * vvvvv
