@@ -1,4 +1,4 @@
-# pen.js
+# pen.coffee
 A small library for creating elements in the browser.
 
 This semi-small library will allow you to easily create **elements** in the browser.
