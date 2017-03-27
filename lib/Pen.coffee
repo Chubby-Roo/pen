@@ -115,7 +115,7 @@ class Pen
     @automaticHandler 'legend', txt, obj
   form: (obj, txt, oel) ->
     @automaticHandler 'form', txt, obj, oel
-  iText: (obj, type, txt) ->
+  input: (obj, type, txt) ->
     @automaticLinkHandler 'input', type, txt, obj
   button: (obj, txt) ->
     @automaticHandler 'button', txt, obj

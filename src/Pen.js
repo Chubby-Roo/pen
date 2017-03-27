@@ -189,7 +189,7 @@ Pen = class Pen {
     return this.automaticHandler('form', txt, obj, oel);
   }
 
-  iText(obj, type, txt) {
+  input(obj, type, txt) {
     return this.automaticLinkHandler('input', type, txt, obj);
   }
 
