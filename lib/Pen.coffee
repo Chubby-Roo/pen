@@ -35,6 +35,10 @@ class Pen
       el.appendChild oel
       return el
 
+  createAppend: (el) ->
+    el = @create el
+    @autoAppend el
+
   objHandler: (el, obj, txt) ->
     el.innerHTML = if txt? then txt else ''
     el.title = if obj.title? then obj.title else ''

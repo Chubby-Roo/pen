@@ -58,6 +58,11 @@ Pen = class Pen {
     }
   }
 
+  createAppend(el) {
+    el = this.create(el);
+    return this.autoAppend(el);
+  }
+
   objHandler(el, obj, txt) {
     el.innerHTML = txt != null ? txt : '';
     el.title = obj.title != null ? obj.title : '';
