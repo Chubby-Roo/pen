@@ -102,8 +102,17 @@ class Pen
     if typeof txt is 'object'
       JSON.parse txt
     if typeof txt is 'function'
-      txt(el)
+      txt = txt(el)
     el.innerHTML = txt
+    return
+  Css: (el, txt) ->
+    el.style = txt
+    return
+  Id: (el, txt) ->
+    el.id = txt
+    return
+  Type: (el, txt) ->
+    el.type = txt
     return
 
   ###
@@ -138,8 +147,10 @@ class Pen
   form: (obj, txt, oel) ->
     @automaticHandler 'form', txt, obj, oel
   input: (obj, type, txt) ->
-    @automaticLinkHandler 'input', type, txt, obj
+    @automaticInputHandler 'input', type, txt, obj
   button: (obj, txt) ->
     @automaticHandler 'button', txt, obj
   abbr: (obj,txt) ->
     @automaticHandler 'abbr', txt, obj
+  style: (txt, obj) ->
+    @automaticHandler 'style', txt, obj

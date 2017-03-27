@@ -159,9 +159,21 @@ Pen = class Pen {
       JSON.parse(txt);
     }
     if (typeof txt === 'function') {
-      txt(el);
+      txt = txt(el);
     }
     el.innerHTML = txt;
+  }
+
+  Css(el, txt) {
+    el.style = txt;
+  }
+
+  Id(el, txt) {
+    el.id = txt;
+  }
+
+  Type(el, txt) {
+    el.type = txt;
   }
 
 
@@ -218,7 +230,7 @@ Pen = class Pen {
   }
 
   input(obj, type, txt) {
-    return this.automaticLinkHandler('input', type, txt, obj);
+    return this.automaticInputHandler('input', type, txt, obj);
   }
 
   button(obj, txt) {
@@ -227,6 +239,10 @@ Pen = class Pen {
 
   abbr(obj, txt) {
     return this.automaticHandler('abbr', txt, obj);
+  }
+
+  style(txt, obj) {
+    return this.automaticHandler('style', txt, obj);
   }
 
 };
