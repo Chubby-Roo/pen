@@ -1,5 +1,4 @@
 # Documentation of pen.coffee
-
 So **pen.coffee** is a small library to enable quick ease to edit the document.
 Pen does not have full functionality. It does allow for the ease of creating elements on the fly without
 editing the html file itself.
