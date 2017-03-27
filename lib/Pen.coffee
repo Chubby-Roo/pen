@@ -20,24 +20,31 @@ class Pen
       return on
     else
       return off
-
   autoAppend: (el) ->
     if @checker() is on
       body.appendChild el
       return el
     else
       return el
-
   oEl: (el, oel) ->
     if not oel
       return el
     else
       el.appendChild oel
       return el
-
   createAppend: (el) ->
     el = @create el
     @autoAppend el
+
+
+  ###
+  # ^^^^^
+  # Helpers
+  # -------
+  # Handlers
+  # vvvvv
+  ###
+
 
   objHandler: (el, obj, txt) ->
     el.innerHTML = if txt? then txt else ''
@@ -46,7 +53,6 @@ class Pen
     el.id = if obj.id? then obj.id else ''
     el.classList += if obj.class? then obj.class else ''
     return el
-
   inputHandler: (el,obj,txt) ->
     el.value = if txt? then txt else ''
     el.title = if obj.title? then obj.title else ''
@@ -54,7 +60,6 @@ class Pen
     el.type = if obj.type? then obj.type else ''
     el.id = if obj.id? then obj.id else ''
     el.classList += if obj.class? then obj.class else ''
-
   linkAndSourceHandler: (el, obj, txt, type) ->
     el = @objHandler el, obj, txt
     if type.match /link|href/gi
@@ -62,25 +67,31 @@ class Pen
     else if type.match /source|src/gi
       el.src = if obj.src? then obj.src else throw new Error "'src' must be defined in the object parameter"
     return el
-
   automaticHandler: (el, txt, obj, oel) ->
     el = @create el
     el = @objHandler el, obj, txt
     if oel
       el = @oEl el, oel
     @autoAppend el
-
   automaticLinkHandler: (el, type, txt, obj, oel) ->
     el = @create el
     el = @linkAndSourceHandler el, obj, txt, type
     if oel
       el = @oEl el, oel
     @autoAppend el
-
   automaticInputHandler: (el, type, txt, obj) ->
     el = @create el
     el = @inputHandler el, obj, txt
     @autoAppend el
+
+
+  ###
+  # ^^^^^
+  # Handlers
+  # -------
+  # Tags
+  # vvvvv
+  ###
 
   p: (txt, obj) ->
     @automaticHandler 'p', txt, obj
@@ -106,5 +117,7 @@ class Pen
     @automaticHandler 'form', txt, obj, oel
   iText: (obj, type, txt) ->
     @automaticLinkHandler 'input', type, txt, obj
+  button: (obj, txt) ->
+    @automaticHandler 'button', txt, obj
   abbr: (obj,txt) ->
     @automaticHandler 'abbr', txt, obj

@@ -63,6 +63,15 @@ Pen = class Pen {
     return this.autoAppend(el);
   }
 
+
+  /*
+   * ^^^^^
+   * Helpers
+   * -------
+   * Handlers
+   * vvvvv
+   */
+
   objHandler(el, obj, txt) {
     el.innerHTML = txt != null ? txt : '';
     el.title = obj.title != null ? obj.title : '';
@@ -127,6 +136,15 @@ Pen = class Pen {
     return this.autoAppend(el);
   }
 
+
+  /*
+   * ^^^^^
+   * Handlers
+   * -------
+   * Tags
+   * vvvvv
+   */
+
   p(txt, obj) {
     return this.automaticHandler('p', txt, obj);
   }
@@ -173,6 +191,10 @@ Pen = class Pen {
 
   iText(obj, type, txt) {
     return this.automaticLinkHandler('input', type, txt, obj);
+  }
+
+  button(obj, txt) {
+    return this.automaticHandler('button', txt, obj);
   }
 
   abbr(obj, txt) {
