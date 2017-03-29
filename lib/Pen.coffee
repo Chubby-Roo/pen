@@ -19,6 +19,34 @@ else
 
 class Pen
   constructor: (@auto) ->
+    style = document.createElement 'style'
+    style.innerHTML = """
+    .console {
+      text-align:center;
+      color:rgb(255,255,255);
+      background-color: rgb(155,155,155);
+      opacity:0.5;
+      border-left:solid 2px blue;
+      border-right:solid 2px blue;
+      padding:5px;
+      bottom: 0;
+      width:50%;
+      z-index:102;
+      position:fixed;
+      font-family:Arial;
+      font-weight:bold;
+      transition:all 0.5s ease; }
+    .console:hover {
+      color:rgb(255,255,255);
+      opacity:1;
+      background-color:rgba(55,55,55);
+    }
+    """
+    head.appendChild style
+    return
+  changeOption: (op) ->
+    @auto = op
+    return
   create: (el) ->
     return doc.createElement el
   getIdOf: (el) ->
@@ -246,10 +274,16 @@ class Pen
   ###
 
   write: (txt) ->
+    if txt instanceof Object
+      txt = JSON.stringify(txt)
+    if txt instanceof Array
+      txt = txt.join ', '
     para = @create 'p'
+    para.setAttribute "class", "console"
     txt = txt.replace /;|`n|\\n/gi, '.<br>'
     if txt.match /\((.*?)\)\[(.*?)\]/gi
-      link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1]
-      cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2]
-    txt = txt.replace /\((.*?)\)\[(.*?)\]/gi, "<a href='#{link}'>#{cover}</a>"
+      link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2]
+      cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1]
+    txt = txt.replace /\((.*?)\)\[(.*?)\]/gi, "<a href='#{link}' title='#{link}'>#{cover}</a>"
     para.innerHTML = txt
+    body.appendChild para

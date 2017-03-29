@@ -35,7 +35,16 @@ if (doc.head != null) {
 
 Pen = class Pen {
   constructor(auto) {
+    var style;
     this.auto = auto;
+    style = document.createElement('style');
+    style.innerHTML = ".console {\n  text-align:center;\n  color:rgb(255,255,255);\n  background-color: rgb(155,155,155);\n  opacity:0.5;\n  border-left:solid 2px blue;\n  border-right:solid 2px blue;\n  padding:5px;\n  bottom: 0;\n  width:50%;\n  z-index:102;\n  position:fixed;\n  font-family:Arial;\n  font-weight:bold;\n  transition:all 0.5s ease; }\n.console:hover {\n  color:rgb(255,255,255);\n  opacity:1;\n  background-color:rgba(55,55,55);\n}";
+    head.appendChild(style);
+    return;
+  }
+
+  changeOption(op) {
+    this.auto = op;
   }
 
   create(el) {
@@ -360,14 +369,22 @@ Pen = class Pen {
 
   write(txt) {
     var cover, link, para;
+    if (txt instanceof Object) {
+      txt = JSON.stringify(txt);
+    }
+    if (txt instanceof Array) {
+      txt = txt.join(', ');
+    }
     para = this.create('p');
+    para.setAttribute("class", "console");
     txt = txt.replace(/;|`n|\\n/gi, '.<br>');
     if (txt.match(/\((.*?)\)\[(.*?)\]/gi)) {
-      link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1];
-      cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2];
+      link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2];
+      cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1];
     }
-    txt = txt.replace(/\((.*?)\)\[(.*?)\]/gi, `<a href='${link}'>${cover}</a>`);
-    return para.innerHTML = txt;
+    txt = txt.replace(/\((.*?)\)\[(.*?)\]/gi, `<a href='${link}' title='${link}'>${cover}</a>`);
+    para.innerHTML = txt;
+    return body.appendChild(para);
   }
 
 };
