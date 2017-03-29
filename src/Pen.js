@@ -40,6 +40,8 @@ Pen = class Pen {
     style = document.createElement('style');
     style.innerHTML = ".console {\n  text-align:center;\n  color:rgb(255,255,255);\n  background-color: rgb(155,155,155);\n  opacity:0.5;\n  border-left:solid 2px blue;\n  border-right:solid 2px blue;\n  padding:5px;\n  bottom: 0;\n  width:50%;\n  z-index:102;\n  position:fixed;\n  font-family:Arial;\n  font-weight:bold;\n  transition:all 0.5s ease; }\n.console:hover {\n  color:rgb(255,255,255);\n  opacity:1;\n  background-color:rgba(55,55,55);\n}";
     head.appendChild(style);
+    this.para = this.create('p');
+    body.appendChild(this.para);
     return;
   }
 
@@ -354,6 +356,30 @@ Pen = class Pen {
     return this.automaticHandler('canvas', txt, obj);
   }
 
+  h1(txt, obj) {
+    return this.automaticHandler('h1', txt, obj);
+  }
+
+  h2(txt, obj) {
+    return this.automaticHandler('h2', txt, obj);
+  }
+
+  h3(txt, obj) {
+    return this.automaticHandler('h3', txt, obj);
+  }
+
+  h4(txt, obj) {
+    return this.automaticHandler('h4', txt, obj);
+  }
+
+  h5(txt, obj) {
+    return this.automaticHandler('h5', txt, obj);
+  }
+
+  h6(txt, obj) {
+    return this.automaticHandler('h6', txt, obj);
+  }
+
   br() {
     return this.automaticDividerHandler('br');
   }
@@ -368,23 +394,21 @@ Pen = class Pen {
    */
 
   write(txt) {
-    var cover, link, para;
+    var cover, link;
     if (txt instanceof Object) {
       txt = JSON.stringify(txt);
     }
     if (txt instanceof Array) {
       txt = txt.join(', ');
     }
-    para = this.create('p');
-    para.setAttribute("class", "console");
+    this.para.setAttribute("class", "console");
     txt = txt.replace(/;|`n|\\n/gi, '.<br>');
     if (txt.match(/\((.*?)\)\[(.*?)\]/gi)) {
       link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2];
       cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1];
     }
     txt = txt.replace(/\((.*?)\)\[(.*?)\]/gi, `<a href='${link}' title='${link}'>${cover}</a>`);
-    para.innerHTML = txt;
-    return body.appendChild(para);
+    return this.para.innerHTML += txt;
   }
 
 };

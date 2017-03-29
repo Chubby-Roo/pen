@@ -43,6 +43,8 @@ class Pen
     }
     """
     head.appendChild style
+    @para = @create 'p'
+    body.appendChild @para
     return
   changeOption: (op) ->
     @auto = op
@@ -262,6 +264,19 @@ class Pen
   canvas: (obj, txt) ->
     @automaticHandler 'canvas', txt, obj
 
+  h1: (txt, obj) ->
+    @automaticHandler 'h1', txt, obj
+  h2: (txt, obj) ->
+    @automaticHandler 'h2', txt, obj
+  h3: (txt, obj) ->
+    @automaticHandler 'h3', txt, obj
+  h4: (txt, obj) ->
+    @automaticHandler 'h4', txt, obj
+  h5: (txt, obj) ->
+    @automaticHandler 'h5', txt, obj
+  h6: (txt, obj) ->
+    @automaticHandler 'h6', txt, obj
+
   br: () ->
     @automaticDividerHandler 'br'
 
@@ -278,12 +293,10 @@ class Pen
       txt = JSON.stringify(txt)
     if txt instanceof Array
       txt = txt.join ', '
-    para = @create 'p'
-    para.setAttribute "class", "console"
+    @para.setAttribute "class", "console"
     txt = txt.replace /;|`n|\\n/gi, '.<br>'
     if txt.match /\((.*?)\)\[(.*?)\]/gi
       link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2]
       cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1]
     txt = txt.replace /\((.*?)\)\[(.*?)\]/gi, "<a href='#{link}' title='#{link}'>#{cover}</a>"
-    para.innerHTML = txt
-    body.appendChild para
+    @para.innerHTML += txt
