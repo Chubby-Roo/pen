@@ -28,4 +28,4 @@ Documentation will be completed soon.
 If you want to contribute then you can either suggest any types of request or mess around with it until an error comes up.
 This is not a fully fledged library, and it's not special either.
 
-[Documentation](https://github.com/Monochromefx/pen-coffee/blob/master/DOCUMENTATION.md)
+[Documentation](https://github.com/Monochromefx/pen-coffee/tree/master/docs)
