@@ -359,33 +359,14 @@ Pen = class Pen {
    */
 
   write(txt) {
-    var cover, link, para, reg;
+    var cover, link, para;
     para = this.create('p');
     txt = txt.replace(/;|`n|\\n/gi, '.<br>');
-
-    /* links */
-
-    /*
-     * So this part is for handling link emebeds if you want to do so
-     */
-
-    /* */
-    reg = /\((.*?)\)\[(.*?)\]/gi;
-    link = txt.getInput(reg)[1];
-
-    /* for the links input part */
-    cover = txt.getInput(reg)[2];
-
-    /* for the cover of the link */
-    txt = txt.replace(reg, `<a href='${link}'>${cover}</a>`);
-
-    /*
-     * mini doc on the getInput for the string property
-     * getInput is not part of the standard for strings
-     * is a method I made for myself to be able to access what was returned in an easier way without having to build a callback function
-     * and it is a way to also help with a lot of other things.
-     * this is just one of the ways to do it
-     */
+    if (txt.match(/\((.*?)\)\[(.*?)\]/gi)) {
+      link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1];
+      cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2];
+    }
+    txt = txt.replace(/\((.*?)\)\[(.*?)\]/gi, `<a href='${link}'>${cover}</a>`);
     return para.innerHTML = txt;
   }
 
