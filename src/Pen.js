@@ -49,6 +49,24 @@ Pen = class Pen {
     this.auto = op;
   }
 
+  appendToHead(...el) {
+    var i, j, len;
+    for (j = 0, len = el.length; j < len; j++) {
+      i = el[j];
+      head.appendChild(el[i]);
+      return;
+    }
+  }
+
+  appendToBody(...el) {
+    var i, j, len;
+    for (j = 0, len = el.length; j < len; j++) {
+      i = el[j];
+      body.appendChild(el[i]);
+      return;
+    }
+  }
+
   create(el) {
     return doc.createElement(el);
   }
@@ -119,6 +137,18 @@ Pen = class Pen {
     }
   }
 
+  createWithObj(el, obj, txt) {
+    el = this.create(el);
+    el = this.objHandler(el, obj);
+    return el;
+  }
+
+  createWithText(el, txt) {
+    el = this.create(el);
+    el.innerHTML = txt;
+    return el;
+  }
+
 
   /*
    * ^^^^^
@@ -129,27 +159,23 @@ Pen = class Pen {
    */
 
   objHandler(el, obj, txt) {
-    if (txt !== null) {
+    if (txt != null) {
       el.innerHTML = txt;
     }
-    switch (obj) {
-      case obj['title']:
-        el.setAttribute("title", obj['title']);
-        break;
-      case obj['style']:
-        el.setAttribute("style", obj['style']);
-        break;
-      case obj['id']:
-      case obj['identification']:
-        el.setAttribute("id", obj['id'] || obj['identification']);
-        break;
-      case obj['click']:
-      case obj['onclick']:
-        el.setAttribute("onclick", obj['click'] || obj['onclick']);
-        break;
-      case obj['class']:
-      case obj['classes']:
-        el.setAttribute("class", obj['class'] || obj['classes']);
+    if (obj.title != null) {
+      el.setAttribute("title", obj.title);
+    }
+    if (obj.style != null) {
+      el.setAttribute("style", obj.style);
+    }
+    if ((obj.id != null) || (obj.identification != null)) {
+      el.setAttribute("id", obj.id || obj.identification);
+    }
+    if ((obj.click != null) || (obj.onclick != null)) {
+      el.setAttribute("onclick", obj.click || obj.onclick);
+    }
+    if ((obj["class"] != null) || (obj.classes != null)) {
+      el.setAttribute("class", obj["class"] || obj.classes);
     }
     return el;
   }

@@ -49,6 +49,14 @@ class Pen
   changeOption: (op) ->
     @auto = op
     return
+  appendToHead: (el...) ->
+    for i in el
+      head.appendChild el[i]
+      return
+  appendToBody: (el...) ->
+    for i in el
+      body.appendChild el[i]
+      return
   create: (el) ->
     return doc.createElement el
   getIdOf: (el) ->
@@ -92,7 +100,14 @@ class Pen
       el = @select el
       return el
 
-
+  createWithObj: (el, obj, txt) ->
+    el = @create el
+    el = @objHandler el, obj
+    return el
+  createWithText: (el, txt) ->
+    el = @create el
+    el.innerHTML = txt
+    return el
   ###
   # ^^^^^
   # Helpers
@@ -103,13 +118,12 @@ class Pen
 
 
   objHandler: (el, obj, txt) ->
-    el.innerHTML = txt if txt isnt null
-    switch obj
-      when obj['title'] then el.setAttribute "title", obj['title']
-      when obj['style'] then el.setAttribute "style", obj['style']
-      when obj['id'],obj['identification'] then el.setAttribute "id", obj['id'] or obj['identification']
-      when obj['click'], obj['onclick'] then el.setAttribute "onclick", obj['click'] or obj['onclick']
-      when obj['class'], obj['classes'] then el.setAttribute "class", obj['class'] or obj['classes']
+    if txt? then el.innerHTML = txt
+    if obj.title? then el.setAttribute "title", obj.title
+    if obj.style? then el.setAttribute "style", obj.style
+    if obj.id? or obj.identification? then el.setAttribute "id", obj.id or obj.identification
+    if obj.click? or obj.onclick? then el.setAttribute "onclick", obj.click or obj.onclick
+    if obj.class? or obj.classes? then el.setAttribute "class", obj.class or obj.classes
     return el
 
   areaHandler: (el, obj, txt) ->
