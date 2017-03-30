@@ -25,14 +25,14 @@ pro(String).getInput = function(reg) {
   }
 };
 
-if (doc.body != null) {
-  body = doc.body;
+if (document.body != null) {
+  body = document.body;
 } else {
   alert("Body is not defined in the html document.");
 }
 
-if (doc.head != null) {
-  head = doc.head;
+if (document.head != null) {
+  head = document.head;
 } else {
   alert("Head is not defined in the html document.");
 }
@@ -56,49 +56,53 @@ Pen = class Pen {
   }
 
   appendToHead(...el) {
-    var i, j, len;
-    for (j = 0, len = el.length; j < len; j++) {
-      i = el[j];
+    var i, results;
+    i = 0;
+    results = [];
+    while (i < el.length) {
       head.appendChild(el[i]);
-      return;
+      results.push(i++);
     }
+    return results;
   }
 
   appendToBody(...el) {
-    var i, j, len;
-    for (j = 0, len = el.length; j < len; j++) {
-      i = el[j];
+    var i, results;
+    i = 0;
+    results = [];
+    while (i < el.length) {
       body.appendChild(el[i]);
-      return;
+      results.push(i++);
     }
+    return results;
   }
 
   create(el) {
-    return doc.createElement(el);
+    return document.createElement(el);
   }
 
   getIdOf(el) {
-    return doc.getElementById(el);
+    return document.getElementById(el);
   }
 
   getNameOf(el) {
-    return doc.getElementsByName(el);
+    return document.getElementsByName(el);
   }
 
   getClassOf(el) {
-    return doc.getElementsByClassName(el);
+    return document.getElementsByClassName(el);
   }
 
   getTagsOf(el) {
-    return doc.getElementsByTagName(el);
+    return document.getElementsByTagName(el);
   }
 
   select(txt) {
-    return doc.querySelector(txt);
+    return document.querySelector(txt);
   }
 
   selectAll(txt) {
-    return doc.querySelectorAll(txt);
+    return document.querySelectorAll(txt);
   }
 
   checker() {
@@ -118,17 +122,18 @@ Pen = class Pen {
     }
   }
 
-  oEl(el, oel) {
+  oEl(el, ...oel) {
+    var i;
     if (!oel) {
       return el;
     } else {
-      if (typeof oel === 'function') {
-        return el.appendChild(oel(el));
-      } else {
-        el.appendChild(oel);
-        return el;
+      i = 0;
+      while (i < oel.length) {
+        el.appendChild(oel[i]);
+        i++;
       }
     }
+    return el;
   }
 
   createAppend(el) {
@@ -139,8 +144,8 @@ Pen = class Pen {
   checkElement(el) {
     if (typeof el === 'string') {
       el = this.select(el);
-      return el;
     }
+    return el;
   }
 
   createWithObj(el, obj, txt) {
@@ -164,9 +169,18 @@ Pen = class Pen {
    * vvvvv
    */
 
-  objHandler(el, obj, txt) {
-    if (txt != null) {
-      el.innerHTML = txt;
+  objHandler(el, obj, txt, type) {
+    var i;
+    if (type != null) {
+      if (type.match(/input/gi)) {
+        if (txt != null) {
+          el.value = txt;
+        }
+      } else {
+        if (txt != null) {
+          el.innerHTML = txt;
+        }
+      }
     }
     if (obj.title != null) {
       el.setAttribute("title", obj.title);
@@ -181,43 +195,57 @@ Pen = class Pen {
       el.setAttribute("onclick", obj.click || obj.onclick);
     }
     if ((obj["class"] != null) || (obj.classes != null)) {
-      el.setAttribute("class", obj["class"] || obj.classes);
+      if (obj["class"] instanceof Array === true || obj.classes instanceof Array === true) {
+        i = 0;
+        while (i < obj["class"] || i < obj.classes) {
+          el.setAttribute("class", obj["class"][i] || obj.classes[i]);
+          i++;
+        }
+      } else {
+        el.setAttribute("class", obj["class"] || obj.classes);
+      }
     }
     return el;
   }
 
   areaHandler(el, obj, txt) {
     el = this.objHandler(el, obj, txt);
-    el.width = obj.width != null ? obj.click : '';
-    el.height = obj.height != null ? obj.height : '';
+    if (obj.width != null) {
+      el.setAttribute("width", obj.width);
+    }
+    if (obj.height != null) {
+      el.setAttribute("height", obj.height);
+    }
     return el;
   }
 
-  inputHandler(el, obj, type, txt) {
-    el = this.objHandler(el, obj);
-    el.value = txt != null ? txt : '';
-    el.type = obj.type != null ? obj.type : '';
+  inputHandler(el, obj, txt) {
+    el = this.objHandler(el, obj, txt, 'input');
+    if (obj.type != null) {
+      el.setAttribute("type", obj.type);
+    } else {
+      el.setAttribute("type", "text");
+    }
     return el;
   }
 
   linkAndSourceHandler(el, obj, txt, type) {
+    var err;
     el = this.objHandler(el, obj, txt);
     if (type.match(/link|href/gi)) {
-      el.href = (function() {
-        if (obj.href != null) {
-          return obj.href;
-        } else {
-          throw new Error("'href' must be defined in the object parameter");
-        }
-      })();
+      if (obj.href != null) {
+        el.setAttribute("href", obj.href);
+      } else {
+        err = new Error("'href' must be defined in the object parameter");
+        throw err;
+      }
     } else if (type.match(/source|src/gi)) {
-      el.src = (function() {
-        if (obj.src != null) {
-          return obj.src;
-        } else {
-          throw new Error("'src' must be defined in the object parameter");
-        }
-      })();
+      if (obj.src != null) {
+        el.setAttribute("src", obj.src);
+      } else {
+        err = new Error("'src' must be defined in the object parameter");
+        throw err;
+      }
     }
     return el;
   }
@@ -229,7 +257,7 @@ Pen = class Pen {
   automaticHandler(el, txt, obj, oel) {
     el = this.create(el);
     el = this.objHandler(el, obj, txt);
-    if (oel) {
+    if (oel != null) {
       el = this.oEl(el, oel);
     }
     return this.autoAppend(el);
@@ -238,15 +266,15 @@ Pen = class Pen {
   automaticLinkHandler(el, type, txt, obj, oel) {
     el = this.create(el);
     el = this.linkAndSourceHandler(el, obj, txt, type);
-    if (oel) {
+    if (oel != null) {
       el = this.oEl(el, oel);
     }
     return this.autoAppend(el);
   }
 
-  automaticInputHandler(el, type, txt, obj) {
+  automaticInputHandler(el, txt, obj) {
     el = this.create(el);
-    el = this.inputHandler(el, obj, type, txt);
+    el = this.inputHandler(el, obj, txt);
     return this.autoAppend(el);
   }
 
@@ -308,11 +336,12 @@ Pen = class Pen {
   }
 
   Append(el, ...el2) {
-    var i, j, len;
+    var i;
     el = this.checkElement(el);
-    for (j = 0, len = el2.length; j < len; j++) {
-      i = el2[j];
+    i = 0;
+    while (i < el2.length) {
       el.appendChild(el2[i]);
+      i++;
     }
   }
 
@@ -373,8 +402,15 @@ Pen = class Pen {
     return this.automaticHandler('fieldset', txt, obj, oel);
   }
 
-  input(obj, type, txt) {
-    return this.automaticInputHandler('input', type, txt, obj);
+  input(obj, txt) {
+    var err;
+    if (obj.type === 'button') {
+      if (!txt) {
+        err = new Error("the value for the button is not defined.");
+        throw err;
+      }
+    }
+    return this.automaticInputHandler('input', txt, obj);
   }
 
   button(obj, txt) {
@@ -436,10 +472,10 @@ Pen = class Pen {
 
   write(txt) {
     var cover, link;
-    if (txt instanceof Object) {
+    if (txt instanceof Object === true) {
       txt = JSON.stringify(txt);
     }
-    if (txt instanceof Array) {
+    if (txt instanceof Array === true) {
       txt = txt.join(', ');
     }
     this.para.setAttribute("class", "console");

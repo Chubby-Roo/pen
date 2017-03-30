@@ -9,12 +9,12 @@ pro(String).getInput = (reg) ->
     if a.index is reg.lastIndex
       reg.lastIndex++
     return a
-if doc.body?
-  body = doc.body
+if document.body?
+  body = document.body
 else
   alert "Body is not defined in the html document."
-if doc.head?
-  head = doc.head
+if document.head?
+  head = document.head
 else
   alert "Head is not defined in the html document."
 
@@ -31,27 +31,29 @@ class Pen
     @auto = op
     return
   appendToHead: (el...) ->
-    for i in el
+    i = 0
+    while i < el.length
       head.appendChild el[i]
-      return
+      i++
   appendToBody: (el...) ->
-    for i in el
+    i = 0
+    while i < el.length
       body.appendChild el[i]
-      return
+      i++
   create: (el) ->
-    return doc.createElement el
+    return document.createElement el
   getIdOf: (el) ->
-    return doc.getElementById el
+    return document.getElementById el
   getNameOf: (el) ->
-    return doc.getElementsByName el
+    return document.getElementsByName el
   getClassOf: (el) ->
-    return doc.getElementsByClassName el
+    return document.getElementsByClassName el
   getTagsOf: (el) ->
-    return doc.getElementsByTagName el
+    return document.getElementsByTagName el
   select: (txt) ->
-    return doc.querySelector txt
+    return document.querySelector txt
   selectAll: (txt) ->
-    return doc.querySelectorAll txt
+    return document.querySelectorAll txt
   checker: () ->
     if @auto is on
       return on
@@ -63,15 +65,16 @@ class Pen
       return el
     else
       return el
-  oEl: (el, oel) ->
+  oEl: (el, oel...) ->
     if not oel
       return el
     else
-      if typeof oel is 'function'
-        el.appendChild oel(el)
-      else
-        el.appendChild oel
-        return el
+      i = 0
+      while i < oel.length
+        el.appendChild oel[i]
+        i++
+    return el
+
   createAppend: (el) ->
     el = @create el
     @autoAppend el
@@ -79,12 +82,13 @@ class Pen
   checkElement: (el) ->
     if typeof el is 'string'
       el = @select el
-      return el
+    return el
 
   createWithObj: (el, obj, txt) ->
     el = @create el
     el = @objHandler el, obj
     return el
+    
   createWithText: (el, txt) ->
     el = @create el
     el.innerHTML = txt
@@ -98,33 +102,51 @@ class Pen
   ###
 
 
-  objHandler: (el, obj, txt) ->
-    if txt? then el.innerHTML = txt
+  objHandler: (el, obj, txt, type) ->
+    if type?
+      if type.match /input/gi
+        if txt? then el.value = txt
+      else
+        if txt? then el.innerHTML = txt
     if obj.title? then el.setAttribute "title", obj.title
     if obj.style? then el.setAttribute "style", obj.style
     if obj.id? or obj.identification? then el.setAttribute "id", obj.id or obj.identification
     if obj.click? or obj.onclick? then el.setAttribute "onclick", obj.click or obj.onclick
-    if obj.class? or obj.classes? then el.setAttribute "class", obj.class or obj.classes
+    if obj.class? or obj.classes?
+      if obj.class instanceof Array is true or obj.classes instanceof Array is true
+        i = 0
+        while i < obj.class or i < obj.classes
+          el.setAttribute "class", obj.class[i] or obj.classes[i]
+          i++
+      else
+        el.setAttribute "class", obj.class or obj.classes
     return el
 
   areaHandler: (el, obj, txt) ->
     el = @objHandler el, obj, txt
-    el.width = if obj.width? then obj.click else ''
-    el.height = if obj.height? then obj.height else ''
+    if obj.width? then el.setAttribute "width", obj.width
+    if obj.height? then el.setAttribute "height", obj.height
     return el
 
-  inputHandler: (el,obj,type,txt) ->
-    el = @objHandler el, obj
-    el.value = if txt? then txt else ''
-    el.type = if obj.type? then obj.type else ''
+  inputHandler: (el,obj,txt) ->
+    el = @objHandler el, obj, txt, 'input'
+    if obj.type? then el.setAttribute "type", obj.type else el.setAttribute "type", "text"
     return el
 
   linkAndSourceHandler: (el, obj, txt, type) ->
     el = @objHandler el, obj, txt
     if type.match /link|href/gi
-      el.href = if obj.href? then obj.href else throw new Error "'href' must be defined in the object parameter"
+      if obj.href?
+        el.setAttribute "href", obj.href
+      else
+        err = new Error "'href' must be defined in the object parameter"
+        throw err
     else if type.match /source|src/gi
-      el.src = if obj.src? then obj.src else throw new Error "'src' must be defined in the object parameter"
+      if obj.src?
+        el.setAttribute "src", obj.src
+      else
+        err = new Error "'src' must be defined in the object parameter"
+        throw err
     return el
 
   dividerHandler: (el) ->
@@ -133,20 +155,20 @@ class Pen
   automaticHandler: (el, txt, obj, oel) ->
     el = @create el
     el = @objHandler el, obj, txt
-    if oel
+    if oel?
       el = @oEl el, oel
     @autoAppend el
 
   automaticLinkHandler: (el, type, txt, obj, oel) ->
     el = @create el
     el = @linkAndSourceHandler el, obj, txt, type
-    if oel
+    if oel?
       el = @oEl el, oel
     @autoAppend el
 
-  automaticInputHandler: (el, type, txt, obj) ->
+  automaticInputHandler: (el, txt, obj) ->
     el = @create el
-    el = @inputHandler el, obj, type, txt
+    el = @inputHandler el, obj, txt
     @autoAppend el
 
   automaticAreaHandler: (el, txt, obj) ->
@@ -198,8 +220,10 @@ class Pen
 
   Append: (el, el2...) ->
     el = @checkElement el
-    for i in el2
+    i = 0
+    while i < el2.length
       el.appendChild el2[i]
+      i++
     return
 
   ###
@@ -247,8 +271,12 @@ class Pen
   fieldset: (obj, txt, oel) ->
     @automaticHandler 'fieldset', txt, obj, oel
 
-  input: (obj, type, txt) ->
-    @automaticInputHandler 'input', type, txt, obj
+  input: (obj, txt) ->
+    if obj.type is 'button'
+      if not txt
+        err = new Error "the value for the button is not defined."
+        throw err
+    @automaticInputHandler 'input', txt, obj
 
   button: (obj, txt) ->
     @automaticHandler 'button', txt, obj
@@ -290,9 +318,9 @@ class Pen
   ###
 
   write: (txt) ->
-    if txt instanceof Object
+    if txt instanceof Object is true
       txt = JSON.stringify(txt)
-    if txt instanceof Array
+    if txt instanceof Array is true
       txt = txt.join ', '
     @para.setAttribute "class", "console"
     txt = txt.replace /;|`n|\\n/gi, '.<br>'
