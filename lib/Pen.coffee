@@ -1,6 +1,7 @@
 log = console.log
 doc = document
 pro = (arg) -> arg::
+exists = (arg) -> arg?
 pro(String).getInput = (reg) ->
   str = this
   a = undefined
@@ -18,30 +19,10 @@ else
   alert "Head is not defined in the html document."
 
 class Pen
-  constructor: (@auto) ->
+  constructor: (@auto, stylcon) ->
     style = document.createElement 'style'
-    style.innerHTML = """
-    .console {
-      text-align:center;
-      color:rgb(255,255,255);
-      background-color: rgb(155,155,155);
-      opacity:0.5;
-      border-left:solid 2px blue;
-      border-right:solid 2px blue;
-      padding:5px;
-      bottom: 0;
-      width:50%;
-      z-index:102;
-      position:fixed;
-      font-family:Arial;
-      font-weight:bold;
-      transition:all 0.5s ease; }
-    .console:hover {
-      color:rgb(255,255,255);
-      opacity:1;
-      background-color:rgba(55,55,55);
-    }
-    """
+    if stylcon?
+      style.innerHTML = stylcon
     head.appendChild style
     @para = @create 'p'
     body.appendChild @para
@@ -197,23 +178,29 @@ class Pen
 
   Css: (el, txt) ->
     el = @checkElement el
-    el.style = txt
+    el.setAttribute 'style', txt
     return el
 
   Id: (el, txt) ->
     el = @checkElement el
-    el.id = txt
+    el.setAttribute 'id', txt
     return el
 
   Type: (el, txt) ->
     el = @checkElement el
-    el.type = txt
+    el.setAttribute 'type', txt
     return el
 
-  Append: (el, el2) ->
+  Click:(el, txt) ->
     el = @checkElement el
-    el.appendChild el2
+    el.setAttribute 'onclick', txt
     return el
+
+  Append: (el, el2...) ->
+    el = @checkElement el
+    for i in el2
+      el.appendChild el2[i]
+    return
 
   ###
   # ^^^^^
