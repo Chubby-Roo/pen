@@ -17,7 +17,6 @@ if document.head?
   head = document.head
 else
   alert "Head is not defined in the html document."
-
 class Pen
   constructor: (@auto, stylcon) ->
     style = document.createElement 'style'
@@ -74,21 +73,17 @@ class Pen
         el.appendChild oel[i]
         i++
     return el
-
   createAppend: (el) ->
     el = @create el
     @autoAppend el
-
   checkElement: (el) ->
     if typeof el is 'string'
       el = @select el
     return el
-
   createWithObj: (el, obj, txt) ->
     el = @create el
     el = @objHandler el, obj
     return el
-    
   createWithText: (el, txt) ->
     el = @create el
     el.innerHTML = txt
@@ -100,8 +95,6 @@ class Pen
   # Handlers
   # vvvvv
   ###
-
-
   objHandler: (el, obj, txt, type) ->
     if type?
       if type.match /input/gi
@@ -121,18 +114,15 @@ class Pen
       else
         el.setAttribute "class", obj.class or obj.classes
     return el
-
   areaHandler: (el, obj, txt) ->
     el = @objHandler el, obj, txt
     if obj.width? then el.setAttribute "width", obj.width
     if obj.height? then el.setAttribute "height", obj.height
     return el
-
   inputHandler: (el,obj,txt) ->
     el = @objHandler el, obj, txt, 'input'
     if obj.type? then el.setAttribute "type", obj.type else el.setAttribute "type", "text"
     return el
-
   linkAndSourceHandler: (el, obj, txt, type) ->
     el = @objHandler el, obj, txt
     if type.match /link|href/gi
@@ -148,39 +138,32 @@ class Pen
         err = new Error "'src' must be defined in the object parameter"
         throw err
     return el
-
   dividerHandler: (el) ->
     return el
-
   automaticHandler: (el, txt, obj, oel) ->
     el = @create el
     el = @objHandler el, obj, txt
     if oel?
       el = @oEl el, oel
     @autoAppend el
-
   automaticLinkHandler: (el, type, txt, obj, oel) ->
     el = @create el
     el = @linkAndSourceHandler el, obj, txt, type
     if oel?
       el = @oEl el, oel
     @autoAppend el
-
   automaticInputHandler: (el, txt, obj) ->
     el = @create el
     el = @inputHandler el, obj, txt
     @autoAppend el
-
   automaticAreaHandler: (el, txt, obj) ->
     el = @create el
     el = @areaHandler el, obj, txt
     @autoAppend el
-
   automaticDividerHandler: (el) ->
     el = @create el
     el = @dividerHandler el
     @autoAppend el
-
   ###
   # ^^^^^
   # Handlers
@@ -188,7 +171,6 @@ class Pen
   # Methods
   # vvvvv
   ###
-
   Html: (el, txt) ->
     el = @checkElement el
     if typeof txt is 'object'
@@ -197,27 +179,26 @@ class Pen
       txt = txt(el)
     el.innerHTML = txt
     return el
-
   Css: (el, txt) ->
     el = @checkElement el
     el.setAttribute 'style', txt
     return el
-
   Id: (el, txt) ->
     el = @checkElement el
     el.setAttribute 'id', txt
     return el
-
   Type: (el, txt) ->
     el = @checkElement el
     el.setAttribute 'type', txt
     return el
-
-  Click:(el, txt) ->
+  On:(el,type,fn,cp) ->
     el = @checkElement el
-    el.setAttribute 'onclick', txt
+    el.addEventListener type, fn, cp
     return el
-
+  Click:(el) ->
+    el = @checkElement el
+    el.click()
+    return el
   Append: (el, el2...) ->
     el = @checkElement el
     i = 0
@@ -225,7 +206,6 @@ class Pen
       el.appendChild el2[i]
       i++
     return
-
   ###
   # ^^^^^
   # Methods
@@ -233,66 +213,46 @@ class Pen
   # Tags
   # vvvvv
   ###
-
-
   p: (txt, obj) ->
     @automaticHandler 'p', txt, obj
-
   div: (obj, txt, oel) ->
     @automaticHandler 'div', txt, obj, oel
-
   span: (obj, txt, oel) ->
     @automaticHandler 'span', txt, obj, oel
-
   a: (obj, txt, oel) ->
     @automaticLinkHandler 'a', "href", txt, obj, oel
-
   ul: (obj, txt, oel) ->
     @automaticHandler 'ul', txt, obj, oel
-
   li: (obj, txt, oel) ->
     @automaticHandler 'li', txt, obj, oel
-
   code: (obj, txt) ->
     @automaticHandler 'code', txt, obj
-
   pre: (obj, txt) ->
     @automaticHandler 'pre', txt, obj
-
   label: (obj, txt) ->
     @automaticHandler 'label', txt, obj
-
   legend: (obj, txt) ->
     @automaticHandler 'legend', txt, obj
-
   form: (obj, txt, oel) ->
     @automaticHandler 'form', txt, obj, oel
-
   fieldset: (obj, txt, oel) ->
     @automaticHandler 'fieldset', txt, obj, oel
-
   input: (obj, txt) ->
     if obj.type is 'button'
       if not txt
         err = new Error "the value for the button is not defined."
         throw err
     @automaticInputHandler 'input', txt, obj
-
   button: (obj, txt) ->
     @automaticHandler 'button', txt, obj
-
   abbr: (obj,txt) ->
     @automaticHandler 'abbr', txt, obj
-
   style: (txt, obj) ->
     @automaticHandler 'style', txt, obj
-
   script: (txt, obj) ->
     @automaticHandler 'script', txt, obj
-
   canvas: (obj, txt) ->
     @automaticHandler 'canvas', txt, obj
-
   h1: (txt, obj) ->
     @automaticHandler 'h1', txt, obj
   h2: (txt, obj) ->
@@ -305,10 +265,8 @@ class Pen
     @automaticHandler 'h5', txt, obj
   h6: (txt, obj) ->
     @automaticHandler 'h6', txt, obj
-
   br: () ->
     @automaticDividerHandler 'br'
-
   ###
   # ^^^^^
   # Tags
@@ -316,7 +274,6 @@ class Pen
   # Methods part 2
   # vvvvv
   ###
-
   write: (txt) ->
     if txt instanceof Object is true
       txt = JSON.stringify(txt)
@@ -329,3 +286,43 @@ class Pen
       cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1]
     txt = txt.replace /\((.*?)\)\[(.*?)\]/gi, "<a href='#{link}' title='#{link}'>#{cover}</a>"
     @para.innerHTML += txt
+  ###
+  # ^^^^^
+  # Methods part 2
+  # -------
+  # other helpful constructors
+  # vvvvv
+  ###
+  Card:(obj) ->
+    checkEdit = (el) ->
+      if obj.contedit?
+        el.contentEditable = obj.contedit
+      return
+    cont = pen.createWithObj "div", class:'card'
+    title = pen.createWithObj "div", class:'card-title'
+    desc = pen.createWithObj "div", class:'card-desc'
+    if obj.title?
+      if obj.title instanceof Array is true
+        i = 0
+        while i < obj.title.length
+          h4 = pen.createWithText "h4", obj.title[i]
+          h4 = checkEdit h4
+          @Append title, h4
+          i++
+      else
+        h4 = pen.createWithText "h4", obj.title
+        h4 = checkEdit h4
+        @Append title, h4
+    if obj.desc?
+      if obj.desc instanceof Array is true
+        i = 0
+        while i < obj.desc.length
+          p = pen.createWithText "p", obj.desc[i]
+          p = checkEdit p
+          @Append desc, p
+          i++
+      else
+        p = pen.createWithText "p", obj.desc
+        p = checkEdit p
+        @Append desc, p
+    return cont

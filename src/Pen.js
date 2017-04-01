@@ -329,9 +329,15 @@ Pen = class Pen {
     return el;
   }
 
-  Click(el, txt) {
+  On(el, type, fn, cp) {
     el = this.checkElement(el);
-    el.setAttribute('onclick', txt);
+    el.addEventListener(type, fn, cp);
+    return el;
+  }
+
+  Click(el) {
+    el = this.checkElement(el);
+    el.click();
     return el;
   }
 
@@ -486,6 +492,64 @@ Pen = class Pen {
     }
     txt = txt.replace(/\((.*?)\)\[(.*?)\]/gi, `<a href='${link}' title='${link}'>${cover}</a>`);
     return this.para.innerHTML += txt;
+  }
+
+
+  /*
+   * ^^^^^
+   * Methods part 2
+   * -------
+   * other helpful constructors
+   * vvvvv
+   */
+
+  Card(obj) {
+    var checkEdit, cont, desc, h4, i, p, title;
+    checkEdit = function(el) {
+      if (obj.contedit != null) {
+        el.contentEditable = obj.contedit;
+      }
+    };
+    cont = pen.createWithObj("div", {
+      "class": 'card'
+    });
+    title = pen.createWithObj("div", {
+      "class": 'card-title'
+    });
+    desc = pen.createWithObj("div", {
+      "class": 'card-desc'
+    });
+    if (obj.title != null) {
+      if (obj.title instanceof Array === true) {
+        i = 0;
+        while (i < obj.title.length) {
+          h4 = pen.createWithText("h4", obj.title[i]);
+          h4 = checkEdit(h4);
+          this.Append(title, h4);
+          i++;
+        }
+      } else {
+        h4 = pen.createWithText("h4", obj.title);
+        h4 = checkEdit(h4);
+        this.Append(title, h4);
+      }
+    }
+    if (obj.desc != null) {
+      if (obj.desc instanceof Array === true) {
+        i = 0;
+        while (i < obj.desc.length) {
+          p = pen.createWithText("p", obj.desc[i]);
+          p = checkEdit(p);
+          this.Append(desc, p);
+          i++;
+        }
+      } else {
+        p = pen.createWithText("p", obj.desc);
+        p = checkEdit(p);
+        this.Append(desc, p);
+      }
+    }
+    return cont;
   }
 
 };
