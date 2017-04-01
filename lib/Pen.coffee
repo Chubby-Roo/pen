@@ -297,32 +297,40 @@ class Pen
     checkEdit = (el) ->
       if obj.contedit?
         el.contentEditable = obj.contedit
+      el
+    cont = @createWithObj "div", class:'card'
+    title = @createWithObj "div", class:'card-title'
+    btn = @createWithText "span", 'X'
+    btn.setAttribute "class", "card-close-btn"
+    btn.addEventListener "click", (e) ->
+      body.removeChild cont
       return
-    cont = pen.createWithObj "div", class:'card'
-    title = pen.createWithObj "div", class:'card-title'
-    desc = pen.createWithObj "div", class:'card-desc'
+    , false
+    title.appendChild btn
+    desc = @createWithObj "div", class:'card-desc'
     if obj.title?
       if obj.title instanceof Array is true
         i = 0
         while i < obj.title.length
-          h4 = pen.createWithText "h4", obj.title[i]
+          h4 = @createWithText "h4", obj.title[i]
           h4 = checkEdit h4
-          @Append title, h4
+          title.appendChild h4
           i++
       else
-        h4 = pen.createWithText "h4", obj.title
+        h4 = @createWithText "h4", obj.title
         h4 = checkEdit h4
-        @Append title, h4
+        title.appendChild h4
     if obj.desc?
       if obj.desc instanceof Array is true
         i = 0
         while i < obj.desc.length
-          p = pen.createWithText "p", obj.desc[i]
+          p = @createWithText "p", obj.desc[i]
           p = checkEdit p
-          @Append desc, p
+          desc.appendChild p
           i++
       else
-        p = pen.createWithText "p", obj.desc
+        p = @createWithText "p", obj.desc
         p = checkEdit p
-        @Append desc, p
+        desc.appendChild p
+    @Append cont, title, desc
     return cont

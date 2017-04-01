@@ -504,51 +504,59 @@ Pen = class Pen {
    */
 
   Card(obj) {
-    var checkEdit, cont, desc, h4, i, p, title;
+    var btn, checkEdit, cont, desc, h4, i, p, title;
     checkEdit = function(el) {
       if (obj.contedit != null) {
         el.contentEditable = obj.contedit;
       }
+      return el;
     };
-    cont = pen.createWithObj("div", {
+    cont = this.createWithObj("div", {
       "class": 'card'
     });
-    title = pen.createWithObj("div", {
+    title = this.createWithObj("div", {
       "class": 'card-title'
     });
-    desc = pen.createWithObj("div", {
+    btn = this.createWithText("span", 'X');
+    btn.setAttribute("class", "card-close-btn");
+    btn.addEventListener("click", function(e) {
+      body.removeChild(cont);
+    }, false);
+    title.appendChild(btn);
+    desc = this.createWithObj("div", {
       "class": 'card-desc'
     });
     if (obj.title != null) {
       if (obj.title instanceof Array === true) {
         i = 0;
         while (i < obj.title.length) {
-          h4 = pen.createWithText("h4", obj.title[i]);
+          h4 = this.createWithText("h4", obj.title[i]);
           h4 = checkEdit(h4);
-          this.Append(title, h4);
+          title.appendChild(h4);
           i++;
         }
       } else {
-        h4 = pen.createWithText("h4", obj.title);
+        h4 = this.createWithText("h4", obj.title);
         h4 = checkEdit(h4);
-        this.Append(title, h4);
+        title.appendChild(h4);
       }
     }
     if (obj.desc != null) {
       if (obj.desc instanceof Array === true) {
         i = 0;
         while (i < obj.desc.length) {
-          p = pen.createWithText("p", obj.desc[i]);
+          p = this.createWithText("p", obj.desc[i]);
           p = checkEdit(p);
-          this.Append(desc, p);
+          desc.appendChild(p);
           i++;
         }
       } else {
-        p = pen.createWithText("p", obj.desc);
+        p = this.createWithText("p", obj.desc);
         p = checkEdit(p);
-        this.Append(desc, p);
+        desc.appendChild(p);
       }
     }
+    this.Append(cont, title, desc);
     return cont;
   }
 
