@@ -1,9 +1,1 @@
 *.bat
-test
-test/*.*
-*.html
-*.scss
-*.css
-*.less
-*.ts
-*.styl
