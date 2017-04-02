@@ -52,17 +52,20 @@ Tags = "
   hr table tbody td textarea body head em dl dt header html i iframe colgroup datalist dd del details dfn dialog footer ins kbd main map mark menu ruby
   rp rt samp section embed wbr source track param meta keygen tr time var area base col ".split /\s+/
 attrs = "
-  src href type rel style id type value class title width height ".split /\s+/
+  src href type rel style id type value class title width height name charset action align alt async autocomplete autofocus autoplay bgcolor
+  border challenge charset checked cite color cols colspan content contenteditable contextmenu accesskey data dir draggable dropzone
+  hidden lang spellcheck tabindex translate".split /\s+/
 Events = "
   blue click change dblclick error focus input keydown keyup keypress load mousedown mousemove mouseover
   mouseout mouseup resize scroll select submit unload ".split /\s+/
 class Pen
   constructor: (@auto, stylcon) ->
-    style = document.createElement 'style'
+    style = @create 'style'
     if stylcon?
       style.innerHTML = stylcon
     head.appendChild style
-    @para = @create 'p'
+    @para = @p '',
+      class:'console-log'
     body.appendChild @para
     return
   changeOption: (op) ->
@@ -201,7 +204,6 @@ class Pen
   ###
   Tags.forEach (tag) ->
     Pen::[tag] = (txt, obj, args...) ->
-      log txt
       @automaticHandler tag, txt, obj, args...
 
   write: (txt) ->
@@ -209,7 +211,6 @@ class Pen
       txt = JSON.stringify(txt)
     if txt instanceof Array is true
       txt = txt.join ', '
-    @para.setAttribute "class", "console"
     txt = txt.replace /;|`n|\\n/gi, '.<br>'
     if txt.match /\((.*?)\)\[(.*?)\]/gi
       link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2]

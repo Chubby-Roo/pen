@@ -100,7 +100,7 @@ if (document.head != null) {
 
 Tags = "a link style p pre audio b u s img block video span ul li ol code lable legend div h1 h2 h3 h4 h5 h6 form fieldset input button abbr canvas script br hr table tbody td textarea body head em dl dt header html i iframe colgroup datalist dd del details dfn dialog footer ins kbd main map mark menu ruby rp rt samp section embed wbr source track param meta keygen tr time var area base col ".split(/\s+/);
 
-attrs = "src href type rel style id type value class title width height ".split(/\s+/);
+attrs = "src href type rel style id type value class title width height name charset action align alt async autocomplete autofocus autoplay bgcolor border challenge charset checked cite color cols colspan content contenteditable contextmenu accesskey data dir draggable dropzone hidden lang spellcheck tabindex translate".split(/\s+/);
 
 Events = "blue click change dblclick error focus input keydown keyup keypress load mousedown mousemove mouseover mouseout mouseup resize scroll select submit unload ".split(/\s+/);
 
@@ -109,12 +109,14 @@ Pen = (function() {
     constructor(auto, stylcon) {
       var style;
       this.auto = auto;
-      style = document.createElement('style');
+      style = this.create('style');
       if (stylcon != null) {
         style.innerHTML = stylcon;
       }
       head.appendChild(style);
-      this.para = this.create('p');
+      this.para = this.p('', {
+        "class": 'console-log'
+      });
       body.appendChild(this.para);
       return;
     }
@@ -332,7 +334,6 @@ Pen = (function() {
       if (txt instanceof Array === true) {
         txt = txt.join(', ');
       }
-      this.para.setAttribute("class", "console");
       txt = txt.replace(/;|`n|\\n/gi, '.<br>');
       if (txt.match(/\((.*?)\)\[(.*?)\]/gi)) {
         link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2];
@@ -355,7 +356,6 @@ Pen = (function() {
 
   Tags.forEach(function(tag) {
     return Pen.prototype[tag] = function(txt, obj, ...args) {
-      log(txt);
       return this.automaticHandler(tag, txt, obj, ...args);
     };
   });
