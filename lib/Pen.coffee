@@ -50,14 +50,15 @@ else
 Tags = "
   a link style p pre audio b u s img block video span ul li ol code lable legend div h1 h2 h3 h4 h5 h6 form fieldset input button abbr canvas script br
   hr table tbody td textarea body head em dl dt header html i iframe colgroup datalist dd del details dfn dialog footer ins kbd main map mark menu ruby
-  rp rt samp section embed wbr source track param meta keygen tr time var area base col ".split /\s+/
+  rp rt samp section embed wbr source track param meta keygen tr time var area base col".split /\s+/
 attrs = "
   src href type rel style id type value class title width height name charset action align alt async autocomplete autofocus autoplay bgcolor
   border challenge charset checked cite color cols colspan content contenteditable contextmenu accesskey data dir draggable dropzone
   hidden lang spellcheck tabindex translate".split /\s+/
 Events = "
   blue click change dblclick error focus input keydown keyup keypress load mousedown mousemove mouseover
-  mouseout mouseup resize scroll select submit unload ".split /\s+/
+  mouseout mouseup resize scroll select submit unload".split /\s+/
+
 class Pen
   constructor: (@auto, stylcon) ->
     style = @create 'style'
@@ -130,22 +131,21 @@ class Pen
     el = @create el
     el.innerHTML = txt
     return el
-  ###
-  # ^^^^^
-  # Helpers
-  # -------
-  # Handlers
-  # vvvvv
-  ###
+
   objHandler: (el, obj, txt) ->
     if txt?
       el.innerHTML = txt
     for prop of obj
       i = 0
+      j = 0
       while i < attrs.length
         if attrs[i].match prop.toRegExp "gi"
           el.setAttribute prop, obj[prop]
         i++
+      while j < Events.length
+        if Events[j].match prop.toRegExp "gi"
+          el.setAttribute "on#{prop}", obj[prop]
+        j++
     return el
   automaticHandler: (el, txt, obj, oel...) ->
     el = @create el
@@ -153,13 +153,7 @@ class Pen
     if oel?
       el = @oEl el, oel...
     @autoAppend el
-  ###
-  # ^^^^^
-  # Handlers
-  # -------
-  # Methods
-  # vvvvv
-  ###
+
   Html: (el, txt) ->
     el = @checkElement el
     if typeof txt is 'object'
@@ -195,15 +189,9 @@ class Pen
       el.appendChild el2[i]
       i++
     return
-  ###
-  # ^^^^^
-  # Methods
-  # -------
-  # Tags
-  # vvvvv
-  ###
+
   Tags.forEach (tag) ->
-    Pen::[tag] = (txt, obj, args...) ->
+    pro(Pen)[tag] = (txt, obj, args...) ->
       @automaticHandler tag, txt, obj, args...
 
   write: (txt) ->
