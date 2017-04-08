@@ -106,14 +106,15 @@ Events = "blue click change dblclick error focus input keydown keyup keypress lo
 
 Pen = (function() {
   class Pen {
-    constructor(auto, stylcon) {
+    constructor(auto, debug, stylcon) {
       var style;
       this.auto = auto;
-      style = this.create('style');
+      this.debug = debug;
       if (stylcon != null) {
+        style = this.create('style');
         style.innerHTML = stylcon;
+        head.appendChild(style);
       }
-      head.appendChild(style);
       this.para = this.p('', {
         "class": 'console-log'
       });
@@ -121,11 +122,23 @@ Pen = (function() {
       return;
     }
 
-    changeOption(op) {
+    checkDebug() {
+      if (this.debug === true) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    setAuto(op) {
       this.auto = op;
     }
 
-    appendToHead(...el) {
+    setDebugMode(op) {
+      this.debug = op;
+    }
+
+    headAppend(...el) {
       var i, results;
       i = 0;
       results = [];
@@ -136,7 +149,7 @@ Pen = (function() {
       return results;
     }
 
-    appendToBody(...el) {
+    bodyAppend(...el) {
       var i, results;
       i = 0;
       results = [];
@@ -151,20 +164,16 @@ Pen = (function() {
       return document.createElement(el);
     }
 
-    getIdOf(el) {
-      return document.getElementById(el);
-    }
-
-    getNameOf(el) {
+    getNamesOf(el) {
       return document.getElementsByName(el);
     }
 
-    getClassOf(el) {
-      return document.getElementsByClassName(el);
+    $(txt) {
+      return document.querySelector(txt);
     }
 
-    getTagsOf(el) {
-      return document.getElementsByTagName(el);
+    $$(txt) {
+      return document.querySelectorAll(txt);
     }
 
     select(txt) {
@@ -175,7 +184,7 @@ Pen = (function() {
       return document.querySelectorAll(txt);
     }
 
-    checker() {
+    checkAuto() {
       if (this.auto === true) {
         return true;
       } else {
@@ -184,9 +193,8 @@ Pen = (function() {
     }
 
     autoAppend(el) {
-      if (this.checker() === true) {
-        body.appendChild(el);
-        return el;
+      if (this.checkAuto() === true) {
+        return body.appendChild(el) && el;
       } else {
         return el;
       }
@@ -214,6 +222,8 @@ Pen = (function() {
     checkElement(el) {
       if (typeof el === 'string') {
         el = this.select(el);
+      } else {
+        return;
       }
       return el;
     }
@@ -246,7 +256,7 @@ Pen = (function() {
         }
         while (j < Events.length) {
           if (Events[j].match(prop.toRegExp("gi"))) {
-            el.setAttribute(`on${prop}`, obj[prop]);
+            el.setAttribute(`on${Events[prop]}`, obj[prop]);
           }
           j++;
         }
@@ -261,48 +271,6 @@ Pen = (function() {
         el = this.oEl(el, ...oel);
       }
       return this.autoAppend(el);
-    }
-
-    Html(el, txt) {
-      el = this.checkElement(el);
-      if (typeof txt === 'object') {
-        JSON.parse(txt);
-      }
-      if (typeof txt === 'function') {
-        txt = txt(el);
-      }
-      el.innerHTML = txt;
-      return el;
-    }
-
-    Css(el, txt) {
-      el = this.checkElement(el);
-      el.setAttribute('style', txt);
-      return el;
-    }
-
-    Id(el, txt) {
-      el = this.checkElement(el);
-      el.setAttribute('id', txt);
-      return el;
-    }
-
-    Type(el, txt) {
-      el = this.checkElement(el);
-      el.setAttribute('type', txt);
-      return el;
-    }
-
-    On(el, type, fn, cp) {
-      el = this.checkElement(el);
-      el.addEventListener(type, fn, cp);
-      return el;
-    }
-
-    Click(el) {
-      el = this.checkElement(el);
-      el.click();
-      return el;
     }
 
     Append(el, ...el2) {
@@ -325,8 +293,8 @@ Pen = (function() {
       }
       txt = txt.replace(/;|`n|\\n/gi, '.<br>');
       if (txt.match(/\((.*?)\)\[(.*?)\]/gi)) {
-        link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2];
         cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1];
+        link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2];
       }
       txt = txt.replace(/\((.*?)\)\[(.*?)\]/gi, `<a href='${link}' title='${link}'>${cover}</a>`);
       return this.para.innerHTML += txt;
@@ -340,6 +308,24 @@ Pen = (function() {
     };
   });
 
+  attrs.forEach(function(attr) {
+    return Pen.prototype[attr] = function(el, txt) {
+      el = this.checkElement(el);
+      return el.setAttribute(attr, txt);
+    };
+  });
+
+  Events.forEach(function(event) {
+    return Pen.prototype[`on${event}`] = function(el, txt) {
+      el = this.checkElement(el);
+      return el.setAttribute(`on${event}`, txt);
+    };
+  });
+
   return Pen;
 
 })();
+
+if (window.module != null) {
+  module.exports = Pen;
+}

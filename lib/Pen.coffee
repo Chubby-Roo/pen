@@ -37,11 +37,14 @@ pro(String).getInput = (reg) ->
     if a.index is reg.lastIndex
       reg.lastIndex++
     return a
+
 Proler pro
+
 if document.body?
   body = document.body
 else
   alert "Body is not defined in the html document."
+
 if document.head?
   head = document.head
 else
@@ -51,62 +54,55 @@ Tags = "
   a link style p pre audio b u s img block video span ul li ol code lable legend div h1 h2 h3 h4 h5 h6 form fieldset input button abbr canvas script br
   hr table tbody td textarea body head em dl dt header html i iframe colgroup datalist dd del details dfn dialog footer ins kbd main map mark menu ruby
   rp rt samp section embed wbr source track param meta keygen tr time var area base col".split /\s+/
+
 attrs = "
   src href type rel style id type value class title width height name charset action align alt async autocomplete autofocus autoplay bgcolor
   border challenge charset checked cite color cols colspan content contenteditable contextmenu accesskey data dir draggable dropzone
   hidden lang spellcheck tabindex translate".split /\s+/
+
 Events = "
   blue click change dblclick error focus input keydown keyup keypress load mousedown mousemove mouseover
   mouseout mouseup resize scroll select submit unload".split /\s+/
 
 class Pen
-  constructor: (@auto, stylcon) ->
-    style = @create 'style'
+  Tags.forEach (tag) ->
+    pro(Pen)[tag] = (txt, obj, args...) ->
+      @automaticHandler tag, txt, obj, args...
+  constructor: (@auto, @debug, stylcon) ->
     if stylcon?
+      style = @create 'style'
       style.innerHTML = stylcon
-    head.appendChild style
+      head.appendChild style
     @para = @p '',
       class:'console-log'
     body.appendChild @para
     return
-  changeOption: (op) ->
+  checkDebug: () -> if @debug is on then return yes else return no
+  setAuto: (op) ->
     @auto = op
     return
-  appendToHead: (el...) ->
+  setDebugMode: (op) ->
+    @debug = op
+    return
+  headAppend: (el...) ->
     i = 0
     while i < el.length
       head.appendChild el[i]
       i++
-  appendToBody: (el...) ->
+  bodyAppend: (el...) ->
     i = 0
     while i < el.length
       body.appendChild el[i]
       i++
-  create: (el) ->
-    return document.createElement el
-  getIdOf: (el) ->
-    return document.getElementById el
-  getNameOf: (el) ->
-    return document.getElementsByName el
-  getClassOf: (el) ->
-    return document.getElementsByClassName el
-  getTagsOf: (el) ->
-    return document.getElementsByTagName el
-  select: (txt) ->
-    return document.querySelector txt
-  selectAll: (txt) ->
-    return document.querySelectorAll txt
-  checker: () ->
-    if @auto is on
-      return on
-    else
-      return off
+  create: (el) ->  document.createElement el
+  getNamesOf: (el) -> document.getElementsByName el
+  $: (txt) -> document.querySelector txt
+  $$: (txt) -> document.querySelectorAll txt
+  select: (txt) -> document.querySelector txt
+  selectAll: (txt) -> document.querySelectorAll txt
+  checkAuto: () -> if @auto is on then return on else return off
   autoAppend: (el) ->
-    if @checker() is on
-      body.appendChild el
-      return el
-    else
-      return el
+    if @checkAuto() is on then body.appendChild(el) and el else el
   oEl: (el, oel...) ->
     if not oel
       return el
@@ -122,6 +118,8 @@ class Pen
   checkElement: (el) ->
     if typeof el is 'string'
       el = @select el
+    else
+      return
     return el
   createWithObj: (el, obj, txt) ->
     el = @create el
@@ -131,7 +129,6 @@ class Pen
     el = @create el
     el.innerHTML = txt
     return el
-
   objHandler: (el, obj, txt) ->
     if txt?
       el.innerHTML = txt
@@ -144,7 +141,7 @@ class Pen
         i++
       while j < Events.length
         if Events[j].match prop.toRegExp "gi"
-          el.setAttribute "on#{prop}", obj[prop]
+          el.setAttribute "on#{Events[prop]}", obj[prop]
         j++
     return el
   automaticHandler: (el, txt, obj, oel...) ->
@@ -153,35 +150,14 @@ class Pen
     if oel?
       el = @oEl el, oel...
     @autoAppend el
-
-  Html: (el, txt) ->
-    el = @checkElement el
-    if typeof txt is 'object'
-      JSON.parse txt
-    if typeof txt is 'function'
-      txt = txt(el)
-    el.innerHTML = txt
-    return el
-  Css: (el, txt) ->
-    el = @checkElement el
-    el.setAttribute 'style', txt
-    return el
-  Id: (el, txt) ->
-    el = @checkElement el
-    el.setAttribute 'id', txt
-    return el
-  Type: (el, txt) ->
-    el = @checkElement el
-    el.setAttribute 'type', txt
-    return el
-  On:(el,type,fn,cp) ->
-    el = @checkElement el
-    el.addEventListener type, fn, cp
-    return el
-  Click:(el) ->
-    el = @checkElement el
-    el.click()
-    return el
+  attrs.forEach (attr) ->
+    Pen::[attr] = (el, txt) ->
+      el = @checkElement el
+      el.setAttribute attr, txt
+  Events.forEach (event) ->
+    Pen::["on#{event}"] = (el, txt) ->
+      el = @checkElement el
+      el.setAttribute "on#{event}", txt
   Append: (el, el2...) ->
     el = @checkElement el
     i = 0
@@ -189,11 +165,6 @@ class Pen
       el.appendChild el2[i]
       i++
     return
-
-  Tags.forEach (tag) ->
-    pro(Pen)[tag] = (txt, obj, args...) ->
-      @automaticHandler tag, txt, obj, args...
-
   write: (txt) ->
     if txt instanceof Object is true
       txt = JSON.stringify(txt)
@@ -201,7 +172,10 @@ class Pen
       txt = txt.join ', '
     txt = txt.replace /;|`n|\\n/gi, '.<br>'
     if txt.match /\((.*?)\)\[(.*?)\]/gi
-      link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2]
       cover = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[1]
+      link = txt.getInput(/\((.*?)\)\[(.*?)\]/gi)[2]
     txt = txt.replace /\((.*?)\)\[(.*?)\]/gi, "<a href='#{link}' title='#{link}'>#{cover}</a>"
     @para.innerHTML += txt
+
+if window.module?
+  module.exports = Pen
