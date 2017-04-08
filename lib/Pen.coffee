@@ -39,31 +39,19 @@ pro(String).getInput = (reg) ->
     return a
 
 Proler pro
-
-if document.body?
-  body = document.body
-else
-  alert "Body is not defined in the html document."
-
-if document.head?
-  head = document.head
-else
-  alert "Head is not defined in the html document."
-
+if document.body? then body = document.body else alert "Body is not defined in the html document."
+if document.head? then head = document.head else alert "Head is not defined in the html document."
 Tags = "
   a link style p pre audio b u s img block video span ul li ol code lable legend div h1 h2 h3 h4 h5 h6 form fieldset input button abbr canvas script br
   hr table tbody td textarea body head em dl dt header html i iframe colgroup datalist dd del details dfn dialog footer ins kbd main map mark menu ruby
   rp rt samp section embed wbr source track param meta keygen tr time var area base col".split /\s+/
-
 attrs = "
   src href type rel style id type value class title width height name charset action align alt async autocomplete autofocus autoplay bgcolor
   border challenge charset checked cite color cols colspan content contenteditable contextmenu accesskey data dir draggable dropzone
   hidden lang spellcheck tabindex translate".split /\s+/
-
 Events = "
   blue click change dblclick error focus input keydown keyup keypress load mousedown mousemove mouseover
   mouseout mouseup resize scroll select submit unload".split /\s+/
-
 class Pen
   Tags.forEach (tag) ->
     pro(Pen)[tag] = (txt, obj, args...) ->
@@ -101,8 +89,7 @@ class Pen
   select: (txt) -> document.querySelector txt
   selectAll: (txt) -> document.querySelectorAll txt
   checkAuto: () -> if @auto is on then return on else return off
-  autoAppend: (el) ->
-    if @checkAuto() is on then body.appendChild(el) and el else el
+  autoAppend: (el) -> if @checkAuto() is on then body.appendChild(el) and el else el
   oEl: (el, oel...) ->
     if not oel
       return el
@@ -115,12 +102,7 @@ class Pen
   createAppend: (el) ->
     el = @create el
     @autoAppend el
-  checkElement: (el) ->
-    if typeof el is 'string'
-      el = @select el
-    else
-      return
-    return el
+  checkElement: (el) -> if typeof el is 'string' then el = @select(el) else el
   createWithObj: (el, obj, txt) ->
     el = @create el
     el = @objHandler el, obj
@@ -177,5 +159,4 @@ class Pen
     txt = txt.replace /\((.*?)\)\[(.*?)\]/gi, "<a href='#{link}' title='#{link}'>#{cover}</a>"
     @para.innerHTML += txt
 
-if window.module?
-  module.exports = Pen
+if window.module? then module.exports = Pen

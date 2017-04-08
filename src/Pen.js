@@ -221,11 +221,10 @@ Pen = (function() {
 
     checkElement(el) {
       if (typeof el === 'string') {
-        el = this.select(el);
+        return el = this.select(el);
       } else {
-        return;
+        return el;
       }
-      return el;
     }
 
     createWithObj(el, obj, txt) {
