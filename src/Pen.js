@@ -3,7 +3,7 @@ var Events, Pen, Tags, attrs;
 
 Tags = "a link style p pre audio b u s img block video span ul li ol code lable legend div h1 h2 h3 h4 h5 h6 form fieldset input button abbr canvas script br hr table tbody td textarea body head em dl dt header html i iframe colgroup datalist dd del details dfn dialog footer ins kbd main map mark menu ruby rp rt samp section embed wbr source track param meta keygen tr time var area base col".split(/\s+/);
 
-attrs = "src href type rel style id type value class title width height name charset action align alt async autocomplete autofocus autoplay bgcolor border challenge charset checked cite color cols colspan content contenteditable contextmenu accesskey data dir draggable dropzone hidden lang spellcheck tabindex translate".split(/\s+/);
+attrs = "src href type rel style id type value class title width height name charset action align alt async autocomplete autofocus autoplay bgcolor border challenge charset checked cite color cols colspan content contenteditable contextmenu accesskey data dir draggable dropzone hidden lang spellcheck tabindex translate rows".split(/\s+/);
 
 Events = "blue click change dblclick error focus input keydown keyup keypress load mousedown mousemove mouseover mouseout mouseup resize scroll select submit unload".split(/\s+/);
 
@@ -24,10 +24,10 @@ Pen = (function() {
 
     constructor(optionsObj) {
       this.options = {
-        autoAppend: null,
-        debug: null,
-        console: null,
-        styleConfig: null
+        autoAppend: false,
+        debug: false,
+        console: false,
+        styleConfig: false
       };
       if (optionsObj != null) {
         this.optionHandler(optionsObj);
@@ -43,11 +43,38 @@ Pen = (function() {
       return this.options[option];
     }
 
-    build(el, txt, obj, els) {
-      var attr, i, j, k, len, len1;
-      el = document.createElement(el);
-      el.innerHTML = txt;
+    checkString(str) {
+      if (str instanceof String === true) {
+        str = document.querySelector(str);
+        return str;
+      } else {
+        return str;
+      }
+    }
+
+    Debug(...msg) {
+      var log;
+      log = console.log;
+      if (this.getOption("debug") === true) {
+        log(`Pen:  ${msg.join('\n\t')}`);
+      }
+    }
+
+    userDebug(prefix, ...msg) {
+      var log;
+      log = console.log;
+      if (this.getOption("debug") === true) {
+        log(`${prefix}: ${msg.join('\n\t')}`);
+      }
+    }
+
+    attribute_build(el, obj) {
+      var attr, i, j, k, len, len1, vos;
+      this.Debug("checking attributes in object...");
+      vos = 0;
       for (attr in obj) {
+        this.Debug(`checking attribute ${vos}`);
+        vos++;
         for (j = 0, len = Events.length; j < len; j++) {
           i = Events[j];
           if (i.match(new RegExp(attr, "gi"))) {
@@ -61,18 +88,88 @@ Pen = (function() {
           }
         }
       }
-      log(els.toString());
       return el;
+    }
+
+    auto(el) {
+      if (this.getOption("autoAppend") === true) {
+        this.Debug(`appending ${el.outerHTML} to the body...`);
+        document.body.appendChild(el);
+      }
+      return el;
+    }
+
+    Append(el, ...els) {
+      var i, j, len;
+      this.Debug(`appending ${els.length} elements...`);
+      el = this.checkString(el);
+      if (els.length !== 0 && (els != null)) {
+        for (j = 0, len = els.length; j < len; j++) {
+          i = els[j];
+          el.appendChild(i);
+        }
+      }
+      return el;
+    }
+
+    handle(el) {
+      this.Debug("creating element...");
+      el = document.createElement(el);
+      return el;
+    }
+
+    set_text(el, txt) {
+      this.Debug(`setting ${el.outerHTML} text to '${txt}'`);
+      el.innerHTML = txt;
+      return el;
+    }
+
+    build(el, txt, obj, ...els) {
+      el = this.handle(el);
+      el = this.set_text(el, txt);
+      el = this.attribute_build(el, obj);
+      el = this.Append(el, ...els);
+      el = this.auto(el);
+      this.Debug(`returning ${el.outerHTML}...`);
+      return el;
+    }
+
+    create(el, obj, txt, ...els) {
+      el = this.handle(el);
+      el = txt != null ? this.set_text(el, txt) : this.set_text(el, '');
+      el = this.attribute_build(el, obj);
+      el = this.Append(el, ...els);
+      return el;
+    }
+
+    bodyAppend(...els) {
+      return this.Append(document.body, ...els);
+    }
+
+    headAppend(...els) {
+      return this.Append(document.head, ...els);
+    }
+
+    select(el) {
+      return document.querySelector(el);
+    }
+
+    selectAll(el) {
+      return document.querySelectorAll(el);
     }
 
   };
 
   Tags.forEach(function(tag) {
-    return Pen.prototype[tag] = function(txt, obj, els) {
-      return this.build(tag, txt, obj, els);
+    return Pen.prototype[tag] = function(txt, obj, ...els) {
+      return this.build(tag, txt, obj, ...els);
     };
   });
 
   return Pen;
 
 })();
+
+if (typeof module !== "undefined" && module !== null) {
+  module.exports = Pen;
+}

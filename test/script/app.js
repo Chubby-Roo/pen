@@ -2,11 +2,11 @@
 var el, pen;
 
 pen = new Pen({
-  autoAppend: true
+  autoAppend: true,
+  debug: true
 });
 
 el = pen.a("moo", {
-  id: "cow"
-}, function() {
-  this.e = pen.p("mee");
+  id: "cow",
+  href: "http://www.google.com"
 });
