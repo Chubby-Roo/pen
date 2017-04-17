@@ -61,6 +61,7 @@
    for elem, index in elems
     el.appendChild elem
    return el
+  pen.setOptions = (optionname, val) -> pen.options[optionname] = val
   pen.options = {}
   pen.options["auto append"] = false
   pen.options["to selector"] = false

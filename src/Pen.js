@@ -92,6 +92,9 @@
       }
       return el;
     };
+    pen.setOptions = function(optionname, val) {
+      return pen.options[optionname] = val;
+    };
     pen.options = {};
     pen.options["auto append"] = false;
     pen.options["to selector"] = false;
