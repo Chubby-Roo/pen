@@ -9,6 +9,17 @@
     };
     pen = function(el) {
       var srm;
+      if (el === null) {
+        throw new Error(`parameter in main function cannot be ${el}`);
+      } else if (typeof el === 'undefined') {
+        throw new Error(`parameter in main function cannot be ${typeof el}`);
+      } else if (typeof el === 'number') {
+        throw new Error(`parameter in main function cannot be ${typeof el}`);
+      } else if (typeof el === 'boolean') {
+        throw new Error(`parameter in main function cannot be ${typeof el}`);
+      } else if (typeof el === 'function') {
+        throw new Error(`parameter in main function cannot be ${typeof el}`);
+      }
       srm = "Html Css Attr On Append".split(/\s+/);
       pen.cre = {};
       if (pen.options["to selector"] === true) {
@@ -42,14 +53,20 @@
       }
     };
     pen.Attr = function(stroobj, str) {
-      var el;
+      var attr, el;
       el = pen.accesel();
-      if (typeof stroobj === 'string') {
-        if (str != null) {
-          el.setAttribute(stroobj, str);
-          return el;
+      if (stroobj != null) {
+        if (typeof stroobj === 'string') {
+          if (str != null) {
+            el.setAttribute(stroobj, str);
+            return el;
+          } else {
+            return el.getAttribute(stroobj);
+          }
         } else {
-          return el.getAttribute(stroobj);
+          for (attr in stroobj) {
+            el.setAttribute(attr, stroobj[attr]);
+          }
         }
       } else {
         return el.attributes;
@@ -92,13 +109,13 @@
       }
       return el;
     };
-    pen.setOptions = function(optionname, val) {
-      return pen.options[optionname] = val;
-    };
     pen.options = {};
     pen.options["auto append"] = false;
     pen.options["to selector"] = false;
     pen.options["normally append to"] = "body";
+    pen.setOptions = function(optionname, val) {
+      return pen.options[optionname] = val;
+    };
     return pen;
   };
   if (typeof pen === 'undefined') {
