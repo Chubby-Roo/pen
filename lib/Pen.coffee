@@ -36,6 +36,7 @@
      return el.getAttribute stroobj
    else
     return el.attributes
+   return el
   pen.Html = (str, app = false) ->
    el = pen.accesel()
    if str?
@@ -46,6 +47,7 @@
     return el
    else
     return el.innerHTML
+   return el
   pen.Css = (type, str) ->
    el = pen.accesel()
    el.style[type] = str

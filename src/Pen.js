@@ -54,6 +54,7 @@
       } else {
         return el.attributes;
       }
+      return el;
     };
     pen.Html = function(str, app = false) {
       var el;
@@ -68,6 +69,7 @@
       } else {
         return el.innerHTML;
       }
+      return el;
     };
     pen.Css = function(type, str) {
       var el;
