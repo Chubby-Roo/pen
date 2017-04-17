@@ -1,120 +1,70 @@
-Tags = "
-  a link style p pre audio b u s img block video span ul li ol code lable legend div h1 h2 h3 h4 h5 h6 form fieldset input button abbr canvas script br
-  hr table tbody td textarea body head em dl dt header html i iframe colgroup datalist dd del details dfn dialog footer ins kbd main map mark menu ruby
-  rp rt samp section embed wbr source track param meta keygen tr time var area base col".split /\s+/
-attrs = "
-  src href type rel style id type value class title width height name charset action align alt async autocomplete autofocus autoplay bgcolor
-  border challenge charset checked cite color cols colspan content contenteditable contextmenu accesskey data dir draggable dropzone
-  hidden lang spellcheck tabindex translate rows".split /\s+/
-Events = "
-  blue click change dblclick error focus input keydown keyup keypress load mousedown mousemove mouseover
-  mouseout mouseup resize scroll select submit unload".split /\s+/
-
-class Pen
-  Tags.forEach (tag) ->
-    Pen::[tag] = (txt, obj, els...) ->
-      @build tag, txt, obj, els...
-
-  optionHandler: (optionsObj) ->
-    options = "autoAppend debug console styleConfig".split /\s+/
-    for option of optionsObj
-      for i in options
-        if i.match new RegExp option, "gi"
-          @options[option] = optionsObj[option]
-    return
-
-  constructor: (optionsObj) ->
-    @options =
-      autoAppend: false
-      debug: false
-      console:false
-      styleConfig: false
-    if optionsObj? then @optionHandler optionsObj
-    return this
-
-  setOptions: (optionsObj) ->
-    @optionHandler optionsObj
-    return
-
-  getOption: (option) -> @options[option]
-
-  checkString: (str) ->
-    if str instanceof String is true
-      str = document.querySelector str
-      return str
+((window) ->
+ {log, error} = console
+ Pendef = () ->
+  accpro = (el) -> el.__proto__.__proto__.__proto__
+  pen = (el) ->
+   srm = "Html Css Attr On Append".split /\s+/
+   pen.cre = {}
+   if pen.options["to selector"] is true
+    if typeof el is 'string'
+     pen.cre["el"] = document.querySelector el
     else
-      return str
-
-  Debug: (msg...) ->
-    log = console.log
-    if this.getOption("debug") is true
-      log "Pen:  #{msg.join '\n\t'}"
-    return
-
-  userDebug: (prefix, msg...) ->
-    log = console.log
-    if @getOption("debug") is true
-      log "#{prefix}: #{msg.join '\n\t'}"
-    return
-
-  attribute_build: (el, obj) ->
-    @Debug "checking attributes in object..."
-    vos = 0
-    for attr of obj
-      @Debug "checking attribute #{vos}"
-      vos++
-      for i in Events
-        if i.match new RegExp attr, "gi"
-          el.setAttribute "on#{attr}", obj[attr]
-      for i in attrs
-        if i.match new RegExp attr, "gi"
-          el.setAttribute attr, obj[attr]
+     pen.cre["el"] = el
+   else
+    if typeof el is 'string'
+     pen.cre["el"] = document.createElement el
+    else
+     pen.cre["el"] = el
+   srm.forEach (func) ->
+    accpro(pen.cre["el"])[func] = pen[func]
+   pen.accesel = () -> pen.cre["el"]
+   if pen.options["auto append"] isnt false
+    if pen.options["normally append to"] is "body"
+     document.body.appendChild(pen.cre["el"])
+    else
+     document.head.appendChild(pen.cre["el"])
+    return pen.cre["el"]
+   else
+    return pen.cre["el"]
+  pen.Attr = (stroobj, str) ->
+   el = pen.accesel()
+   if typeof stroobj is 'string'
+    if str?
+     el.setAttribute stroobj, str
+     return el
+    else
+     return el.getAttribute stroobj
+   else
+    return el.attributes
+  pen.Html = (str, app = false) ->
+   el = pen.accesel()
+   if str?
+    if app is false
+     el.innerHTML = str
+    else
+     el.innerHTML += str
     return el
-
-  auto: (el) ->
-    if @getOption("autoAppend") is true
-      @Debug "appending #{el.outerHTML} to the body..."
-      document.body.appendChild el
-    return el
-
-  Append: (el, els...) ->
-    @Debug "appending #{els.length} elements..."
-    el = @checkString el
-    if els.length isnt 0 and els?
-      for i in els
-        el.appendChild i
-    return el
-
-  handle: (el) ->
-    @Debug "creating element..."
-    el = document.createElement el
-    return el
-
-  set_text: (el, txt) ->
-    @Debug "setting #{el.outerHTML} text to '#{txt}'"
-    el.innerHTML = txt
-    return el
-
-  build: (el, txt, obj, els...) ->
-    el = @handle el
-    el = @set_text el, txt
-    el = @attribute_build el, obj
-    el = @Append el, els...
-    el = @auto el
-    @Debug "returning #{el.outerHTML}..."
-    return el
-
-  create: (el, obj, txt,els...) ->
-    el = @handle el
-    el = if txt? then @set_text el, txt else @set_text el, ''
-    el = @attribute_build el, obj
-    el = @Append el, els...
-    return el
-
-  bodyAppend: (els...) -> @Append document.body, els...
-  headAppend: (els...) -> @Append document.head, els...
-  select: (el) -> document.querySelector el
-  selectAll: (el) -> document.querySelectorAll el
-
-if module?
-  module.exports = Pen
+   else
+    return el.innerHTML
+  pen.Css = (type, str) ->
+   el = pen.accesel()
+   el.style[type] = str
+   return el
+  pen.On = (type, func, cp=false) ->
+   el = pen.accesel()
+   el.addEventListener type, func, cp
+   return el
+  pen.Append = (elems...) ->
+   el = pen.accesel()
+   for elem, index in elems
+    el.appendChild elem
+   return el
+  pen.options = {}
+  pen.options["auto append"] = false
+  pen.options["to selector"] = false
+  pen.options["normally append to"] = "body"
+  return pen
+ if typeof pen is 'undefined'
+  window.pen = Pendef()
+ return
+)(window)
