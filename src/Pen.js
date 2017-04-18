@@ -9,7 +9,18 @@
     };
     pen = function(el) {
       var srm;
-      srm = "Html Css Attr On Append".split(/\s+/);
+      if (el === null) {
+        throw new Error(`parameter in main function cannot be ${el}`);
+      } else if (typeof el === 'undefined') {
+        throw new Error(`parameter in main function cannot be ${typeof el}`);
+      } else if (typeof el === 'number') {
+        throw new Error(`parameter in main function cannot be ${typeof el}`);
+      } else if (typeof el === 'boolean') {
+        throw new Error(`parameter in main function cannot be ${typeof el}`);
+      } else if (typeof el === 'function') {
+        throw new Error(`parameter in main function cannot be ${typeof el}`);
+      }
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class".split(/\s+/);
       pen.cre = {};
       if (pen.options["to selector"] === true) {
         if (typeof el === 'string') {
@@ -42,18 +53,36 @@
       }
     };
     pen.Attr = function(stroobj, str) {
-      var el;
+      var attr, el;
       el = pen.accesel();
-      if (typeof stroobj === 'string') {
-        if (str != null) {
-          el.setAttribute(stroobj, str);
-          return el;
+      if (stroobj != null) {
+        if (typeof stroobj === 'string') {
+          if (str != null) {
+            el.setAttribute(stroobj, str);
+            return el;
+          } else {
+            return el.getAttribute(stroobj);
+          }
         } else {
-          return el.getAttribute(stroobj);
+          for (attr in stroobj) {
+            el.setAttribute(attr, stroobj[attr]);
+          }
         }
       } else {
         return el.attributes;
       }
+      return el;
+    };
+    pen.Class = function(nm) {
+      var el;
+      el = pen.accesel();
+      el.setAttribute("class", nm);
+      return el;
+    };
+    pen.Id = function(nm) {
+      var el;
+      el = pen.accesel();
+      el.setAttribute("id", nm);
       return el;
     };
     pen.Html = function(str, app = false) {
@@ -71,6 +100,21 @@
       }
       return el;
     };
+    pen.Value = function(str, app = false) {
+      var el;
+      el = pen.accesel();
+      if (str != null) {
+        if (app === false) {
+          el.value = str;
+        } else {
+          el.value += str;
+        }
+        return el;
+      } else {
+        return el.value;
+      }
+      return el;
+    };
     pen.Css = function(type, str) {
       var el;
       el = pen.accesel();
@@ -83,6 +127,12 @@
       el.addEventListener(type, func, cp);
       return el;
     };
+    pen.Click = function(func, cp = false) {
+      var el;
+      el = pen.accesel();
+      el.addEventListener("click", func, cp);
+      return el;
+    };
     pen.Append = function(...elems) {
       var el, elem, i, index, len;
       el = pen.accesel();
@@ -92,10 +142,33 @@
       }
       return el;
     };
+    pen.AppendTo = function(elem) {
+      var el;
+      el = pen.accesel();
+      elem.appendChild(el);
+      return el;
+    };
+    pen.Href = function(hr) {
+      var el;
+      el = pen.accesel();
+      el.setAttribute("href", hr);
+      return el;
+    };
     pen.options = {};
     pen.options["auto append"] = false;
     pen.options["to selector"] = false;
     pen.options["normally append to"] = "body";
+    pen.setOptions = function(optionname, val) {
+      pen.options[optionname] = val;
+      return void 0;
+    };
+    pen.GetOpitions = function(option) {
+      if (option != null) {
+        return pen.options[option];
+      } else {
+        return pen.options;
+      }
+    };
     return pen;
   };
   if (typeof pen === 'undefined') {
