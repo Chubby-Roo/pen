@@ -21,20 +21,18 @@ Well you can easily do this by doing this:
 (with pen)
 
 ```coffee
-pen = new Pen on
-pen.Html pen.select("#log"), "Some new text"
+pen.setOptions "auto append":true, "to selector":true
+pen("#log").Html "Some new text"
 ```
 
 It will edit the element and change the text to what was put in.
-the `pen.select` helper will allow you to select an element by either class: '.', id: '#' or tag name: '*literally anything here*'.
+pen is designed for element creation and selection you just need to put selection on.
 
 Like it can be done with JQuery but it does not have those other functionalities as JQuery.
-Let's try to edit the css of the same element knowing that pen is already defined:
-And probably some other things too:
+Let's try to edit the css of the same element knowing that pen is already defined and probably some other things too:
 
 ```coffee
-pen.Css pen.select("#log"), "color:grey;"
-pen.Id pen.select("#log"), "newlog"
+pen("#log").Css("color", "grey").Id "newlog"
 ```
 
 There are many things that can be done with pen, and there is still more to add, so it won't end there.

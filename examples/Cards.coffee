@@ -1,34 +1,31 @@
-pen = new Pen on
+pen.setOptions "auto append", false
 Card = (obj) ->
   checkEdit = (el) ->
     if obj.contedit?
       el.contentEditable = obj.contedit
     return
-  cont = pen.createWithObj "div", class:'card'
-  title = pen.createWithObj "div", class:'card-title'
-  desc = pen.createWithObj "div", class:'card-desc'
+  cont = pen("div").Class 'card'
+  title = pen("div").Class 'card-title'
+  desc = pen("div").Class 'card-desc'
   if obj.title?
     if obj.title instanceof Array is true
-      i = 0
-      while i < obj.title.length
-        h4 = pen.createWithText "h4", obj.title[i]
-        h4 = checkEdit h4
-        pen.Append title, h4
-        i++
+      for titles, index in obj.title
+        h4 = pen("h4").Html titles
+        checkEdit h4
+        pen(title).Append h4
     else
-      h4 = pen.createWithText "h4", obj.title
-      h4 = checkEdit h4
-      pen.Append title, h4
+      h4 = pen("h4").Html obj.title
+      checkEdit h4
+      pen(title).Append h4
   if obj.desc?
     if obj.desc instanceof Array is true
-      i = 0
-      while i < obj.desc.length
-        p = pen.createWithText "p", obj.desc[i]
-        p = checkEdit p
-        pen.Append desc, p
-        i++
+      for descs, index in obj.desc
+        p = pen("p").Html descs
+        checkEdit p
+        pen(desc).Append p
     else
-      p = pen.createWithText "p", obj.desc
-      p = checkEdit p
-      pen.Append desc, p
+      p = pen("p").Html obj.desc
+      checkEdit p
+      pen(desc).Append p
   return cont
+  pen(desc).Append p

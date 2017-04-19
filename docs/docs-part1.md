@@ -22,8 +22,8 @@ document.body.appendChild para
 Will do the same thing. But it's a longer process, let's try with a **pen**.
 
 ```coffee
-pen = new Pen on # For automatically setting it to the dom
-para = pen.p "some text", id:'para' # if you want to edit it as well
+pen.setOptions "auto append": true # the default is false
+para = pen("p").Html("some text").Id 'para' # if you want to edit it as well
 ```
 
 See how much easier that is, it takes less code to do something so simple.
