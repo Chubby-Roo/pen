@@ -17,7 +17,7 @@
       else if type(el) is 'number' then throw err
       else if type(el) is 'boolean' then throw err
       else if type(el) is 'function' then throw err
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class".split /\s+/
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click".split /\s+/
       pen.cre = {}
       if pen.options["to selector"] is true
         if type(el) is 'string' then pen.cre["el"] = document.querySelector el else pen.cre["el"] = el
