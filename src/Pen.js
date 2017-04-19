@@ -35,7 +35,7 @@
       } else if (type(el) === 'function') {
         throw err;
       }
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class".split(/\s+/);
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click".split(/\s+/);
       pen.cre = {};
       if (pen.options["to selector"] === true) {
         if (type(el) === 'string') {
