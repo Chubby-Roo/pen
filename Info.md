@@ -19,25 +19,23 @@ That's why I created pen for there to be a way to edit normal web browser pages 
 The auto append is something I made just in case someone wanted to use Pen but didn't want to manually push it into the document.
 
 **That does not mean you can't edit it once it's in the document**, If you set a variable to what you made i.e:
-```js
-var para = pen.p("", {
-  id: 'Some_id'
-})
-para.innerHTML = "Some text" // or
-pen.Html("#Some_id", "Some text")
+```coffee
+para = pen("p").Id "some_id"
+para.innerHTML = "Some text"
+# OR
+pen(para).Html("Some text")
 ```
 You can then edit it even if it's out of your control, or even like this:
-```js
-pen.p("", {
-  id: 'para'
-})
-var para = pen.select("#para")
-// or even
-pen.p("", {
-  id: 'para2'
-})
-var para2 = "#para"
-pen.Html(para2 || "#para", "Some text")
+```coffee
+pen.setOptions
+  "auto append": true
+  "to selector": true
+pen("p").Id 'para'
+para = pen("#para")
+# OR even (assuming options are already defined)
+pen("p").Id 'para2'
+para2 = "#para"
+pen(para2).Html "Some text"
 ```
 So everything made by pen can be edited
 
