@@ -1,7 +1,7 @@
 ((window) ->
   type = do ->
     classToType = {}
-    ref = "Boolean Number String Function Array Date RegExp Undefined Null".split /\s+/
+    ref = "Boolean Number String Function Array Date RegExp Undefined Null Element Document Window".split /\s+/
     for name,i in ref
       classToType["[object #{name}]"] = name.toLowerCase()
     (obj) ->
@@ -30,9 +30,9 @@
       return pen.cre["el"]
     pen.Attr = (stroobj, str) ->
       el = pen.accesel()
-      if stroobj?
+      if stroobj isnt null
         if type(stroobj) is 'string'
-          if str?
+          if str isnt null
             el.setAttribute stroobj, str
             return el
           else return el.getAttribute stroobj
@@ -52,7 +52,7 @@
       el
     pen.Html = (str, app = false) ->
       el = pen.accesel()
-      if str?
+      if str isnt null
         if app is false
           el.innerHTML = str
         else
@@ -63,15 +63,22 @@
       return el
     pen.Value = (str, app = false) ->
       el = pen.accesel()
-      if str?
+      if str isnt null
         if app is false then el.value = str else el.value += str
         return el
       else
         return el.value
       return el
-    pen.Css = (type, str) ->
+    pen.Css = (rules, str) ->
       el = pen.accesel()
-      el.style[type] = str
+      if type(rules) is 'object'
+        for rule of rules
+          el.style[rule] = rules[rule]
+      else if type(rules) is 'string'
+        el.style[rules] = str
+      else
+        err = new Error "parameter 1 can't be #{type el}"
+        throw err
       return el
     pen.On = (type, func, cp=false) ->
       el = pen.accesel()
@@ -92,20 +99,34 @@
       return el
     pen.Href = (hr) ->
       el = pen.accesel()
-      el.setAttribute "href", hr
-      return el
+      if type(hr) is 'string'
+        el.setAttribute "href", hr
+        return el
+      else
+        err = new Error "main parameter 1, can only be a string"
+        throw err
     pen.options = {}
     pen.options["auto append"] = false
     pen.options["to selector"] = false
     pen.options["normally append to"] = "body"
     pen.setOptions = (optionname, val) ->
-      if val?
-        pen.options[optionname] = val
+      ops = {
+        "auto append"
+        "to selector"
+        "normally append to"
+      }
+      if val isnt null
+        if optionname is ops[optionname]
+          pen.options[optionname] = val
+        else
+          err = new Error "unrecgonized option #{optionname}"
+          throw err
       else
         for option of optionname
           pen.options[option] = optionname[option]
       return undefined
     pen.GetOpitions = (option) -> if option? then pen.options[option] else pen.options
+    pen.Type = (param) -> type(param)
     return pen
   if typeof pen is 'undefined'
     window.pen = Pendef()
