@@ -22,7 +22,7 @@
       return el.__proto__.__proto__.__proto__;
     };
     pen = function(el) {
-      var err, srm;
+      var err, func, j, len, srm;
       err = new Error(`parameter in main function can't be a ${type(el)}`);
       if (type(el) === 'null') {
         throw err;
@@ -50,9 +50,12 @@
           pen.cre["el"] = el;
         }
       }
-      srm.forEach(function(func) {
-        return accpro(pen.cre["el"])[func] = pen[func];
-      });
+      for (j = 0, len = srm.length; j < len; j++) {
+        func = srm[j];
+        if (accpro(pen.cre["el"])[func] === null || type(accpro(pen.cre["el"])[func]) === 'undefined') {
+          accpro(pen.cre["el"])[func] = pen[func];
+        }
+      }
       pen.accesel = function() {
         return pen.cre["el"];
       };
@@ -175,11 +178,11 @@
       el = pen.accesel();
       if (type(hr) === 'string') {
         el.setAttribute("href", hr);
-        return el;
       } else {
         err = new Error("main parameter 1, can only be a string");
         throw err;
       }
+      return el;
     };
     pen.options = {};
     pen.options["auto append"] = false;
@@ -192,16 +195,21 @@
         "to selector": "to selector",
         "normally append to": "normally append to"
       };
-      if (val !== null) {
+      if (type(optionname) === 'string') {
         if (optionname === ops[optionname]) {
           pen.options[optionname] = val;
         } else {
           err = new Error(`unrecgonized option ${optionname}`);
           throw err;
         }
-      } else {
+      } else if (type(optionname) === 'object') {
         for (option in optionname) {
-          pen.options[option] = optionname[option];
+          if (option === ops[option]) {
+            pen.options[option] = optionname[option];
+          } else {
+            err = new Error(`unrecgonized option '${option}'`);
+            throw err;
+          }
         }
       }
       return void 0;
