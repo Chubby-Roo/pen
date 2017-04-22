@@ -35,7 +35,7 @@
       } else if (type(el) === 'function') {
         throw err;
       }
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click".split(/\s+/);
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split(/\s+/);
       pen.cre = {};
       if (pen.options["to selector"] === true) {
         if (type(el) === 'string') {
@@ -182,6 +182,12 @@
         err = new Error("main parameter 1, can only be a string");
         throw err;
       }
+      return el;
+    };
+    pen.Remove = function() {
+      var el;
+      el = pen.accesel();
+      el.remove();
       return el;
     };
     pen.options = {};
