@@ -110,11 +110,7 @@
     pen.options["to selector"] = false
     pen.options["normally append to"] = "body"
     pen.setOptions = (optionname, val) ->
-      ops = {
-        "auto append"
-        "to selector"
-        "normally append to"
-      }
+      ops = {"auto append", "to selector" ,"normally append to"}
       if val isnt null
         if optionname is ops[optionname]
           pen.options[optionname] = val
@@ -127,6 +123,17 @@
       return undefined
     pen.GetOpitions = (option) -> if option? then pen.options[option] else pen.options
     pen.Type = (param) -> type(param)
+    pen.Ask = (about) ->
+      stringToArgs = (str, spby, slby) -> str.split(spby).slice(slby)
+      if about.match /about pen/gi
+        log "pen is a small open source project at github, used to control, create and manipulate elements."
+      if about.startsWith "help"
+        args = stringToArgs about, " ", 1
+        for arg, index in args
+          arg = arg.toLowerCase().replace /\s+/, '-'
+          if arg is 'main'
+            log 'The main \'pen\' is a function to manipulate in the document or create elements not in the document.'
+      return log "any more questions?"
     return pen
   if typeof pen is 'undefined'
     window.pen = Pendef()
