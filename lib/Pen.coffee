@@ -9,7 +9,7 @@
       classToType[strType] or "object"
   {log, error} = console
   Pendef = () ->
-    accpro = (el) -> el.__proto__.__proto__.__proto__
+    accpro = (el) => el.__proto__.__proto__.__proto__
     pen = (el) ->
       err = new Error "parameter in main function can't be a #{type(el)}"
       if type(el) is 'null' then throw err
@@ -23,7 +23,8 @@
         if type(el) is 'string' then pen.cre["el"] = document.querySelector el else pen.cre["el"] = el
       else
         if type(el) is 'string' then pen.cre["el"] = document.createElement el else pen.cre["el"] = el
-      srm.forEach (func) -> accpro(pen.cre["el"])[func] = pen[func]
+      for func, index in srm
+        accpro(pen.cre["el"])[func] = pen[func]
       pen.accesel = () -> pen.cre["el"]
       if pen.options["auto append"] is true
         if pen.options["normally append to"] is "body" then document.body.appendChild(pen.cre["el"]) else document.head.appendChild(pen.cre["el"])
@@ -126,7 +127,9 @@
           pen.options[option] = optionname[option]
       return undefined
     pen.GetOpitions = (option) -> if option? then pen.options[option] else pen.options
-    pen.Type = (param) -> type(param)
+    pen.Type = (param) => type(param)
+    pen.Select = (el) => document.querySelector el
+    pen.SelectAll = (el) => document.querySelectorAll el
     return pen
   if typeof pen is 'undefined'
     window.pen = Pendef()

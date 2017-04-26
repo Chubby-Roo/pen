@@ -4,7 +4,7 @@
   type = (function() {
     var classToType, i, j, len, name, ref;
     classToType = {};
-    ref = "Boolean Number String Function Array Date RegExp Undefined Null".split(/\s+/);
+    ref = "Boolean Number String Function Array Date RegExp Undefined Null Element Document Window".split(/\s+/);
     for (i = j = 0, len = ref.length; j < len; i = ++j) {
       name = ref[i];
       classToType[`[object ${name}]`] = name.toLowerCase();
@@ -18,11 +18,11 @@
   log = console.log, error = console.error;
   Pendef = function() {
     var accpro, pen;
-    accpro = function(el) {
+    accpro = (el) => {
       return el.__proto__.__proto__.__proto__;
     };
     pen = function(el) {
-      var err, srm;
+      var err, func, index, j, len, srm;
       err = new Error(`parameter in main function can't be a ${type(el)}`);
       if (type(el) === 'null') {
         throw err;
@@ -50,9 +50,10 @@
           pen.cre["el"] = el;
         }
       }
-      srm.forEach(function(func) {
-        return accpro(pen.cre["el"])[func] = pen[func];
-      });
+      for (index = j = 0, len = srm.length; j < len; index = ++j) {
+        func = srm[index];
+        accpro(pen.cre["el"])[func] = pen[func];
+      }
       pen.accesel = function() {
         return pen.cre["el"];
       };
@@ -68,9 +69,9 @@
     pen.Attr = function(stroobj, str) {
       var attr, el;
       el = pen.accesel();
-      if (stroobj != null) {
+      if (stroobj !== null) {
         if (type(stroobj) === 'string') {
-          if (str != null) {
+          if (str !== null) {
             el.setAttribute(stroobj, str);
             return el;
           } else {
@@ -101,7 +102,7 @@
     pen.Html = function(str, app = false) {
       var el;
       el = pen.accesel();
-      if (str != null) {
+      if (str !== null) {
         if (app === false) {
           el.innerHTML = str;
         } else {
@@ -116,7 +117,7 @@
     pen.Value = function(str, app = false) {
       var el;
       el = pen.accesel();
-      if (str != null) {
+      if (str !== null) {
         if (app === false) {
           el.value = str;
         } else {
@@ -128,10 +129,19 @@
       }
       return el;
     };
-    pen.Css = function(type, str) {
-      var el;
+    pen.Css = function(rules, str) {
+      var el, err, rule;
       el = pen.accesel();
-      el.style[type] = str;
+      if (type(rules) === 'object') {
+        for (rule in rules) {
+          el.style[rule] = rules[rule];
+        }
+      } else if (type(rules) === 'string') {
+        el.style[rules] = str;
+      } else {
+        err = new Error(`parameter 1 can't be ${type(el)}`);
+        throw err;
+      }
       return el;
     };
     pen.On = function(type, func, cp = false) {
@@ -162,19 +172,34 @@
       return el;
     };
     pen.Href = function(hr) {
-      var el;
+      var el, err;
       el = pen.accesel();
-      el.setAttribute("href", hr);
-      return el;
+      if (type(hr) === 'string') {
+        el.setAttribute("href", hr);
+        return el;
+      } else {
+        err = new Error("main parameter 1, can only be a string");
+        throw err;
+      }
     };
     pen.options = {};
     pen.options["auto append"] = false;
     pen.options["to selector"] = false;
     pen.options["normally append to"] = "body";
     pen.setOptions = function(optionname, val) {
-      var option;
-      if (val != null) {
-        pen.options[optionname] = val;
+      var err, ops, option;
+      ops = {
+        "auto append": "auto append",
+        "to selector": "to selector",
+        "normally append to": "normally append to"
+      };
+      if (val !== null) {
+        if (optionname === ops[optionname]) {
+          pen.options[optionname] = val;
+        } else {
+          err = new Error(`unrecgonized option ${optionname}`);
+          throw err;
+        }
       } else {
         for (option in optionname) {
           pen.options[option] = optionname[option];
@@ -188,6 +213,15 @@
       } else {
         return pen.options;
       }
+    };
+    pen.Type = (param) => {
+      return type(param);
+    };
+    pen.Select = (el) => {
+      return document.querySelector(el);
+    };
+    pen.SelectAll = (el) => {
+      return document.querySelectorAll(el);
     };
     return pen;
   };
