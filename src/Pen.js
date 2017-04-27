@@ -22,7 +22,7 @@
       return el.__proto__.__proto__.__proto__;
     };
     pen = function(el) {
-      var err, func, index, j, len, srm;
+      var err, func, j, len, srm;
       err = new Error(`parameter in main function can't be a ${type(el)}`);
       if (type(el) === 'null') {
         throw err;
@@ -35,7 +35,7 @@
       } else if (type(el) === 'function') {
         throw err;
       }
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click".split(/\s+/);
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split(/\s+/);
       pen.cre = {};
       if (pen.options["to selector"] === true) {
         if (type(el) === 'string') {
@@ -50,9 +50,11 @@
           pen.cre["el"] = el;
         }
       }
-      for (index = j = 0, len = srm.length; j < len; index = ++j) {
-        func = srm[index];
-        accpro(pen.cre["el"])[func] = pen[func];
+      for (j = 0, len = srm.length; j < len; j++) {
+        func = srm[j];
+        if (accpro(pen.cre["el"])[func] === null || type(accpro(pen.cre["el"])[func]) === 'undefined') {
+          accpro(pen.cre["el"])[func] = pen[func];
+        }
       }
       pen.accesel = function() {
         return pen.cre["el"];
@@ -112,6 +114,13 @@
       } else {
         return el.innerHTML;
       }
+      return el;
+    };
+    pen.Remove = function() {
+      var el, par;
+      el = pen.accesel();
+      par = el.parentElement;
+      par.removeElement(el);
       return el;
     };
     pen.Value = function(str, app = false) {

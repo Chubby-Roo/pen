@@ -17,14 +17,15 @@
       else if type(el) is 'number' then throw err
       else if type(el) is 'boolean' then throw err
       else if type(el) is 'function' then throw err
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click".split /\s+/
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split /\s+/
       pen.cre = {}
       if pen.options["to selector"] is true
         if type(el) is 'string' then pen.cre["el"] = document.querySelector el else pen.cre["el"] = el
       else
         if type(el) is 'string' then pen.cre["el"] = document.createElement el else pen.cre["el"] = el
-      for func, index in srm
-        accpro(pen.cre["el"])[func] = pen[func]
+      for func in srm
+        if accpro(pen.cre["el"])[func] is null or type(accpro(pen.cre["el"])[func]) is 'undefined'
+          accpro(pen.cre["el"])[func] = pen[func]
       pen.accesel = () -> pen.cre["el"]
       if pen.options["auto append"] is true
         if pen.options["normally append to"] is "body" then document.body.appendChild(pen.cre["el"]) else document.head.appendChild(pen.cre["el"])
@@ -61,6 +62,11 @@
         return el
       else
         return el.innerHTML
+      return el
+    pen.Remove = () ->
+      el = pen.accesel()
+      par = el.parentElement
+      par.removeElement(el)
       return el
     pen.Value = (str, app = false) ->
       el = pen.accesel()
