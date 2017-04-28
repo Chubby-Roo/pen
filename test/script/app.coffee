@@ -13,34 +13,34 @@ class HyperButton extends HTMLElement
       string = string.replace /\s+/, '-'
     return string
 
-
-  get href() ->
-    return this.getAttribute('href')
-
-  set href(str) ->
-    str = HyperButton.checkString(str)
-    this.setAttribute('href', str)
-
-  # setName: (str) ->
-  #   str = HyperButton.checkString str
-  #   @name = str
-  #   @setAttribute 'name', str
-  #   return undefined
-  #
-  # setHref: (str) ->
-  #   str = HyperButton.checkString str
-  #   @href = str
-  #   @setAttribute 'href', str
-  #   return undefined
-  #
-  # setCover: (str) ->
-  #   @cover = str
-  #   pen(this).Html str
-  #   return undefined
-
   goTo: (e) ->
     pen(this).Html "relocating to #{@cover}..."
     window.location = @href
     return undefined
+
+Object.defineProperty HyperButton, 'name',
+  get: () -> this.name
+  set: (name) ->
+    name = HyperButton.checkString name
+    @name = name
+    @setAttribute 'name', str
+    return undefined
+
+# setName: (str) ->
+#   str = HyperButton.checkString str
+#   @name = str
+#   @setAttribute 'name', str
+#   return undefined
+#
+# setHref: (str) ->
+#   str = HyperButton.checkString str
+#   @href = str
+#   @setAttribute 'href', str
+#   return undefined
+#
+# setCover: (str) ->
+#   @cover = str
+#   pen(this).Html str
+#   return undefined
 
 customElements.define('dav-com', HyperButton)

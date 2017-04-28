@@ -35,11 +35,7 @@
       } else if (type(el) === 'function') {
         throw err;
       }
-<<<<<<< HEAD
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Select SelectAll Create".split(/\s+/);
-=======
       srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split(/\s+/);
->>>>>>> refs/remotes/origin/master
       pen.cre = {};
       if (pen.options["to selector"] === true) {
         if (type(el) === 'string') {
@@ -58,6 +54,11 @@
         func = srm[j];
         if (accpro(pen.cre["el"])[func] === null || type(accpro(pen.cre["el"])[func]) === 'undefined') {
           accpro(pen.cre["el"])[func] = pen[func];
+        }
+        if (type(el) === 'string') {
+          pen.cre["el"] = document.createElement(el);
+        } else {
+          pen.cre["el"] = el;
         }
       }
       pen.accesel = function() {
@@ -189,15 +190,10 @@
       el = pen.accesel();
       if (type(hr) === 'string') {
         el.setAttribute("href", hr);
-<<<<<<< HEAD
-=======
-        return el;
->>>>>>> refs/remotes/origin/master
       } else {
         err = new Error("main parameter 1, can only be a string");
         throw err;
       }
-<<<<<<< HEAD
       return el;
     };
     pen.Remove = function() {
@@ -206,8 +202,6 @@
       parent = el.parentElement;
       parent.removeChild(el);
       return el;
-=======
->>>>>>> refs/remotes/origin/master
     };
     pen.Create = function(elesx, str) {
       var el;
@@ -231,22 +225,14 @@
         "to selector": "to selector",
         "normally append to": "normally append to"
       };
-<<<<<<< HEAD
       if (type(optionname) === 'string') {
-=======
-      if (val !== null) {
->>>>>>> refs/remotes/origin/master
         if (optionname === ops[optionname]) {
           pen.options[optionname] = val;
         } else {
           err = new Error(`unrecgonized option ${optionname}`);
           throw err;
         }
-<<<<<<< HEAD
       } else if (type(optionname) === 'object') {
-=======
-      } else {
->>>>>>> refs/remotes/origin/master
         for (option in optionname) {
           if (option === ops[option]) {
             pen.options[option] = optionname[option];
@@ -265,20 +251,6 @@
         return pen.options;
       }
     };
-<<<<<<< HEAD
-    pen.Type = function(param) {
-      return type(param);
-    };
-    pen.Select = function(eles) {
-      var el;
-      el = pen.accesel();
-      return el.querySelector(eles);
-    };
-    pen.SelectAll = function(eles) {
-      var el;
-      el = pen.accesel();
-      return el.querySelectorAll(eles);
-=======
     pen.Type = (param) => {
       return type(param);
     };
@@ -287,7 +259,6 @@
     };
     pen.SelectAll = (el) => {
       return document.querySelectorAll(el);
->>>>>>> refs/remotes/origin/master
     };
     return pen;
   };

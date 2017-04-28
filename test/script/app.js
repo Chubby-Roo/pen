@@ -5,43 +5,40 @@ body = document.body;
 
 head = document.head;
 
-HyperButton = (function() {
-  class HyperButton extends HTMLElement {
-    constructor() {
-      super();
-      this.name = '';
-      this.href = '#';
-      this.cover = '';
-      pen(this).On('click', this.goTo);
+HyperButton = class HyperButton extends HTMLElement {
+  constructor() {
+    super();
+    this.name = '';
+    this.href = '#';
+    this.cover = '';
+    pen(this).On('click', this.goTo);
+  }
+
+  static checkString(string) {
+    if (string.match(/\s+/)) {
+      string = string.replace(/\s+/, '-');
     }
+    return string;
+  }
 
-    static checkString(string) {
-      if (string.match(/\s+/)) {
-        string = string.replace(/\s+/, '-');
-      }
-      return string;
-    }
+  goTo(e) {
+    pen(this).Html(`relocating to ${this.cover}...`);
+    window.location = this.href;
+    return void 0;
+  }
 
-    goTo(e) {
-      pen(this).Html(`relocating to ${this.cover}...`);
-      window.location = this.href;
-      return void 0;
-    }
+};
 
-  };
-
-  get(href()(function() {
-    return this.getAttribute('href');
-  }));
-
-  set(href(str)(function() {
-    var str;
-    str = HyperButton.checkString(str);
-    return this.setAttribute('href', str);
-  }));
-
-  return HyperButton;
-
-})();
+Object.defineProperty(HyperButton, 'name', {
+  get: function() {
+    return this.name;
+  },
+  set: function(name) {
+    name = HyperButton.checkString(name);
+    this.name = name;
+    this.setAttribute('name', str);
+    return void 0;
+  }
+});
 
 customElements.define('dav-com', HyperButton);
