@@ -1,17 +1,46 @@
-pen.setOptions
-  'auto append': yes
-el = pen("a").Attr id: 'cow', href: 'http://www.google.com'
-.Html "some text"
+body = document.body
+head = document.head
+class HyperButton extends HTMLElement
+  constructor: () ->
+    super()
+    @name = ''
+    @href = '#'
+    @cover = ''
+    pen(this).On 'click', @goTo
 
-pen.options["to selector"] = true
+  @checkString: (string) ->
+    if string.match /\s+/
+      string = string.replace /\s+/, '-'
+    return string
 
-pen "a#cow"
-.On "click", (ev) ->
- ev.preventDefault()
- if pen(this).innerHTML is "some text"
-  pen(this).Html("Henlo")
-  .Css("color", "red")
- else
-  pen(this).Html("some text")
-  .Css("color", "blue")
- return
+
+  get href() ->
+    return this.getAttribute('href')
+
+  set href(str) ->
+    str = HyperButton.checkString(str)
+    this.setAttribute('href', str)
+
+  # setName: (str) ->
+  #   str = HyperButton.checkString str
+  #   @name = str
+  #   @setAttribute 'name', str
+  #   return undefined
+  #
+  # setHref: (str) ->
+  #   str = HyperButton.checkString str
+  #   @href = str
+  #   @setAttribute 'href', str
+  #   return undefined
+  #
+  # setCover: (str) ->
+  #   @cover = str
+  #   pen(this).Html str
+  #   return undefined
+
+  goTo: (e) ->
+    pen(this).Html "relocating to #{@cover}..."
+    window.location = @href
+    return undefined
+
+customElements.define('dav-com', HyperButton)

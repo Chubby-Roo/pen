@@ -18,7 +18,7 @@
       else if type(el) is 'number' then throw err
       else if type(el) is 'boolean' then throw err
       else if type(el) is 'function' then throw err
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split /\s+/
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Select SelectAll Create".split /\s+/
       pen.cre = {}
       if pen.options["to selector"] is true
         if type(el) is 'string' then pen.cre["el"] = document.querySelector el
@@ -67,10 +67,7 @@
     pen.Html = (str, app = false) ->
       el = pen.accesel()
       if str isnt null
-        if app is false
-          el.innerHTML = str
-        else
-          el.innerHTML += str
+        if app is false then el.innerHTML = str else el.innerHTML += str
         return el
       else
         return el.innerHTML
@@ -129,8 +126,18 @@
 
     pen.Remove = () ->
       el = pen.accesel()
-      el.remove()
-      return el
+      parent = el.parentElement
+      parent.removeChild el
+      el
+
+    pen.Create = (elesx, str) ->
+      el = pen.accesel()
+      elesx = document.createElement elesx
+      el.appendChild(elesx)
+      if str.match /parent/gi
+        return el
+      else if str.match /child/gi
+        return elesx
 
     pen.options = {}
     pen.options["auto append"] = false
@@ -155,18 +162,12 @@
 
     pen.GetOpitions = (option) -> if option? then pen.options[option] else pen.options
     pen.Type = (param) -> type(param)
-    pen.Ask = (about) ->
-      stringToArgs = (str, spby, slby) -> str.split(spby).slice(slby)
-      if about.match /about pen/gi
-        log "pen is a small open source project at github, used to control, create and manipulate elements."
-      if about.startsWith "help"
-        args = stringToArgs about, " ", 1
-        for arg, index in args
-          arg = arg.toLowerCase().replace /\s+/, '-'
-          if arg is 'main'
-            log 'The main \'pen\' is a function to manipulate in the document or create elements not in the document.'
-      return log "any more questions?"
-
+    pen.Select = (eles) ->
+      el = pen.accesel()
+      el.querySelector eles
+    pen.SelectAll = (eles) ->
+      el = pen.accesel()
+      el.querySelectorAll eles
     return pen
   if typeof pen is 'undefined'
     window.pen = Pendef()

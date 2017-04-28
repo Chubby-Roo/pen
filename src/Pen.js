@@ -35,7 +35,7 @@
       } else if (type(el) === 'function') {
         throw err;
       }
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split(/\s+/);
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Select SelectAll Create".split(/\s+/);
       pen.cre = {};
       if (pen.options["to selector"] === true) {
         if (type(el) === 'string') {
@@ -185,10 +185,22 @@
       return el;
     };
     pen.Remove = function() {
+      var el, parent;
+      el = pen.accesel();
+      parent = el.parentElement;
+      parent.removeChild(el);
+      return el;
+    };
+    pen.Create = function(elesx, str) {
       var el;
       el = pen.accesel();
-      el.remove();
-      return el;
+      elesx = document.createElement(elesx);
+      el.appendChild(elesx);
+      if (str.match(/parent/gi)) {
+        return el;
+      } else if (str.match(/child/gi)) {
+        return elesx;
+      }
     };
     pen.options = {};
     pen.options["auto append"] = false;
@@ -230,25 +242,15 @@
     pen.Type = function(param) {
       return type(param);
     };
-    pen.Ask = function(about) {
-      var arg, args, index, j, len, stringToArgs;
-      stringToArgs = function(str, spby, slby) {
-        return str.split(spby).slice(slby);
-      };
-      if (about.match(/about pen/gi)) {
-        log("pen is a small open source project at github, used to control, create and manipulate elements.");
-      }
-      if (about.startsWith("help")) {
-        args = stringToArgs(about, " ", 1);
-        for (index = j = 0, len = args.length; j < len; index = ++j) {
-          arg = args[index];
-          arg = arg.toLowerCase().replace(/\s+/, '-');
-          if (arg === 'main') {
-            log('The main \'pen\' is a function to manipulate in the document or create elements not in the document.');
-          }
-        }
-      }
-      return log("any more questions?");
+    pen.Select = function(eles) {
+      var el;
+      el = pen.accesel();
+      return el.querySelector(eles);
+    };
+    pen.SelectAll = function(eles) {
+      var el;
+      el = pen.accesel();
+      return el.querySelectorAll(eles);
     };
     return pen;
   };
