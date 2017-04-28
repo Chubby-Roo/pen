@@ -9,8 +9,12 @@
       classToType[strType] or "object"
   {log, error} = console
   Pendef = () ->
+<<<<<<< HEAD
     accpro = (el) ->
       el.__proto__.__proto__.__proto__
+=======
+    accpro = (el) => el.__proto__.__proto__.__proto__
+>>>>>>> refs/remotes/origin/master
     pen = (el) ->
       err = new Error "parameter in main function can't be a #{type(el)}"
       if type(el) is 'null' then throw err
@@ -18,12 +22,17 @@
       else if type(el) is 'number' then throw err
       else if type(el) is 'boolean' then throw err
       else if type(el) is 'function' then throw err
+<<<<<<< HEAD
       srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Select SelectAll Create".split /\s+/
+=======
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split /\s+/
+>>>>>>> refs/remotes/origin/master
       pen.cre = {}
       if pen.options["to selector"] is true
         if type(el) is 'string' then pen.cre["el"] = document.querySelector el
         else pen.cre["el"] = el
       else
+<<<<<<< HEAD
         if type(el) is 'string' then pen.cre["el"] = document.createElement el
         else pen.cre["el"] = el
 
@@ -31,6 +40,12 @@
         if accpro(pen.cre["el"])[func] is null or type(accpro(pen.cre["el"])[func]) is 'undefined'
           accpro(pen.cre["el"])[func] = pen[func]
 
+=======
+        if type(el) is 'string' then pen.cre["el"] = document.createElement el else pen.cre["el"] = el
+      for func in srm
+        if accpro(pen.cre["el"])[func] is null or type(accpro(pen.cre["el"])[func]) is 'undefined'
+          accpro(pen.cre["el"])[func] = pen[func]
+>>>>>>> refs/remotes/origin/master
       pen.accesel = () -> pen.cre["el"]
 
       if pen.options["auto append"] is true
@@ -72,7 +87,15 @@
       else
         return el.innerHTML
       return el
+<<<<<<< HEAD
 
+=======
+    pen.Remove = () ->
+      el = pen.accesel()
+      par = el.parentElement
+      par.removeElement(el)
+      return el
+>>>>>>> refs/remotes/origin/master
     pen.Value = (str, app = false) ->
       el = pen.accesel()
       if str isnt null
@@ -161,6 +184,7 @@
       return undefined
 
     pen.GetOpitions = (option) -> if option? then pen.options[option] else pen.options
+<<<<<<< HEAD
     pen.Type = (param) -> type(param)
     pen.Select = (eles) ->
       el = pen.accesel()
@@ -168,6 +192,11 @@
     pen.SelectAll = (eles) ->
       el = pen.accesel()
       el.querySelectorAll eles
+=======
+    pen.Type = (param) => type(param)
+    pen.Select = (el) => document.querySelector el
+    pen.SelectAll = (el) => document.querySelectorAll el
+>>>>>>> refs/remotes/origin/master
     return pen
   if typeof pen is 'undefined'
     window.pen = Pendef()
