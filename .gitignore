@@ -3,4 +3,8 @@
 test/.sass-cache
 test/style.css.map
 test/style.sass
+.sass-cache
+style.css.map
 app.coffee
+starter.coffee
+starter.js
