@@ -1,46 +1,19 @@
-body = document.body
-head = document.head
-class HyperButton extends HTMLElement
-  constructor: () ->
-    super()
-    @name = ''
-    @href = '#'
-    @cover = ''
-    pen(this).On 'click', @goTo
-
-  @checkString: (string) ->
-    if string.match /\s+/
-      string = string.replace /\s+/, '-'
-    return string
-
-  goTo: (e) ->
-    pen(this).Html "relocating to #{@cover}..."
-    window.location = @href
-    return undefined
-
-Object.defineProperty HyperButton, 'name',
-  get: () -> this.name
-  set: (name) ->
-    name = HyperButton.checkString name
-    @name = name
-    @setAttribute 'name', str
-    return undefined
-
-# setName: (str) ->
-#   str = HyperButton.checkString str
-#   @name = str
-#   @setAttribute 'name', str
-#   return undefined
-#
-# setHref: (str) ->
-#   str = HyperButton.checkString str
-#   @href = str
-#   @setAttribute 'href', str
-#   return undefined
-#
-# setCover: (str) ->
-#   @cover = str
-#   pen(this).Html str
-#   return undefined
-
-customElements.define('dav-com', HyperButton)
+###
+# IF you read the files aka: app.coffee (this) and pen.coffee it'll be messy yes.
+# IT is intended to be like so.
+###
+((window, document) ->
+  {log, error, dir} = console; {body, head} = document
+  pen.setOptions "debug mode", true
+  contextmenu = (e) ->
+    e.preventDefault(); cntmnu = pen("div").Html("moo").Css(left: "#{e.clientX}px", top: "#{e.clientY}px", position: "fixed", 'z-index': 9999)
+    Remove = () -> pen(cntmnu).Remove(); pen(window).removeEventListener "click", Remove; return
+    pen(cntmnu).AppendTo body; pen(window).On "click", Remove; return cntmnu
+  Start = (e) ->
+    pen(window).On "contextmenu", contextmenu; header = pen("div").Class "header-title"
+    title = pen("span").Class("title").Html document.title
+    reloader = pen("span").Class("header-button Ril").Html("reload").On("click", (e) => e.preventDefault(); location.reload(); return)
+    closebtn = pen("span").Class("header-button Ril").Html("X").On("click", (e) => e.preventDefault(); close(); return)
+    pen(header).Append(title, closebtn, reloader).AppendTo body; log "Loading took #{Math.round e.timeStamp} second(s)"
+  window.onload = Start
+)(window, document)
