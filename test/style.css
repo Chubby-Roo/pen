@@ -1,0 +1,49 @@
+/* yes I use sass don't give me your sass though XD (ex dee for those who are literal) */
+* {
+  padding: 0;
+  margin: 0;
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  text-decoration: none;
+  font-family: sans-serif; }
+
+.button, .body-button, .header-button {
+  background-color: #c8017b;
+  display: inline-block;
+  color: white;
+  cursor: pointer;
+  transition: all 0.5s ease; }
+  .button:hover, .body-button:hover, .header-button:hover, .button:focus, .body-button:focus, .header-button:focus {
+    background-color: #ff009c; }
+
+.body-button {
+  padding: 5px 10px; }
+  .body-button:hover, .body-button:focus {
+    padding: 5px 15px; }
+
+.header-button {
+  padding: 15px 20px; }
+  .header-button:hover, .header-button:focus {
+    padding: 15px 25px; }
+
+.Ril {
+  float: right; }
+
+.Lil {
+  float: left; }
+
+.header-title {
+  top: 0;
+  color: white;
+  position: absolute;
+  background-color: lightblue;
+  z-index: 9998;
+  width: 100%; }
+  .header-title .title {
+    margin: 5px;
+    display: inline-block;
+    font-size: 27px;
+    font-weight: bolder; }
+
+/*# sourceMappingURL=style.css.map */
