@@ -5,7 +5,7 @@
   type = (function() {
     var classToType, i, j, len, name, ref;
     classToType = {};
-    ref = "Boolean Number String Function Array Date RegExp Undefined Null Element Document Window".split(/\s+/);
+    ref = "Boolean Number String Function Array Date RegExp Undefined Null Error Symbol".split(/\s+/);
     for (i = j = 0, len = ref.length; j < len; i = ++j) {
       name = ref[i];
       classToType[`[object ${name}]`] = name.toLowerCase();
@@ -30,9 +30,11 @@
         case 'number':
         case 'boolean':
         case 'function':
+        case 'error':
+        case 'symbol':
           throw err;
       }
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split(/\s+/);
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Get".split(/\s+/);
       pen.cre = {};
       if (pen.options["to selector"] === true) {
         if (type(el) === 'string') {
@@ -224,6 +226,23 @@
       } else {
         throw new Error(`Pen-create invalid: ${str}, either child or parent can be returned`);
       }
+    };
+    pen.Read = function(path) {
+      var el, rawf;
+      el = pen.accesel();
+      rawf = new XMLHttpRequest();
+      rawf.open("GET", path, false);
+      rawf.onreadystatechange = function() {
+        var text;
+        if (rawf.readyState === 4) {
+          if (rawf.status === 200 || rawf.status === 0) {
+            text = rawf.responseText;
+            return el.Html(text);
+          }
+        }
+      };
+      rawf.send(null);
+      return el;
     };
     pen.options = {};
     pen.options["auto append"] = false;

@@ -2,7 +2,7 @@
   {log, error, dir} = console
   type = do ->
     classToType = {}
-    for name,i in "Boolean Number String Function Array Date RegExp Undefined Null Element Document Window".split /\s+/
+    for name,i in "Boolean Number String Function Array Date RegExp Undefined Null Error Symbol".split /\s+/
       classToType["[object #{name}]"] = name.toLowerCase()
     (obj) ->
       strType = Object::toString.call obj
@@ -11,8 +11,8 @@
     accpro = (el) => el.__proto__.__proto__.__proto__
     pen = (el) ->
       err = new Error "Pen: parameter 1 can't be a #{type(el)}"; switch type(el)
-        when 'null', 'undefined', 'number', 'boolean', 'function' then throw err
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split /\s+/; pen.cre = {}
+        when 'null', 'undefined', 'number', 'boolean', 'function', 'error', 'symbol' then throw err
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Get".split /\s+/; pen.cre = {}
       if pen.options["to selector"] is true
         if type(el) is 'string'
           if pen.options["select all"] is true then pen.cre["el"] = document.querySelectorAll el else pen.cre["el"] = document.querySelector el
@@ -94,6 +94,18 @@
     pen.Remove = () -> el = pen.accesel(); el.parentNode.removeChild el; return el
 
     pen.Create = (elesx, str) -> el = pen.accesel(); pen.debug "Trying to create a new element and set it's parent to #{pen.getElementLayout()}", "Create"; elesx = document.createElement elesx; el.appendChild(elesx); if str.match /parent/gi then el else if str.match /child/gi then elesx else throw new Error "Pen-create invalid: #{str}, either child or parent can be returned"
+
+    pen.Read = (path) ->
+      el = pen.accesel()
+      rawf = new XMLHttpRequest()
+      rawf.open "GET", path, false
+      rawf.onreadystatechange = () ->
+        if rawf.readyState is 4
+          if rawf.status is 200 or rawf.status is 0
+            text = rawf.responseText
+            el.Html text
+      rawf.send null
+      return el
 
     pen.options = {}; pen.options["auto append"] = no; pen.options["to selector"] = no
     pen.options["select all"] = no; pen.options["normally append to"] = "body"; pen.options["debug mode"] = no

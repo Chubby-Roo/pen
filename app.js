@@ -45,7 +45,7 @@
     return cntmnu;
   };
   Start = function(e) {
-    var closebtn, header, reloader, stylsheet, title;
+    var closebtn, header, reloader, style, title;
     pen(window).On("contextmenu", contextmenu);
     header = pen("div").Class("header-title");
     title = pen("span").Class("title").Html(document.title);
@@ -57,8 +57,7 @@
       e.preventDefault();
       close();
     });
-    stylsheet = pen("style").Html("* {text-decoration:none;\n  font-family:Arial;outline:none;border:none;\n  -webkit-appearance:none;-moz-appearance:none;-o-appearance:none;\n  padding:0;margin:0;}\n.Ril {float:right} .Lil {float:left}\n.button {\n  background-color: rgb(51, 65, 157);\n  color:white;\n  display:inline-block;\n  cursor:pointer;\n  transition:all ease 0.5s;\n}\n.button:hover, .button:focus {\n  background-color: rgb(121, 138, 250);\n}");
-    pen(head).Append(stylsheet);
+    style = pen("style").Read("style").AppendTo(head);
     pen(header).Append(title, closebtn, reloader).AppendTo(body);
     return log(`Loading took ${Math.round(e.timeStamp)} second(s)`);
   };
