@@ -26,11 +26,11 @@
     pen(window).On("contextmenu", contextmenu);
     header = pen("div").Class("header-title");
     title = pen("span").Class("title").Html(document.title);
-    reloader = pen("span").Class("header-button Ril").Html("reload").On("click", (e) => {
+    reloader = pen("span").Class("button-header Ril").Html("reload").On("click", (e) => {
       e.preventDefault();
       location.reload();
     });
-    closebtn = pen("span").Class("header-button Ril").Html("X").On("click", (e) => {
+    closebtn = pen("span").Class("button-header Ril").Html("X").On("click", (e) => {
       e.preventDefault();
       close();
     });
