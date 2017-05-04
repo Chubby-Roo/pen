@@ -12,7 +12,7 @@
     pen = (el) ->
       err = new Error "Pen: parameter 1 can't be a #{type(el)}"; switch type(el)
         when 'null', 'undefined', 'number', 'boolean', 'function', 'error', 'symbol' then throw err
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Get".split /\s+/; pen.cre = {}
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Read".split /\s+/; pen.cre = {}
       if pen.options["to selector"] is true
         if type(el) is 'string'
           if pen.options["select all"] is true then pen.cre["el"] = document.querySelectorAll el else pen.cre["el"] = document.querySelector el

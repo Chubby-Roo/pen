@@ -34,7 +34,7 @@
         case 'symbol':
           throw err;
       }
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Get".split(/\s+/);
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Read".split(/\s+/);
       pen.cre = {};
       if (pen.options["to selector"] === true) {
         if (type(el) === 'string') {
