@@ -120,15 +120,133 @@
     splice: arr.splice
   };
   pen.extend = pen.fn.extend = function() {
+    var options, name, src, copy, copyIsArray, clone;
     var deep, i, length, target;
     target = arguments[0] || {};
     i = 1;
     length = arguments.length;
     deep = false;
-    if (typeof target === 'object' && !pen.isFunction(target)) {
-      return target = {};
+    if (typeof target === 'boolean') {
+      deep = target;
+      target = arguments[i] || {};
+      i++;
     }
+    if (typeof target === 'object' && !pen.isFunction(target)) {
+      target = {};
+    }
+    return for (;i<length;i++) {if ((options = arguments[i]) !== null) {for (name in options) {src = target[name];copy = options[name]; if (target === copy) {continue;}if (deep && copy && (pen.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {if (copyIsArray) {copyIsArray = false;clone = src && Array.isArray(src) ? src : [];} else {clone = src && pen.isPlainObject(src) ? src : {};}target[name] = pen.extend(deep, clone, copy);} else if (copy !== void 0) {target[name] = copy;}}}};
   };
+  pen.extend({
+    expando: `pen ${(version + Math.random()).replace(/\D/g, '')}`,
+    isReady: true,
+    error: function(msg) {
+      throw new Error(msg);
+    },
+    noop: function() {},
+    isFuntion: function(obj) {
+      return typeof obj === 'function' && typeof obj.nodeType !== 'number';
+    },
+    isWindow: function(obj) {
+      return obj !== null && obj === obj.window;
+    },
+    isNumeric: function(obj) {
+      var type;
+      type = pen.type(obj);
+      return (type === 'number' || type === 'string') && !isNaN(obj - parseFloat(obj));
+    },
+    isPlainObject: function(obj) {
+      var Ctor, proto;
+      if (!obj || toString.call(obj) !== '[object Object]') {
+        false;
+      }
+      proto = getProto(obj);
+      if (!proto) {
+        true;
+      }
+      Ctor = hasOwn.call(proto, 'constructor') && proto.constructor;
+      return typeof Ctor === 'function' && fn2String.call(Ctor) === ObjFuncString;
+    },
+    isEmptyObject: function(obj) {
+      var name;
+      for (name in obj) {
+        return false;
+      }
+      return true;
+    },
+    type: function(obj) {
+      if (obj === null) {
+        return `${obj}`;
+      }
+    },
+    globalEval: function(code) {
+      return DOMEval(code);
+    },
+    camelCase: function(string) {
+      return string.replace(rmsPrefix, "ms-").replace(rdashAlpha, fcamelCase);
+    },
+    each: function(obj, callback) {
+      var i, length;
+      i = 0;
+      if (isArrayLike(obj)) {
+        length = obj.length;
+        for (;i<length;i++) {if (callback.call(obj[i], i, obj[i]) === false) {break;}};
+      } else {
+        for (i in obj) {
+          if (callback.call(obj[i], i, obj[i]) === false) {
+            break;
+          }
+        }
+      }
+      return obj;
+    },
+    trim: function(txt) {
+      if (text === null) {
+        return '';
+      } else {
+        return (text + "").replace(rtrim, '');
+      }
+    },
+    makeArray: function(arr, res) {
+      var ret;
+      ret = res || [];
+      if (arr !== null) {
+        if (isArrayLike(Object(arr))) {
+          pen.marge(ret, typeof arr === 'string' ? [arr] : arr);
+        } else {
+          push.call(ret, arr);
+        }
+      }
+      return ret;
+    },
+    isArray: function(elem, arr, i) {
+      if (arr === null) {
+        return -1;
+      } else {
+        return indexOf.call(arr, elem, i);
+      }
+    },
+    marge: function(first, second) {
+      var i, j, len;
+      len = +second.length;
+      j = 0;
+      i = first.length;
+      for (;j<len;j++) {first[i++] = second[j];};
+      first.length = i;
+      return first;
+    },
+    grep: function(elems, callback, invert) {
+      var callbackExpect, callbackInverse, i, length, matches;
+      callbackInverse = void 0;
+      matches = [];
+      i = 0;
+      length = elems.length;
+      callbackExpect = !invert;
+      return for (;i<length;i++) {
+        callbackInverse = not callback(elems[i], i);
+
+        };
+    }
+  });
   if (typeof pen === 'null' || typeof pen === 'undefined') {
     return window.pen = pen;
   }

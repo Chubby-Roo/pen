@@ -54,12 +54,83 @@
     sort: arr.sort
     splice: arr.splice
   pen.extend = pen.fn.extend = () ->
+    `var options, name, src, copy, copyIsArray, clone`
     target = arguments[0] or {}
     i = 1
     length = arguments.length
     deep = no
+    if typeof target is 'boolean'
+      deep = target
+      target = arguments[i] or {}
+      i++
+
     if typeof target is 'object' and not pen.isFunction target
       target = {}
+
+    `for (;i<length;i++) {if ((options = arguments[i]) !== null) {for (name in options) {src = target[name];copy = options[name]; if (target === copy) {continue;}if (deep && copy && (pen.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {if (copyIsArray) {copyIsArray = false;clone = src && Array.isArray(src) ? src : [];} else {clone = src && pen.isPlainObject(src) ? src : {};}target[name] = pen.extend(deep, clone, copy);} else if (copy !== void 0) {target[name] = copy;}}}}`
+  pen.extend
+    expando: "pen #{(version+Math.random()).replace /\D/g, ''}"
+    isReady: true
+    error: (msg) -> throw new Error msg
+    noop: () ->
+    isFuntion: (obj) -> typeof obj is 'function' and typeof obj.nodeType isnt 'number'
+    isWindow: (obj) -> obj isnt null and obj is obj.window
+    isNumeric: (obj) ->
+      type = pen.type(obj)
+      return (type is 'number' or type is 'string') and not isNaN(obj - parseFloat(obj))
+    isPlainObject: (obj) ->
+
+      if not obj or toString.call(obj) isnt '[object Object]' then false
+      proto = getProto obj
+
+      if not proto then true
+
+      Ctor = hasOwn.call(proto, 'constructor') and proto.constructor
+      typeof Ctor is 'function' and fn2String.call(Ctor) is ObjFuncString
+    isEmptyObject: (obj) ->
+      for name of obj
+        return false
+      return true
+    type: (obj) -> if obj is null then return "#{obj}"
+    globalEval: (code) -> DOMEval code
+    camelCase: (string) -> string.replace(rmsPrefix, "ms-").replace rdashAlpha, fcamelCase
+    each: (obj, callback) ->
+      i = 0
+      if isArrayLike obj
+        length = obj.length
+        `for (;i<length;i++) {if (callback.call(obj[i], i, obj[i]) === false) {break;}}`
+      else
+        for i of obj
+          if callback.call(obj[i], i, obj[i]) is false
+            break
+      return obj
+    trim: (txt) -> if text is null then '' else (text+"").replace rtrim, ''
+    makeArray: (arr, res) ->
+      ret = res or []
+      if arr isnt null
+        if isArrayLike Object arr
+          pen.marge(ret, if typeof arr is 'string' then [arr] else arr)
+        else
+          push.call ret, arr
+      return ret
+    isArray: (elem, arr, i) -> if arr is null then -1 else indexOf.call arr, elem, i
+    marge: (first, second) ->
+      len = +second.length
+      j = 0
+      i = first.length
+      `for (;j<len;j++) {first[i++] = second[j];}`
+      first.length = i
+      return first
+    grep: (elems, callback, invert) ->
+      callbackInverse = undefined
+      matches = []
+      i = 0
+      length = elems.length
+      callbackExpect = not invert
+      `for (;i<length;i++) {
+        callbackInverse = not callback(elems[i], i);
+
+        }`
   if typeof pen is 'null' or typeof pen is 'undefined'
     window.pen = pen
 )()
