@@ -34,29 +34,27 @@
         case 'symbol':
           throw err;
       }
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove Read".split(/\s+/);
+      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split(/\s+/);
       pen.cre = {};
-      if (pen.options["to selector"] === true) {
-        if (type(el) === 'string') {
+      if (type(el) === 'string') {
+        if (pen.options["to selector"] === true) {
           if (pen.options["select all"] === true) {
             pen.cre["el"] = document.querySelectorAll(el);
           } else {
             pen.cre["el"] = document.querySelector(el);
           }
         } else {
-          pen.cre["el"] = el;
+          pen.cre["el"] = document.createElement(el);
         }
       } else {
-        if (type(el) === 'string') {
-          pen.cre["el"] = document.createElement(el);
-        } else {
-          pen.cre["el"] = el;
-        }
+        pen.cre["el"] = el;
       }
       for (j = 0, len = srm.length; j < len; j++) {
         func = srm[j];
-        if (accpro(pen.cre["el"])[func] === null || type(accpro(pen.cre["el"])[func]) === 'undefined') {
-          accpro(pen.cre["el"])[func] = pen[func];
+        switch (type(pen.cre["el"][func])) {
+          case 'null':
+          case 'undefined':
+            accpro(pen.cre["el"])[func] = pen[func];
         }
       }
       pen.accesel = function() {
@@ -64,7 +62,14 @@
       };
       pen.debug = function(str, prefix) {
         if (pen.options["debug mode"] === true) {
-          return log(`Pen-debug-${(type(prefix) !== 'null' ? prefix : 'unknown_child')}: ${(type(str) === 'string' ? str : type(str) === 'array' ? str.join('\n') : void 0)}`);
+          return log(`Pen-debug-${(type(prefix) !== 'null' ? prefix : 'unknown_child')}: ${((function() {
+            switch (type(str)) {
+              case 'string':
+                return str;
+              case 'array':
+                return str.join('\n');
+            }
+          })())}`);
         }
       };
       if (pen.options["auto append"] === true) {
@@ -79,7 +84,6 @@
     pen.getElementLayout = function() {
       var classes, el, i, j, len, ref, whole;
       el = pen.accesel();
-      whole = "";
       whole = el.tagName.toLowerCase();
       if (el.id.length !== 0) {
         whole += `#${el.id}`;
@@ -214,7 +218,7 @@
       return el;
     };
     pen.Create = function(elesx, str) {
-      var el;
+      var el, err;
       el = pen.accesel();
       pen.debug(`Trying to create a new element and set it's parent to ${pen.getElementLayout()}`, "Create");
       elesx = document.createElement(elesx);
@@ -224,25 +228,9 @@
       } else if (str.match(/child/gi)) {
         return elesx;
       } else {
-        throw new Error(`Pen-create invalid: ${str}, either child or parent can be returned`);
+        err = new Error(`Pen-create invalid: ${str}, either child or parent can be returned`);
+        throw err;
       }
-    };
-    pen.Read = function(path) {
-      var el, rawf;
-      el = pen.accesel();
-      rawf = new XMLHttpRequest();
-      rawf.open("GET", path, false);
-      rawf.onreadystatechange = function() {
-        var text;
-        if (rawf.readyState === 4) {
-          if (rawf.status === 200 || rawf.status === 0) {
-            text = rawf.responseText;
-            return el.Html(text);
-          }
-        }
-      };
-      rawf.send(null);
-      return el;
     };
     pen.options = {};
     pen.options["auto append"] = false;
@@ -289,24 +277,10 @@
       return type(param);
     };
     pen.Select = function(el) {
-      var els;
-      pen.options["to selector"] = true;
-      els = pen(el);
-      pen.options["to selector"] = false;
-      return els;
+      return document.querySelector(el);
     };
     pen.SelectAll = function(el) {
-      var els;
-      pen.setOptions({
-        'to selector': true,
-        'select all': true
-      });
-      els = pen(el);
-      pen.setOptions({
-        'to selector': false,
-        'select all': false
-      });
-      return els;
+      return document.querySelectorAll(el);
     };
     return pen;
   };
