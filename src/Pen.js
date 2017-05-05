@@ -51,8 +51,10 @@
       if (pen.options["auto append"] === true) {
         if (pen.options["normally append to"] === "body") {
           body.appendChild(pen.pesh);
-        } else {
+        } else if (pen.options["normally append to"] === 'head') {
           head.appendChild(pen.pesh);
+        } else {
+          pen.options["normally append to"].appendChild(pen.pesh);
         }
       }
       return pen;
@@ -135,7 +137,11 @@
       var el, j, len;
       for (j = 0, len = els.length; j < len; j++) {
         el = els[j];
-        pen.pesh.appendChild(el);
+        if (el === pen) {
+          pen.pesh.appendChild(el.pesh);
+        } else {
+          pen.pesh.appendChild(el);
+        }
       }
       return pen;
     };
@@ -150,13 +156,16 @@
     pen.Type = function(args) {
       return type(arg);
     };
-    pen.options = {};
-    pen.options["auto append"] = false;
-    pen.options["debug mode"] = false;
-    pen.options["to selector"] = false;
-    pen.options["select all"] = false;
-    pen.options["debug mode"] = false;
-    pen.options["normally append to"] = "body";
+    pen.options = {
+      "auto append": false,
+      "to selector": false,
+      "select all": false,
+      "debug mode": false,
+      "normally append to": "body"
+    };
+    pen.returnElement = function() {
+      return pen.pesh;
+    };
     pen.error = function(pref, msg) {
       throw new Error(`Pen-${(pref != null ? pref : '')}${msg}`);
     };

@@ -1,12 +1,16 @@
 (() ->
   {log, error, dir} = console; {body, head} = document
   commands = {}
+  txt = pen("p").Html("loading...").returnElement()
+  loader = pen("div").Class "loader"
+  .Append txt
+  .AppendTo body
+  .returnElement()
   cntmnu = (e) ->
     e.preventDefault()
     cntmn = pen("div").Class "contextmenu"
     .Css
       top: "#{e.clientY}px", left: "#{e.clientX}px"
-      position: "fixed", 'z-index': 9999
     .pesh
 
     addCommand = (view, event) ->
@@ -14,27 +18,28 @@
         el: pen("span").Html(view).Class("contextmenu-command").On("click", event).pesh
         hr: pen("hr").Class("contextmenu-divider").pesh
       pen(cntmn).Append commands[view].el, commands[view].hr
-      return
+      return addCommand
 
     removeCommand = (name) ->
       pen(commands[name].el).Remove()
       pen(commands[name].hr).Remove()
       delete commands[name]
-      return
+      return removeCommand
 
     Remove = () ->
       for name of commands
         removeCommand name
       pen(cntmn).Remove()
-      pen(window).removeEventListener "click", Remove
+      window.removeEventListener "click", Remove
+      return
 
-    pen(window).On "click", Remove
+    window.addEventListener "click", Remove
 
     addCommand "reload", () -> location.reload()
     pen(cntmn).AppendTo body
     return cntmn
   Start = (e) ->
-    pen(window).On "contextmenu", cntmnu
+    window.addEventListener "contextmenu", cntmnu
     header = pen("div")
     .Class "header-title"
     .pesh
@@ -48,6 +53,7 @@
     .pesh
     pen(header).Append title, closer
     .AppendTo body
+    pen(loader).Remove()
     log "load took #{Math.round e.timeStamp} second(s)"
   window.onload = Start
 )()
