@@ -17,23 +17,56 @@
     };
   })();
   Pendef = function() {
-    var accpro, pen;
-    accpro = (el) => {
-      return el.__proto__.__proto__.__proto__;
-    };
+    var pen;
     pen = function(el) {
-      return new pen(el);
+      pen.pesh = document.createElement(el);
+      return pen;
     };
-    return pen.prototype = {
-      constructor: function(el) {
-        this.presh = {};
-        return this.presh["el"] = document.createElement(el);
-      },
-      Html: function(str) {
-        this.presh["el"].innerHTML = str;
-        return pen;
+    pen.Html = function(str, app = false) {
+      switch (pen.pesh.tagName.toLowerCase()) {
+        case 'input':
+        case 'textarea':
+          if (str != null) {
+            if (app === false) {
+              pen.pesh.value = str;
+              return pen;
+            } else {
+              pen.pesh.value += str;
+              return pen;
+            }
+          } else {
+            return pen.pesh.value;
+          }
+          break;
+        default:
+          if (str != null) {
+            if (app === false) {
+              pen.pesh.innerHTML = str;
+              return pen;
+            } else {
+              pen.pesh.innerHTML += str;
+              return pen;
+            }
+          } else {
+            return pen.pesh.innerHTML;
+          }
       }
     };
+    pen.Css = function(rulen, rule) {
+      if (rulen != null) {
+        if (type(rulen) === 'object') {
+          for (rule in rulen) {
+            pen.pesh.style[rule] = rulen[rule];
+          }
+        } else {
+          pen.pesh.style[rulen] = rule;
+        }
+        return pen;
+      } else {
+        return pen.pesh.style;
+      }
+    };
+    return pen;
   };
   if (typeof pen === 'undefined') {
     window.pen = Pendef();
