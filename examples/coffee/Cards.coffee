@@ -21,7 +21,3 @@ class Card
   setMessage: (str) -> pen(@message).Html(str).pesh
 
   Style: (el, stroobj) -> pen(@[el]).Css(stroobj).pesh
-
-# Card = (obj) ->
-#   return cont
-#   pen(desc).Append p

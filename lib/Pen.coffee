@@ -19,7 +19,12 @@
       else pen.pesh = el
 
       if pen.options["auto append"] is on
-        if pen.options["normally append to"] is "body" then body.appendChild pen.pesh else head.appendChild pen.pesh
+        if pen.options["normally append to"] is "body"
+          body.appendChild pen.pesh
+        else if pen.options["normally append to"] is 'head'
+          head.appendChild pen.pesh
+        else
+          pen.options["normally append to"].appendChild pen.pesh
       pen
 
     pen.Class = (str) -> pen.pesh.setAttribute 'class', str; pen
@@ -61,7 +66,10 @@
 
     pen.Append = (els...) ->
       for el in els
-        pen.pesh.appendChild el
+        if el is pen
+          pen.pesh.appendChild el.pesh
+        else
+          pen.pesh.appendChild el
       pen
 
     pen.AppendTo = (el) -> el.appendChild pen.pesh; pen
@@ -70,7 +78,12 @@
 
     pen.Type = (args) -> type(arg)
 
-    pen.options = {}; pen.options["auto append"] = no; pen.options["debug mode"] = no; pen.options["to selector"] = no; pen.options["select all"] = no; pen.options["debug mode"] = no; pen.options["normally append to"] = "body"
+    pen.options =
+      "auto append": no, "to selector": no
+      "select all": no, "debug mode": no
+      "normally append to": "body"
+
+    pen.returnElement = () -> pen.pesh
 
     pen.error = (pref, msg) -> throw new Error "Pen-#{if pref? then pref else ''}#{msg}"
 
