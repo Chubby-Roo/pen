@@ -118,7 +118,7 @@ header = {
   addButton: function(name, event) {
     var self;
     self = header;
-    self.buttons[view] = pen("span").Class("header-button Ril").Html(name).On("click", event).returnElement();
+    self.buttons[name] = pen("span").Class("header-button Ril").Html(name).On("click", event).returnElement();
     return self;
   },
   removeButton: function(name) {

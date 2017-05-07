@@ -1,4 +1,6 @@
-# Pen.coffee || Pen.js
+![pen](https://github.com/Monochromefx/pen-coffee/pen.logo.png)
+
+# Pen
 
 [![Build Status](https://travis-ci.org/Monochromefx/pen-coffee.svg?branch=master)](https://travis-ci.org/Monochromefx/pen-coffee)
 
