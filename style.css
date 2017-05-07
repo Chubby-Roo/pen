@@ -29,11 +29,13 @@
   z-index: 9998;
   position: fixed;
   color: #3fe48e;
+  width: 100%;
   background-color: #3ea871; }
   .header .title {
     padding-left: 5px;
     padding-top: 10px;
-    padding-bottom: 10px; }
+    padding-bottom: 10px;
+    font-size: 26px; }
   .header .button-header {
     padding: 5px 10px; }
     .header .button-header:hover, .header .button-header:focus {
