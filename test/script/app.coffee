@@ -48,9 +48,6 @@ class Modal
 
     return this
 
-commands = {}
-buttons = {}
-
 txt = pen("p").Html("loading...").returnElement()
 
 loader = pen("div").Class "loader"
