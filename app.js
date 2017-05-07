@@ -151,7 +151,7 @@ Start = function(e) {
   }).addCommand("go forward", () => {
     return location.forward();
   });
-  window.addEventListener("contextmenu", contextmenu.init());
+  window.addEventListener("contextmenu", contextmenu.init);
   header.addButton("X", () => {
     return window.close();
   }).addButton("-", () => {

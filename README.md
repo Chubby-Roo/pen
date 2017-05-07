@@ -1,5 +1,7 @@
 # Pen.coffee || Pen.js
 
+[![Build Status](https://travis-ci.org/Monochromefx/pen-coffee.svg?branch=master)](https://travis-ci.org/Monochromefx/pen-coffee)
+
 ## Tree/Experimental
 **Note on Experimental is that this is to see if I could change the way pen does its job without effecting any of the other branches directly.**
 

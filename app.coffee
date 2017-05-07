@@ -64,7 +64,7 @@ loader = pen("div").Class "loader"
 contextmenu =
   commands: {}
   menu: pen("div").Class("contextmenu").returnElement()
-  
+
   addCommand: (name, ev) ->
     self = contextmenu
     self.commands[name] =
@@ -124,7 +124,7 @@ Start = (e) ->
   .addCommand("go back", () => location.back())
   .addCommand("go forward", () => location.forward())
 
-  window.addEventListener "contextmenu", contextmenu.init()
+  window.addEventListener "contextmenu", contextmenu.init
 
   header.addButton("X", () => window.close())
   .addButton("-", () => window.minimize())
