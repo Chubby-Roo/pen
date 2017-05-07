@@ -180,7 +180,7 @@ Start = (e) ->
     return
 
   header
-  .addButton("<img src='Github-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init()
+  .addButton("<img src='blob/master/GitHub-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init()
 
 
   maincontain = pen("div").attr("align", "center").Class("wrapper").returnElement()

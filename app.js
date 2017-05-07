@@ -221,7 +221,7 @@ Start = function(e) {
     e.preventDefault();
     contextmenu.init(e);
   });
-  header.addButton("<img src='Github-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init();
+  header.addButton("<img src='blob/master/GitHub-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init();
   maincontain = pen("div").attr("align", "center").Class("wrapper").returnElement();
   init = `load took ${Math.round(e.timeStamp)} second(s)`;
   mouseOv = function(e) {
