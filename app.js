@@ -29,12 +29,21 @@ Card = class Card {
 
   Style(els, stroobj) {
     var el;
-    if (pen.Type(el) === 'object') {
+    if (pen.Type(els) === 'object') {
       for (el in els) {
         pen(this[el]).Css(els[el]);
       }
     } else {
       pen(this[el]).Css(stroobj);
+    }
+    return this;
+  }
+
+  deploy(el) {
+    if (el != null) {
+      pen(el).Append(this.container);
+    } else {
+      pen(document.body).Append(this.container);
     }
     return this;
   }
@@ -87,6 +96,15 @@ Modal = class Modal {
     return this;
   }
 
+  deploy(el) {
+    if (el != null) {
+      pen(el).Append(this.container);
+    } else {
+      pen(document.body).Append(this.container);
+    }
+    return this;
+  }
+
 };
 
 txt = pen("p").Html("loading...").returnElement();
@@ -95,7 +113,7 @@ loader = pen("div").Class("loader").Append(txt).AppendTo(body).returnElement();
 
 contextmenu = {
   commands: {},
-  menu: pen("div").Class("contextmenu").returnElement(),
+  menu: pen("div").Class("contextmenu").attr("align", "center").returnElement(),
   addCommand: function(name, ev) {
     var self;
     self = contextmenu;
@@ -131,6 +149,7 @@ contextmenu = {
       pen(self.menu).Append(self.commands[name].el, self.commands[name].hr);
     }
     window.addEventListener("click", self.remove);
+    pen(document.body).Append(self.menu);
     return self;
   }
 };
@@ -162,6 +181,7 @@ header = {
     brs = [];
     for (i = j = 0; j <= 4; i = ++j) {
       brs[i] = pen("br").returnElement();
+      pen(document.body).Append(brs[i]);
     }
     return self;
   }
@@ -171,14 +191,17 @@ Start = function(e) {
   contextmenu.addCommand("reload", (e) => {
     e.preventDefault();
     return location.reload();
-  }).addCommand((e) => {
+  }).addCommand("go back", (e) => {
     e.preventDefault();
     return location.back();
-  }).addCommand((e) => {
+  }).addCommand("go forward", (e) => {
     e.preventDefault();
     return location.forward();
   });
-  window.addEventListener("contextmenu", contextmenu.init);
+  window.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    contextmenu.init(e);
+  });
   header.init();
   pen(loader).Remove();
   return log(`load took ${Math.round(e.timeStamp)} second(s)`);

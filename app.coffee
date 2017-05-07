@@ -27,11 +27,18 @@ class Card
     this
 
   Style: (els, stroobj) ->
-    if pen.Type(el) is 'object'
+    if pen.Type(els) is 'object'
       for el of els
         pen(@[el]).Css(els[el])
     else
       pen(@[el]).Css(stroobj)
+    this
+
+  deploy: (el) ->
+    if el?
+      pen(el).Append @container
+    else
+      pen(document.body).Append @container
     this
 
 
@@ -77,6 +84,13 @@ class Modal
       pen(@[el]).Css(stroobj)
     this
 
+  deploy: (el) ->
+    if el?
+      pen(el).Append @container
+    else
+      pen(document.body).Append @container
+    this
+
 txt = pen("p").Html("loading...").returnElement()
 
 loader = pen("div").Class "loader"
@@ -86,7 +100,7 @@ loader = pen("div").Class "loader"
 
 contextmenu =
   commands: {}
-  menu: pen("div").Class("contextmenu").returnElement()
+  menu: pen("div").Class("contextmenu").attr("align", "center").returnElement()
 
   addCommand: (name, ev) ->
     self = contextmenu
@@ -114,6 +128,7 @@ contextmenu =
     for name of self.commands
       pen(self.menu).Append self.commands[name].el, self.commands[name].hr
     window.addEventListener "click", self.remove
+    pen(document.body).Append self.menu
     return self
 
 header =
@@ -140,20 +155,24 @@ header =
     brs = []
     for i in [0..4]
       brs[i] = pen("br").returnElement()
+      pen(document.body).Append brs[i]
     return self
 
 Start = (e) ->
   contextmenu.addCommand("reload", (e) =>
     e.preventDefault()
     location.reload()
-).addCommand((e) =>
+).addCommand("go back", (e) =>
     e.preventDefault()
     location.back()
-).addCommand((e) =>
+).addCommand("go forward", (e) =>
    e.preventDefault()
    location.forward())
 
-  window.addEventListener "contextmenu", contextmenu.init
+  window.addEventListener "contextmenu", (e) =>
+    e.preventDefault()
+    contextmenu.init(e)
+    return
 
   header.init()
   pen(loader).Remove()

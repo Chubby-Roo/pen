@@ -74,9 +74,17 @@
 
     pen.AppendTo = (el) -> el.appendChild pen.pesh; pen
 
-    pen.On = (type, fn, cp=false) -> pen.pesh.addEventListener type, fn, cp; pen
+    pen.On = (type, fn, cp=false) ->
+      pen.pesh.addEventListener type, fn, cp
+      pen
 
-    pen.Type = (args) -> type(arg)
+    # pen.is = (crl, lrf) ->
+    #   bool = null
+    #   if lrf?
+    #     `if pen.pesh.getAttribute`
+    #   return bool
+
+    pen.Type = (arg) -> type(arg)
 
     pen.options =
       "auto append": no, "to selector": no

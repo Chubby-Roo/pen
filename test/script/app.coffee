@@ -107,6 +107,7 @@ header =
     brs = []
     for i in [0..4]
       brs[i] = pen("br").returnElement()
+    pen(document.body).Append [brs...]
     return self
 
 Start = (e) ->

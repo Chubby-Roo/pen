@@ -15,14 +15,15 @@
 .Lil {
   float: left; }
 
-.button {
-  background-color: #3ba625;
+.button, .header .button-header, .contextmenu .contextmenu-command {
+  background-color: rgba(0, 0, 0, 0.5);
   color: white;
   display: inline-block;
+  margin: 3px;
   cursor: pointer;
   transition: all ease 0.5s; }
-  .button:hover, .button:focus {
-    background-color: #7ff080; }
+  .button:hover, .header .button-header:hover, .contextmenu .contextmenu-command:hover, .button:focus, .header .button-header:focus, .contextmenu .contextmenu-command:focus {
+    background-color: rgba(0, 0, 0, 0.7); }
 
 .header {
   top: 0;
@@ -32,13 +33,25 @@
   width: 100%;
   background-color: #3ea871; }
   .header .title {
+    font-size: 26px;
     padding-left: 5px;
     padding-top: 10px;
-    padding-bottom: 10px;
-    font-size: 26px; }
+    padding-bottom: 10px; }
   .header .button-header {
     padding: 5px 10px; }
     .header .button-header:hover, .header .button-header:focus {
-      padding: 5px 15px; }
+      padding: 10px 20px; }
+
+.contextmenu {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  color: #3fe48e;
+  max-height: 22em;
+  max-width: 10em; }
+  .contextmenu .contextmenu-command {
+    padding: 10px 15px; }
+    .contextmenu .contextmenu-command:hover, .contextmenu .contextmenu-command:focus {
+      padding: 13px 18px; }
 
 /*# sourceMappingURL=style.css.map */

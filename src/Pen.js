@@ -153,7 +153,7 @@
       pen.pesh.addEventListener(type, fn, cp);
       return pen;
     };
-    pen.Type = function(args) {
+    pen.Type = function(arg) {
       return type(arg);
     };
     pen.options = {

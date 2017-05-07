@@ -127,6 +127,7 @@ header = {
     for (i = j = 0; j <= 4; i = ++j) {
       brs[i] = pen("br").returnElement();
     }
+    pen(document.body).Append([...brs]);
     return self;
   }
 };

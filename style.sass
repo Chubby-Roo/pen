@@ -16,13 +16,14 @@
   float: left
 
 .button
-  background-color: rgb(59, 166, 37)
+  background-color: rgba(0, 0, 0, 0.5)
   color: white
   display: inline-block
+  margin: 3px
   cursor: pointer
   transition: all ease 0.5s
   &:hover, &:focus
-    background-color: rgb(127, 240, 128)
+    background-color: rgba(0, 0, 0, 0.7)
 
 .header
   top: 0
@@ -32,12 +33,28 @@
   width: 100%
   background-color: rgb(62, 168, 113)
   .title
-    padding-left: 5px
-    padding-top: 10px
-    padding-bottom: 10px
     font-size: 26px
+    padding:
+      left: 5px
+      top: 10px
+      bottom: 10px
 
   .button-header
+    @extend .button
     padding: 5px 10px
     &:hover, &:focus
-      padding: 5px 15px
+      padding: 5+5px 15+5px
+
+.contextmenu
+  position: fixed
+  background-color: rgba(0, 0, 0, 0.5)
+  z-index: 9999
+  color: rgb(63, 228, 142)
+  max:
+    height: 22em
+    width: 10em
+  .contextmenu-command
+    @extend .button
+    padding: 10px 15px
+    &:hover, &:focus
+      padding: 10+3px 15+3px
