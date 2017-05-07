@@ -103,5 +103,9 @@
       return pen
     return pen
   if typeof pen is 'undefined' then window.pen = Pendef()
+  if process?
+    if module?
+      if module.exports?
+        module.exports = Pendef()
   return
 )(window, document)

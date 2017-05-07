@@ -198,4 +198,11 @@
   if (typeof pen === 'undefined') {
     window.pen = Pendef();
   }
+  if (typeof process !== "undefined" && process !== null) {
+    if (typeof module !== "undefined" && module !== null) {
+      if (module.exports != null) {
+        module.exports = Pendef();
+      }
+    }
+  }
 })(window, document);
