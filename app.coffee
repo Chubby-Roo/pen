@@ -159,6 +159,27 @@ header =
       pen(body).Append brs[i]
     return self
 
+
+wrapper =
+  links: {}
+  images: {}
+  ps: {}
+  divs: {}
+  codes: {}
+  prevs: {}
+  container: pen("div").attr("align", "center").Class("wrapper").returnElement()
+  addImage: (alt, src, img, lnk) ->
+    if lnk?
+      @imagaes[alt] = pen("img").attr(
+        alt: alt
+        src: "https://github.com/Monochromefx/pen/blob/master/images/#{src}"
+        class: "body-button link").returnElement()
+      @links[alt] = pen("a").attr(
+        alt: alt
+        href: lnk).Html(@images[alt]).returnElement()
+
+
+
 Start = (e) ->
   contextmenu
   .addCommand("reload", (e) =>
@@ -180,10 +201,7 @@ Start = (e) ->
     return
 
   header
-  .addButton("<img src='blob/master/GitHub-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init()
-
-
-  maincontain = pen("div").attr("align", "center").Class("wrapper").returnElement()
+  .addButton("<img src='https://github.com/Monochromefx/pen/blob/master/GitHub-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init()
 
   init = "load took #{Math.round e.timeStamp} second(s)"
 
