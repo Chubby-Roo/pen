@@ -1,0 +1,42 @@
+* {
+  text-decoration: none;
+  font-family: Arial;
+  outline: none;
+  border: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -o-appearance: none;
+  padding: 0;
+  margin: 0; }
+
+.Ril {
+  float: right; }
+
+.Lil {
+  float: left; }
+
+.button {
+  background-color: #3ba625;
+  color: white;
+  display: inline-block;
+  cursor: pointer;
+  transition: all ease 0.5s; }
+  .button:hover, .button:focus {
+    background-color: #7ff080; }
+
+.header {
+  top: 0;
+  z-index: 9998;
+  position: fixed;
+  color: #3fe48e;
+  background-color: #3ea871; }
+  .header .title {
+    padding-left: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px; }
+  .header .button-header {
+    padding: 5px 10px; }
+    .header .button-header:hover, .header .button-header:focus {
+      padding: 5px 15px; }
+
+/*# sourceMappingURL=style.css.map */

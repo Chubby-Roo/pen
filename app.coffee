@@ -2,29 +2,38 @@
 
 class Card
   constructor: (title, message) ->
-    @container = pen("div").Class "card-container"
-    .returnElement()
+    @container = pen("div").Class("card-container").returnElement()
 
-    @titleContainer = pen("div").Class "card-title-container"; @messageContainer = pen("div").Class "card-message-container"
-    .returnElement()
+    @titleContainer = pen("div").Class("card-title-container").returnElement()
 
-    @message = pen("span").Class("card-message").Html if title isnt null then title else ''
-    .returnElement()
+    @messageContainer = pen("div").Class("card-message-container").returnElement()
 
-    @title = pen("span").Class("card-title").Html if message isnt null then message else ''
-    .returnElement()
+    @message = pen("span").Class("card-message").Html(if title isnt null then title else '').returnElement()
 
-    pen(@titleContainer).Append @title; pen(@messageContainer).Append @message
+    @title = pen("span").Class("card-title").Html( if message isnt null then message else '').returnElement()
+
+    pen(@titleContainer).Append @title
+
+    pen(@messageContainer).Append @message
 
     pen(@container).Append @titleContainer, @messageContainer
 
-    return this
+  setTitle: (str) ->
+    pen(@title).Html(str)
+    this
 
-  setTitle: (str) -> pen(@title).Html(str).returnElement()
+  setMessage: (str) ->
+    pen(@message).Html(str)
+    this
 
-  setMessage: (str) -> pen(@message).Html(str).returnElement()
+  Style: (els, stroobj) ->
+    if pen.Type(el) is 'object'
+      for el of els
+        pen(@[el]).Css(els[el])
+    else
+      pen(@[el]).Css(stroobj)
+    this
 
-  Style: (el, stroobj) -> pen(@[el]).Css(stroobj).returnElement()
 
 class Modal
   constructor: (headstr, bodystr, footstr) ->
@@ -48,11 +57,25 @@ class Modal
 
     return this
 
-  setHead: (str) -> pen(@headText).Html(str).returnElement()
+  setHeadText: (str) ->
+    pen(@headText).Html(str)
+    this
 
-  setText: (str) -> pen(@bodyText).Html(str).returnElement()
+  setBodyText: (str) ->
+    pen(@bodyText).Html(str)
+    this
 
-  Style: (el, stroobj) -> pen(@[el]).Css(stroobj).returnElement()
+  setFootText: (str) ->
+    pen(@footText).Html(str)
+    this
+
+  Style: (els, stroobj) ->
+    if pen.Type(el) is 'object'
+      for el of els
+        pen(@[el]).Css(els[el])
+    else
+      pen(@[el]).Css(stroobj)
+    this
 
 txt = pen("p").Html("loading...").returnElement()
 
@@ -120,15 +143,19 @@ header =
     return self
 
 Start = (e) ->
-  contextmenu.addCommand("reload", () => location.reload())
-  .addCommand("go back", () => location.back())
-  .addCommand("go forward", () => location.forward())
+  contextmenu.addCommand("reload", (e) =>
+    e.preventDefault()
+    location.reload()
+).addCommand((e) =>
+    e.preventDefault()
+    location.back()
+).addCommand((e) =>
+   e.preventDefault()
+   location.forward())
 
   window.addEventListener "contextmenu", contextmenu.init
 
-  header.addButton("X", () => window.close())
-  .addButton("-", () => window.minimize())
-  .addButton("[_]", () => window.maximize()).init()
+  header.init()
   pen(loader).Remove()
   log "load took #{Math.round e.timeStamp} second(s)"
 window.onload = Start

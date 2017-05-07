@@ -20,6 +20,22 @@ class Modal
 
     return this
 
-# now by doing this next step you created a simple modal
-Mymodal = Modal 'Some head text', 'Some body text', 'Some foot text'
-console.log Mymodal
+  setHeadText: (str) ->
+    pen(@headText).Html(str)
+    this
+
+  setBodyText: (str) ->
+    pen(@bodyText).Html(str)
+    this
+
+  setFootText: (str) ->
+    pen(@footText).Html(str)
+    this
+
+  Style: (els, stroobj) ->
+    if pen.Type(el) is 'object'
+      for el of els
+        pen(@[el]).Css(els[el])
+    else
+      pen(@[el]).Css(stroobj)
+    this

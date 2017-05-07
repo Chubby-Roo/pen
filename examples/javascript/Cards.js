@@ -3,26 +3,36 @@ var Card;
 
 Card = class Card {
   constructor(title, message) {
-    this.container = pen("div").Class("card-container").pesh;
-    this.titleContainer = pen("div").Class("card-title-container");
-    this.messageContainer = pen("div").Class("card-message-container").pesh;
-    this.message = pen("span").Class("card-message").Html(title !== null ? title : '').pesh;
-    this.title = pen("span").Class("card-title").Html(message !== null ? message : '').pesh;
+    this.container = pen("div").Class("card-container").returnElement();
+    this.titleContainer = pen("div").Class("card-title-container").returnElement();
+    this.messageContainer = pen("div").Class("card-message-container").returnElement();
+    this.message = pen("span").Class("card-message").Html(title !== null ? title : '').returnElement();
+    this.title = pen("span").Class("card-title").Html(message !== null ? message : '').returnElement();
     pen(this.titleContainer).Append(this.title);
     pen(this.messageContainer).Append(this.message);
     pen(this.container).Append(this.titleContainer, this.messageContainer);
   }
 
   setTitle(str) {
-    return pen(this.title).Html(str).pesh;
+    pen(this.title).Html(str);
+    return this;
   }
 
   setMessage(str) {
-    return pen(this.message).Html(str).pesh;
+    pen(this.message).Html(str);
+    return this;
   }
 
-  Style(el, stroobj) {
-    return pen(this[el]).Css(stroobj).pesh;
+  Style(els, stroobj) {
+    var el;
+    if (pen.Type(el) === 'object') {
+      for (el in els) {
+        pen(this[el]).Css(els[el]);
+      }
+    } else {
+      pen(this[el]).Css(stroobj);
+    }
+    return this;
   }
 
 };

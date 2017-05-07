@@ -8,26 +8,35 @@ body = document.body, head = document.head;
 Card = class Card {
   constructor(title, message) {
     this.container = pen("div").Class("card-container").returnElement();
-    this.titleContainer = pen("div").Class("card-title-container");
+    this.titleContainer = pen("div").Class("card-title-container").returnElement();
     this.messageContainer = pen("div").Class("card-message-container").returnElement();
     this.message = pen("span").Class("card-message").Html(title !== null ? title : '').returnElement();
     this.title = pen("span").Class("card-title").Html(message !== null ? message : '').returnElement();
     pen(this.titleContainer).Append(this.title);
     pen(this.messageContainer).Append(this.message);
     pen(this.container).Append(this.titleContainer, this.messageContainer);
-    return this;
   }
 
   setTitle(str) {
-    return pen(this.title).Html(str).returnElement();
+    pen(this.title).Html(str);
+    return this;
   }
 
   setMessage(str) {
-    return pen(this.message).Html(str).returnElement();
+    pen(this.message).Html(str);
+    return this;
   }
 
-  Style(el, stroobj) {
-    return pen(this[el]).Css(stroobj).returnElement();
+  Style(els, stroobj) {
+    var el;
+    if (pen.Type(el) === 'object') {
+      for (el in els) {
+        pen(this[el]).Css(els[el]);
+      }
+    } else {
+      pen(this[el]).Css(stroobj);
+    }
+    return this;
   }
 
 };
@@ -51,16 +60,31 @@ Modal = class Modal {
     return this;
   }
 
-  setHead(str) {
-    return pen(this.headText).Html(str).returnElement();
+  setHeadText(str) {
+    pen(this.headText).Html(str);
+    return this;
   }
 
-  setText(str) {
-    return pen(this.bodyText).Html(str).returnElement();
+  setBodyText(str) {
+    pen(this.bodyText).Html(str);
+    return this;
   }
 
-  Style(el, stroobj) {
-    return pen(this[el]).Css(stroobj).returnElement();
+  setFootText(str) {
+    pen(this.footText).Html(str);
+    return this;
+  }
+
+  Style(els, stroobj) {
+    var el;
+    if (pen.Type(el) === 'object') {
+      for (el in els) {
+        pen(this[el]).Css(els[el]);
+      }
+    } else {
+      pen(this[el]).Css(stroobj);
+    }
+    return this;
   }
 
 };
@@ -144,21 +168,18 @@ header = {
 };
 
 Start = function(e) {
-  contextmenu.addCommand("reload", () => {
+  contextmenu.addCommand("reload", (e) => {
+    e.preventDefault();
     return location.reload();
-  }).addCommand("go back", () => {
+  }).addCommand((e) => {
+    e.preventDefault();
     return location.back();
-  }).addCommand("go forward", () => {
+  }).addCommand((e) => {
+    e.preventDefault();
     return location.forward();
   });
   window.addEventListener("contextmenu", contextmenu.init);
-  header.addButton("X", () => {
-    return window.close();
-  }).addButton("-", () => {
-    return window.minimize();
-  }).addButton("[_]", () => {
-    return window.maximize();
-  }).init();
+  header.init();
   pen(loader).Remove();
   return log(`load took ${Math.round(e.timeStamp)} second(s)`);
 };
