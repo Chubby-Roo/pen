@@ -1,5 +1,5 @@
 ((window, document) ->
-  {log, error, dir} = console
+  {log, error, dir} = console; {body, head} = document
   type = do ->
     classToType = {}
     for name,i in "Boolean Number String Function Array Date RegExp Undefined Null Error Symbol".split /\s+/
@@ -8,175 +8,100 @@
       strType = Object::toString.call obj
       classToType[strType] or "object"
   Pendef = () ->
-    accpro = (el) => el.__proto__.__proto__.__proto__
     pen = (el) ->
-      err = new Error "Pen: parameter 1 can't be a #{type(el)}"; switch type(el)
-        when 'null', 'undefined', 'number', 'boolean', 'function', 'error', 'symbol' then throw err
-      srm = "Html Css Attr On Append AppendTo Href Value Id Class Click Remove".split /\s+/
-      pen.cre = {}
+      err = new Error "Pen: parameter 1 can't be a #{type(el)}"
+      switch type(el)
+        when "error", "boolean", "number", "function", "array", "date", "regexp", "undefined", "null", "symbol" then throw err
       if type(el) is 'string'
         if pen.options["to selector"] is on
-          if pen.options["select all"] is on
-            pen.cre["el"] = document.querySelectorAll el
-          else
-            pen.cre["el"] = document.querySelector el
-        else
-          pen.cre["el"] = document.createElement el
-      else
-        pen.cre["el"] = el
+          if pen.options["select all"] is on then pen.pesh = document.querySelectorAll el else pen.pesh = document.querySelector el
+        else pen.pesh = document.createElement el
+      else pen.pesh = el
 
-      for func in srm
-        switch type(pen.cre["el"][func])
-          when 'null', 'undefined'
-            accpro(pen.cre["el"])[func] = pen[func]
-
-      pen.accesel = () -> pen.cre["el"]
-      pen.debug = (str, prefix) ->
-        if pen.options["debug mode"] is true
-          log "Pen-debug-#{if type(prefix) isnt 'null'
-              prefix
-            else
-              'unknown_child'
-            }: #{switch type(str)
-                when 'string'
-                  str
-                when 'array'
-                  str.join '\n'
-              }"
-      if pen.options["auto append"] is true
+      if pen.options["auto append"] is on
         if pen.options["normally append to"] is "body"
-          document.body.appendChild(pen.cre["el"])
+          body.appendChild pen.pesh
+        else if pen.options["normally append to"] is 'head'
+          head.appendChild pen.pesh
         else
-          document.head.appendChild(pen.cre["el"])
-      return pen.cre["el"]
+          pen.options["normally append to"].appendChild pen.pesh
+      pen
 
-    pen.getElementLayout = () ->
-      el = pen.accesel()
-      whole = el.tagName.toLowerCase()
-      if el.id.length isnt 0
-        whole += "##{el.id}"
-      classes = []
-      for i in el.classList
-        classes.push i
-      whole += ".#{classes.join "."}"
-      whole
+    pen.Class = (str) -> pen.pesh.setAttribute 'class', str; pen
+    pen.Id = (str) -> pen.pesh.setAttribute 'id', str; pen
 
-    pen.Attr = (stroobj, str) ->
-      el = pen.accesel()
-      if stroobj isnt null
-        if type(stroobj) is 'string'
-          if str isnt null
-            pen.debug "attatching '#{stroobj}=\"#{str}\"' to element '#{pen.getElementLayout()}'", "Attr"
-            el.setAttribute stroobj, str
-            return el
+    pen.Html = (str, app=off) ->
+      switch pen.pesh.tagName.toLowerCase()
+        when 'input', 'textarea'
+          if str?
+            if app is off then pen.pesh.value = str; pen else pen.pesh.value += str; pen
+          else pen.pesh.value
+        else
+          if str?
+            if app is off then pen.pesh.innerHTML = str; pen else pen.pesh.innerHTML += str; pen
+          else pen.pesh.innerHTML
+
+    pen.Css = (rulen, rule) ->
+      if rulen?
+        if type(rulen) is 'object'
+          for rule of rulen
+            pen.pesh.style[rule] = rulen[rule]
+        else pen.pesh.style[rulen] = rule
+        pen
+      else pen.pesh.style
+
+    pen.attr = (attrnm, attr) ->
+      if attrnm?
+        if attr?
+          if type(attrnm) is 'object'
+            for attr of attrnm
+              pen.pesh.setAttribute attr, attrnm[attr]
           else
-            return el.getAttribute stroobj
+            pen.pesh.setAttribute attrnm, attr
+          pen
+        else pen.pesh.getAttribute attrnm
+      else pen.pesh.attributes
+
+    pen.Remove = () -> pen.pesh.parentNode.removeChild pen.pesh; pen
+
+    pen.Append = (els...) ->
+      for el in els
+        if el is pen
+          pen.pesh.appendChild el.pesh
         else
-          pen.debug "attatching attributes to element '#{pen.getElementLayout()}'", "Attr"
-          for attr of stroobj
-            el.setAttribute attr, stroobj[attr]
-      else
-        return el.attributes
-      return el
+          pen.pesh.appendChild el
+      pen
 
-    pen.Class = (nm) -> el = pen.accesel(); el.setAttribute "class", nm; return el
+    pen.AppendTo = (el) -> el.appendChild pen.pesh; pen
 
-    pen.Id = (nm) -> el = pen.accesel(); el.setAttribute "id", nm; return el
+    pen.On = (type, fn, cp=false) -> pen.pesh.addEventListener type, fn, cp; pen
 
-    pen.Html = (str, app = false) ->
-      el = pen.accesel()
-      if str isnt null
-        if app is false then el.innerHTML = str else el.innerHTML += str; return el
-      else return el.innerHTML
-      return el
+    pen.Type = (args) -> type(arg)
 
-    pen.Value = (str, app = false) ->
-      el = pen.accesel()
-      if str isnt null
-        if app is false then el.value = str else el.value += str; return el
-      else return el.value
-      return el
+    pen.options =
+      "auto append": no, "to selector": no
+      "select all": no, "debug mode": no
+      "normally append to": "body"
 
-    pen.Css = (rules, str) ->
-      el = pen.accesel()
-      if type(rules) is 'object'
-        pen.debug "setting the style of '#{pen.getElementLayout()}'", "Css"; for rule of rules
-          el.style[rule] = rules[rule]
-      else if type(rules) is 'string' then el.style[rules] = str
-      else err = new Error "Pen-css: parameter 1 can't be #{type el}"; throw err
-      return el
+    pen.returnElement = () -> pen.pesh
 
-    pen.On = (type, func, cp=false) -> el = pen.accesel(); el.addEventListener type, func, cp; return el
+    pen.error = (pref, msg) -> throw new Error "Pen-#{if pref? then pref else ''}#{msg}"
 
-    pen.Append = (elems...) ->
-      el = pen.accesel()
-      for elem, index in elems
-        el.appendChild elem
-      return el
-
-    pen.AppendTo = (elem) ->
-      el = pen.accesel()
-      elem.appendChild el
-      return el
-
-    pen.Href = (hr) ->
-      el = pen.accesel()
-      if type(hr) is 'string'
-        pen.debug "Setting the href attribute to #{hr}", "Href"
-        el.setAttribute "href", hr
-      else
-        err = new Error "Pen-Href: main parameter 1, can only be a string"
-        throw err
-      return el
-
-    pen.Remove = () ->
-      el = pen.accesel()
-      el.parentNode.removeChild el
-      return el
-
-    pen.Create = (elesx, str) ->
-      el = pen.accesel()
-      pen.debug "Trying to create a new element and set it's parent to #{pen.getElementLayout()}", "Create"
-      elesx = document.createElement elesx
-      el.appendChild(elesx)
-      if str.match /parent/gi
-        el
-      else if str.match /child/gi
-        elesx
-      else
-        err = new Error "Pen-create invalid: #{str}, either child or parent can be returned"
-        throw err
-
-    pen.options = {}; pen.options["auto append"] = no; pen.options["to selector"] = no
-    pen.options["select all"] = no; pen.options["normally append to"] = "body"; pen.options["debug mode"] = no
-
-    pen.setOptions = (optionname, val) ->
-      ops = {"auto append", "to selector", "normally append to", "select all", "debug mode"}
-      if type(optionname) is 'string'
-        if optionname is ops[optionname]
-          pen.options[optionname] = val
+    pen.setOptions = (optionstr, option) ->
+      ops = {
+        "auto append", "debug mode", "to selector"
+        "select all", "normally append to"}
+      if optionstr?
+        if type(optionstr) is 'object'
+          for option of optionstr
+            if ops[option]?
+              pen.options[option] = optionstr[option]
+            else
+              pen.error("Set-options", "option #{option} doesn't exist")
         else
-          err = new Error "unrecgonized option #{optionname}"
-          throw err
-
-      else if type(optionname) is 'object'
-        for option of optionname
-          if option is ops[option]
-            pen.options[option] = optionname[option]
-          else
-            err = new Error "unrecgonized option '#{option}'"
-            throw err
-      return undefined
-
-    pen.GetOpitions = (option) -> if option isnt null then pen.options[option] else pen.options
-    pen.Type = (param) => type(param)
-
-    pen.Select = (el) -> document.querySelector el
-
-    pen.SelectAll = (el) -> document.querySelectorAll el
-
+          pen.options[optionstr] = option
+      return pen
     return pen
-
   if typeof pen is 'undefined' then window.pen = Pendef()
   return
 )(window, document)

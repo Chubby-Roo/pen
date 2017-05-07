@@ -3,26 +3,26 @@ var Card;
 
 Card = class Card {
   constructor(title, message) {
-    this.container = pen("div").Class("card-container");
+    this.container = pen("div").Class("card-container").pesh;
     this.titleContainer = pen("div").Class("card-title-container");
-    this.messageContainer = pen("div").Class("card-message-container");
-    this.message = pen("span").Class("card-message").Html(title !== null ? title : '');
-    this.title = pen("span").Class("card-title").Html(message !== null ? message : '');
+    this.messageContainer = pen("div").Class("card-message-container").pesh;
+    this.message = pen("span").Class("card-message").Html(title !== null ? title : '').pesh;
+    this.title = pen("span").Class("card-title").Html(message !== null ? message : '').pesh;
     pen(this.titleContainer).Append(this.title);
     pen(this.messageContainer).Append(this.message);
     pen(this.container).Append(this.titleContainer, this.messageContainer);
   }
 
   setTitle(str) {
-    return pen(this.title).Html(str);
+    return pen(this.title).Html(str).pesh;
   }
 
   setMessage(str) {
-    return pen(this.message).Html(str);
+    return pen(this.message).Html(str).pesh;
   }
 
   Style(el, stroobj) {
-    return pen(this[el]).Css(stroobj);
+    return pen(this[el]).Css(stroobj).pesh;
   }
 
 };

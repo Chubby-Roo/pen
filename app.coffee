@@ -3,16 +3,16 @@
 class Card
   constructor: (title, message) ->
     @container = pen("div").Class "card-container"
-    .pesh
+    .returnElement()
 
     @titleContainer = pen("div").Class "card-title-container"; @messageContainer = pen("div").Class "card-message-container"
-    .pesh
+    .returnElement()
 
     @message = pen("span").Class("card-message").Html if title isnt null then title else ''
-    .pesh
+    .returnElement()
 
     @title = pen("span").Class("card-title").Html if message isnt null then message else ''
-    .pesh
+    .returnElement()
 
     pen(@titleContainer).Append @title; pen(@messageContainer).Append @message
 
@@ -20,11 +20,11 @@ class Card
 
     return this
 
-  setTitle: (str) -> pen(@title).Html(str).pesh
+  setTitle: (str) -> pen(@title).Html(str).returnElement()
 
-  setMessage: (str) -> pen(@message).Html(str).pesh
+  setMessage: (str) -> pen(@message).Html(str).returnElement()
 
-  Style: (el, stroobj) -> pen(@[el]).Css(stroobj).pesh
+  Style: (el, stroobj) -> pen(@[el]).Css(stroobj).returnElement()
 
 class Modal
   constructor: (headstr, bodystr, footstr) ->
@@ -48,6 +48,12 @@ class Modal
 
     return this
 
+  setHead: (str) -> pen(@headText).Html(str).returnElement()
+
+  setText: (str) -> pen(@bodyText).Html(str).returnElement()
+
+  Style: (el, stroobj) -> pen(@[el]).Css(stroobj).returnElement()
+
 txt = pen("p").Html("loading...").returnElement()
 
 loader = pen("div").Class "loader"
@@ -58,22 +64,26 @@ loader = pen("div").Class "loader"
 contextmenu =
   commands: {}
   menu: pen("div").Class("contextmenu").returnElement()
+  
   addCommand: (name, ev) ->
     self = contextmenu
     self.commands[name] =
       el: pen("span").Html(name).Class("contextmenu-command").On("click", ev).returnElement()
       hr: pen("hr").Class("contextmenu-divider").returnElement()
     return self
+
   removeCommand: (name) ->
     self = contextmenu
     pen(self.commands[name].el).Remove()
     pen(self.commands[name].hr).Remove()
     return self
+
   remove: () ->
     self = contextmenu
     for name of self.commands
       self.removeCommand(name)
     window.removeEventListener "click", self.remove
+
   init: (e) ->
     self = contextmenu
     pen(self.menu).Css
@@ -119,21 +129,6 @@ Start = (e) ->
   header.addButton("X", () => window.close())
   .addButton("-", () => window.minimize())
   .addButton("[_]", () => window.maximize()).init()
-
-  a = pen("a").attr("href", "http://www.google.com").Class("body-button").Html("moose").returnElement().outerHTML
-  a1 = pen("a").attr("href", "https://github.com/Monochromefx/pen-coffee/tree/experimental").Class("body-button").Html("meew").returnElement().outerHTML
-  lorem = pen("pre").Html """
-
-  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
-  Ut enim ad minim veniam, quis #{a} exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-
-  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla #{a2}.
-
-  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\n
-  """.repeat 20
-  .returnElement()
-  pen(body).Append lorem
   pen(loader).Remove()
   log "load took #{Math.round e.timeStamp} second(s)"
 window.onload = Start
