@@ -1,4 +1,4 @@
-![pen](https://github.com/Monochromefx/pen-coffee/pen.logo.png)
+![pen](https://github.com/Monochromefx/pen-coffee/blob/master/pen.logo.png)
 
 # Pen
 
