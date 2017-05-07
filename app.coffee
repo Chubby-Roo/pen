@@ -1,4 +1,7 @@
 {log, error, dir} = console; {body, head} = document
+load = pen("p").Css(bottom: 0, right: 0, position: 'fixed', color:'grey').returnElement()
+pen(load).AppendTo body
+pen(load).Html("loading...")
 
 class Card
   constructor: (title, message) ->
@@ -38,9 +41,8 @@ class Card
     if el?
       pen(el).Append @container
     else
-      pen(document.body).Append @container
+      pen(body).Append @container
     this
-
 
 class Modal
   constructor: (headstr, bodystr, footstr) ->
@@ -88,15 +90,8 @@ class Modal
     if el?
       pen(el).Append @container
     else
-      pen(document.body).Append @container
+      pen(body).Append @container
     this
-
-txt = pen("p").Html("loading...").returnElement()
-
-loader = pen("div").Class "loader"
-.Append txt
-.AppendTo body
-.returnElement()
 
 contextmenu =
   commands: {}
@@ -119,7 +114,7 @@ contextmenu =
     self = contextmenu
     for name of self.commands
       self.removeCommand(name)
-    window.removeEventListener "click", self.remove
+    removeEventListener "click", self.remove
 
   init: (e) ->
     self = contextmenu
@@ -127,8 +122,8 @@ contextmenu =
       top: "#{e.clientY}px", left: "#{e.clientX}px"
     for name of self.commands
       pen(self.menu).Append self.commands[name].el, self.commands[name].hr
-    window.addEventListener "click", self.remove
-    pen(document.body).Append self.menu
+    addEventListener "click", self.remove
+    pen(body).Append self.menu
     return self
 
 header =
@@ -136,9 +131,15 @@ header =
   head: pen("div").Class("header").returnElement()
   title: pen("span").Class("title").Html(document.title).returnElement()
 
-  addButton: (name, event) ->
+  addButton: (name, event, el) ->
     self = header
-    self.buttons[name] = pen("span").Class("header-button Ril").Html(name).On("click", event).returnElement()
+    if el?
+      if el is 'a'
+        self.buttons[name] = pen("a").Class("header-button Ril link").Html(name).attr("href", event).returnElement()
+      else
+        self.buttons[name] = pen(el).Class("header-button Ril").Html(name).On("click", event).returnElement()
+    else
+      self.buttons[name] = pen("span").Class("header-button Ril").Html(name).On("click", event).returnElement()
     return self
 
   removeButton: (name) ->
@@ -151,30 +152,53 @@ header =
     pen(self.head).Append self.title
     for name of self.buttons
       pen(self.head).Append self.buttons[name]
-    pen(document.body).Append self.head
+    pen(body).Append self.head
     brs = []
     for i in [0..4]
       brs[i] = pen("br").returnElement()
-      pen(document.body).Append brs[i]
+      pen(body).Append brs[i]
     return self
 
 Start = (e) ->
-  contextmenu.addCommand("reload", (e) =>
+  contextmenu
+  .addCommand("reload", (e) =>
     e.preventDefault()
+    pen(load).Html("reloading...")
     location.reload()
-).addCommand("go back", (e) =>
+  ).addCommand("go back", (e) =>
     e.preventDefault()
+    pen(load).Html("going back...")
     location.back()
-).addCommand("go forward", (e) =>
-   e.preventDefault()
-   location.forward())
-
-  window.addEventListener "contextmenu", (e) =>
+  ).addCommand("go forward", (e) =>
+    e.preventDefault()
+    pen(load).Html("going foward...")
+    location.forward()
+  )
+  addEventListener "contextmenu", (e) =>
     e.preventDefault()
     contextmenu.init(e)
     return
 
-  header.init()
-  pen(loader).Remove()
-  log "load took #{Math.round e.timeStamp} second(s)"
+  header
+  .addButton("<img src='Github-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init()
+
+
+  maincontain = pen("div").attr("align", "center").Class("wrapper").returnElement()
+
+  init = "load took #{Math.round e.timeStamp} second(s)"
+
+  mouseOv = (e) ->
+    pen(this).Html "want to remove this message?, if so just click me"
+    return
+  mouseOu = (e) ->
+    pen(this).Html init
+    return
+  mouseCl = (e) ->
+    pen(this).Remove()
+
+  pen(load).Html init
+  log init
+  pen(load).On "mouseover", mouseOv
+  pen(load).On "mouseout", mouseOu
+  pen(load).On "click", mouseCl
 window.onload = Start
