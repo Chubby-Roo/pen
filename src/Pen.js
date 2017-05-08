@@ -20,6 +20,10 @@
   Pendef = function() {
     var pen;
     pen = function(el) {
+      pen.init(el);
+      return pen;
+    };
+    pen.init = function(el) {
       var err;
       err = new Error(`Pen: parameter 1 can't be a ${type(el)}`);
       switch (type(el)) {
@@ -50,22 +54,13 @@
       }
       if (pen.options["auto append"] === true) {
         if (pen.options["normally append to"] === "body") {
-          body.appendChild(pen.pesh);
+          return body.appendChild(pen.pesh);
         } else if (pen.options["normally append to"] === 'head') {
-          head.appendChild(pen.pesh);
+          return head.appendChild(pen.pesh);
         } else {
-          pen.options["normally append to"].appendChild(pen.pesh);
+          return pen.options["normally append to"].appendChild(pen.pesh);
         }
       }
-      return pen;
-    };
-    pen.Class = function(str) {
-      pen.pesh.setAttribute('class', str);
-      return pen;
-    };
-    pen.Id = function(str) {
-      pen.pesh.setAttribute('id', str);
-      return pen;
     };
     pen.Html = function(str, app = false) {
       switch (pen.pesh.tagName.toLowerCase()) {
@@ -128,6 +123,14 @@
       } else {
         return pen.pesh.attributes;
       }
+    };
+    pen.Class = function(str) {
+      pen(pen.pesh).attr('class', str);
+      return pen;
+    };
+    pen.Id = function(str) {
+      pen(pen.pesh).attr('id', str);
+      return pen;
     };
     pen.Remove = function() {
       pen.pesh.parentNode.removeChild(pen.pesh);

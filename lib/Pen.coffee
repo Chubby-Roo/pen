@@ -9,6 +9,10 @@
       classToType[strType] or "object"
   Pendef = () ->
     pen = (el) ->
+      pen.init(el)
+      pen
+
+    pen.init = (el) ->
       err = new Error "Pen: parameter 1 can't be a #{type(el)}"
       switch type(el)
         when "error", "boolean", "number", "function", "array", "date", "regexp", "undefined", "null", "symbol" then throw err
@@ -25,10 +29,6 @@
           head.appendChild pen.pesh
         else
           pen.options["normally append to"].appendChild pen.pesh
-      pen
-
-    pen.Class = (str) -> pen.pesh.setAttribute 'class', str; pen
-    pen.Id = (str) -> pen.pesh.setAttribute 'id', str; pen
 
     pen.Html = (str, app=off) ->
       switch pen.pesh.tagName.toLowerCase()
@@ -61,6 +61,9 @@
           pen
         else pen.pesh.getAttribute attrnm
       else pen.pesh.attributes
+
+    pen.Class = (str) -> pen(pen.pesh).attr 'class', str; pen
+    pen.Id = (str) -> pen(pen.pesh).attr 'id', str; pen
 
     pen.Remove = () -> pen.pesh.parentNode.removeChild pen.pesh; pen
 
