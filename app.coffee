@@ -1,107 +1,107 @@
 {log, error, dir} = console; {body, head} = document
-load = pen("p").Css(bottom: 0, right: 0, position: 'fixed', color:'grey').returnElement()
-pen(load).AppendTo body
-pen(load).Html("loading...")
+load = pen("p").css(bottom: 0, right: 0, position: 'fixed', color:'grey').returnElement()
+pen(load).appendTo body
+pen(load).html("loading...")
 
 class Card
   constructor: (title, message) ->
-    @container = pen("div").Class("card-container").returnElement()
+    @container = pen("div").class("card-container").returnElement()
 
-    @titleContainer = pen("div").Class("card-title-container").returnElement()
+    @titleContainer = pen("div").class("card-title-container").returnElement()
 
-    @messageContainer = pen("div").Class("card-message-container").returnElement()
+    @messageContainer = pen("div").class("card-message-container").returnElement()
 
-    @message = pen("span").Class("card-message").Html(if title isnt null then title else '').returnElement()
+    @message = pen("span").class("card-message").html(if title isnt null then title else '').returnElement()
 
-    @title = pen("span").Class("card-title").Html( if message isnt null then message else '').returnElement()
+    @title = pen("span").class("card-title").html( if message isnt null then message else '').returnElement()
 
-    pen(@titleContainer).Append @title
+    pen(@titleContainer).append @title
 
-    pen(@messageContainer).Append @message
+    pen(@messageContainer).append @message
 
-    pen(@container).Append @titleContainer, @messageContainer
+    pen(@container).append @titleContainer, @messageContainer
 
   setTitle: (str) ->
-    pen(@title).Html(str)
+    pen(@title).html(str)
     this
 
   setMessage: (str) ->
-    pen(@message).Html(str)
+    pen(@message).html(str)
     this
 
   Style: (els, stroobj) ->
     if pen.Type(els) is 'object'
       for el of els
-        pen(@[el]).Css(els[el])
+        pen(@[el]).css(els[el])
     else
-      pen(@[el]).Css(stroobj)
+      pen(@[el]).css(stroobj)
     this
 
   deploy: (el) ->
     if el?
-      pen(el).Append @container
+      pen(el).append @container
     else
-      pen(body).Append @container
+      pen(body).append @container
     this
 
 class Modal
   constructor: (headstr, bodystr, footstr) ->
-    @container = pen("div").Class "modal-container"; @head = pen("div").Class "modal-head"
+    @container = pen("div").class "modal-container"; @head = pen("div").class "modal-head"
 
-    @body = pen("div").Class "modal-body"; @foot = pen("div").Class "modal-foot"
+    @body = pen("div").class "modal-body"; @foot = pen("div").class "modal-foot"
 
-    @closebtn = pen("span").Class("close-button").Html("X")
+    @closebtn = pen("span").class("close-button").html("X")
 
     Remove = (e) ->
       pen(@container).Remove(); pen(@closebtn).removeEventListener "click", Remove
       return
 
-    pen(@closebtn).On "click", Remove
+    pen(@closebtn).on "click", Remove
 
-    @headText = pen("h2").Class("modal-head-text").Html if headerstr isnt null then headerstr else ''
+    @headText = pen("h2").class("modal-head-text").html if headerstr isnt null then headerstr else ''
 
-    @bodyText = pen("p").Class("modal-body-text").Html if bodystr isnt null then bodystr else ''
+    @bodyText = pen("p").class("modal-body-text").html if bodystr isnt null then bodystr else ''
 
-    @footText = pen("h2").Class("modal-foot-text").Html if footstr isnt null then footstr else ''
+    @footText = pen("h2").class("modal-foot-text").html if footstr isnt null then footstr else ''
 
     return this
 
   setHeadText: (str) ->
-    pen(@headText).Html(str)
+    pen(@headText).html(str)
     this
 
   setBodyText: (str) ->
-    pen(@bodyText).Html(str)
+    pen(@bodyText).html(str)
     this
 
   setFootText: (str) ->
-    pen(@footText).Html(str)
+    pen(@footText).html(str)
     this
 
   Style: (els, stroobj) ->
     if pen.Type(el) is 'object'
       for el of els
-        pen(@[el]).Css(els[el])
+        pen(@[el]).css(els[el])
     else
-      pen(@[el]).Css(stroobj)
+      pen(@[el]).css(stroobj)
     this
 
   deploy: (el) ->
     if el?
-      pen(el).Append @container
+      pen(el).append @container
     else
-      pen(body).Append @container
+      pen(body).append @container
     this
 
 contextmenu =
   commands: {}
-  menu: pen("div").Class("contextmenu").attr("align", "center").returnElement()
+  menu: pen("div").class("contextmenu").attr("align", "center").returnElement()
 
   addCommand: (name, ev) ->
     self = contextmenu
     self.commands[name] =
-      el: pen("span").Html(name).Class("contextmenu-command").On("click", ev).returnElement()
-      hr: pen("hr").Class("contextmenu-divider").returnElement()
+      el: pen("span").html(name).class("contextmenu-command").on("click", ev).returnElement()
+      hr: pen("hr").class("contextmenu-divider").returnElement()
     return self
 
   removeCommand: (name) ->
@@ -118,28 +118,28 @@ contextmenu =
 
   init: (e) ->
     self = contextmenu
-    pen(self.menu).Css
+    pen(self.menu).css
       top: "#{e.clientY}px", left: "#{e.clientX}px"
     for name of self.commands
-      pen(self.menu).Append self.commands[name].el, self.commands[name].hr
+      pen(self.menu).append self.commands[name].el, self.commands[name].hr
     addEventListener "click", self.remove
-    pen(body).Append self.menu
+    pen(body).append self.menu
     return self
 
 header =
   buttons: {}
-  head: pen("div").Class("header").returnElement()
-  title: pen("span").Class("title").Html(document.title).returnElement()
+  head: pen("div").class("header").returnElement()
+  title: pen("span").class("title").html(document.title).returnElement()
 
   addButton: (name, event, el) ->
     self = header
     if el?
       if el is 'a'
-        self.buttons[name] = pen("a").Class("header-button Ril link").Html(name).attr("href", event).returnElement()
+        self.buttons[name] = pen("a").class("header-button Ril link").html(name).attr("href", event).returnElement()
       else
-        self.buttons[name] = pen(el).Class("header-button Ril").Html(name).On("click", event).returnElement()
+        self.buttons[name] = pen(el).class("header-button Ril").html(name).on("click", event).returnElement()
     else
-      self.buttons[name] = pen("span").Class("header-button Ril").Html(name).On("click", event).returnElement()
+      self.buttons[name] = pen("span").class("header-button Ril").html(name).on("click", event).returnElement()
     return self
 
   removeButton: (name) ->
@@ -149,14 +149,14 @@ header =
 
   init: () ->
     self = header
-    pen(self.head).Append self.title
+    pen(self.head).append self.title
     for name of self.buttons
-      pen(self.head).Append self.buttons[name]
-    pen(body).Append self.head
+      pen(self.head).append self.buttons[name]
+    pen(body).append self.head
     brs = []
     for i in [0..4]
       brs[i] = pen("br").returnElement()
-      pen(body).Append brs[i]
+      pen(body).append brs[i]
     return self
 
 
@@ -167,7 +167,7 @@ wrapper =
   divs: {}
   codes: {}
   prevs: {}
-  container: pen("div").attr("align", "center").Class("wrapper").returnElement()
+  container: pen("div").attr("align", "center").class("wrapper").returnElement()
   addImage: (alt, src, img, lnk) ->
     if lnk?
       @imagaes[alt] = pen("img").attr(
@@ -176,7 +176,7 @@ wrapper =
         class: "body-button link").returnElement()
       @links[alt] = pen("a").attr(
         alt: alt
-        href: lnk).Html(@images[alt]).returnElement()
+        href: lnk).html(@images[alt]).returnElement()
 
 
 
@@ -184,15 +184,15 @@ Start = (e) ->
   contextmenu
   .addCommand("reload", (e) =>
     e.preventDefault()
-    pen(load).Html("reloading...")
+    pen(load).html("reloading...")
     location.reload()
   ).addCommand("go back", (e) =>
     e.preventDefault()
-    pen(load).Html("going back...")
+    pen(load).html("going back...")
     location.back()
   ).addCommand("go forward", (e) =>
     e.preventDefault()
-    pen(load).Html("going foward...")
+    pen(load).html("going foward...")
     location.forward()
   )
   addEventListener "contextmenu", (e) =>
@@ -206,17 +206,17 @@ Start = (e) ->
   init = "load took #{Math.round e.timeStamp} second(s)"
 
   mouseOv = (e) ->
-    pen(this).Html "want to remove this message?, if so just click me"
+    pen(this).html "want to remove this message?, if so just click me"
     return
   mouseOu = (e) ->
-    pen(this).Html init
+    pen(this).html init
     return
   mouseCl = (e) ->
     pen(this).Remove()
 
-  pen(load).Html init
+  pen(load).html init
   log init
-  pen(load).On "mouseover", mouseOv
-  pen(load).On "mouseout", mouseOu
-  pen(load).On "click", mouseCl
+  pen(load).on "mouseover", mouseOv
+  pen(load).on "mouseout", mouseOu
+  pen(load).on "click", mouseCl
 window.onload = Start
