@@ -12,7 +12,9 @@ var type = (function() {
     return classToType[strType] || "object";
   };
 })();
+
 var pen = function (el) {
+  this.el = el
   if (!(this instanceof pen)) {
     el = new pen(el)
   }
@@ -24,15 +26,34 @@ var pen = function (el) {
   }
 }
 
-pen.prototype.options = {
-  "autoAppend":false,
-  "toSelector":false,
-  "selectAll":false,
-  "autoAppendTo":document.body,
-  "debugMode":"off"
+pen.fn = pen.prototype = {}
+
+pen.fn.options = {
+  autoAppend:false,
+  toSelector:false,
+  selectAll:false,
+  autoAppendTo:document.body,
+  debugMode:"off"
 }
 
-pen.prototype.parse = function (el) {
+
+// 'ccOptions' short for check change options
+pen.fn.ccOptions = function (optionname, optionassign) {
+  if (type(optionassign) === 'undefined') {
+    if (type(optionname) === 'object') {
+      for (var option in optionname) {
+        this.options[option] = optionname[option]
+      }
+    } else {
+      return this.options[optionname]
+    }
+    return this
+  } else {
+    this.options[optionname] = optionassign
+  }
+}
+
+pen.fn.parse = function (el) {
   err = new Error(`Pen: parameter 1 can't be a ${type(el)}`);
   switch (type(el)) {
     case "error": case "boolean":
@@ -44,8 +65,8 @@ pen.prototype.parse = function (el) {
   }
 
   if (type(el) === 'string') {
-    if (pen.options.toSelector === true) {
-      if (pen.options.selectAll === true) {
+    if (this.options.toSelector === true) {
+      if (this.options.selectAll === true) {
         this.el = document.querySelectorAll(el);
       } else {
         this.el = document.querySelector(el);
@@ -57,101 +78,104 @@ pen.prototype.parse = function (el) {
     this.el = el;
   }
 
-  if (pen.options.autoAppend === true) {
-    pen(pen.autoAppendTo).append(this.el)
+  if (this.options.autoAppend === true) {
+    pen(this.autoAppendTo).append(this.el)
   }
 
   return this
 };
 
-pen.prototype.html = function (str, app) {
+pen.fn.html = function (str, app=false) {
   var self = this
-  var usefunc = function(type) {
-    if (str != null) {
-      if (app === false) {
-        this.el[type] = str
-        return self
-      } else {
-        this.el[type] += str
-        return self
-      }
-    } else {
-      return self.el[type]
-    }
-  }
 
-  if (this.is("input") === true) {
-    return usefunc("value")
-  } else if (this.is("textarea") === true) {
-    return usefunc("value")
-  } else {
-    return usefunc("innerHTML")
+  switch (this.el.tagName.toLowerCase()) {
+    case 'input': case 'textarea':
+      if (str != null) {
+        if (app === false) {
+          this.el.value = str
+          return self
+        } else {
+          this.el.value += str
+          return self
+        }
+      } else {
+        return self.el.value
+      }
+    break;
+    default:
+      if (str != null) {
+        if (app === false) {
+          this.el.innerHTML = str
+          return self
+        } else {
+          this.el.innerHTML += str
+          return self
+        }
+      } else {
+        return self.el.innerHTML
+      }
   }
 }
 
-pen.prototype.css = function (rules, rulestr) {
-  if (rulestr != null) {
+pen.fn.css = function (rules, rulestr) {
+  if (type(rulestr) === 'undefined') {
     if (type(rules) === "object") {
       for (var rule in rules) {
         this.el.style[rule] = rules[rule]
       }
     } else {
-      this.el.style[rules] = rulestr
+      return this.el.style[rules]
     }
     return this
   } else {
-    return this.el.style[rules]
+    this.el.style[rules] = rulestr
   }
 }
 
-pen.prototype.attr = function (attrs, assign) {
-  if (assign != null) {
+pen.fn.attr = function (attrs, assign) {
+  if (type(assign) === 'undefined') {
     if (type(attrs) === "object") {
       for (var attr in attrs) {
         this.el.setAttribute(attr, attrs[attr])
       }
     } else {
-      this.el.setAttribute(attrs, assign)
+      return this.el.getAttribute(attrs)
     }
-    return this
   } else {
-    return this.el.getAttribute(attrs)
+    this.el.setAttribute(attrs, assign)
   }
+  return this
 }
 
-pen.prototype.append = function (...els) {
+pen.fn.append = function (...els) {
   for (var i = 0 ; i < els.length; i++) {
     var el = els[i]
     this.el.appendChild(el)
   }
   return this
 }
-
-pen.prototype.appendTo = function(el) {
-  pen(el).append(this.el)
+pen.fn.appendTo = function (el) {
+  el.appendChild(this.el)
   return this
 }
 
-pen.prototype.class = function(...names) {
-  for (var i = 0; i < names.length; i++) {
-    var name = names[i]
-    this.el.classList.add(name)
-  }
+pen.fn.class = function(name) {
+  pen(this).attr("class", name)
   return this
 }
 
-pen.prototype.id = function(...ids) {
+pen.fn.id = function(...ids) {
   var id = "#"+ids.join("-")
   pen(this.el).attr("id", id)
   return this
 }
 
-pen.prototype.href = function(href) {
+pen.fn.href = function(href) {
   pen(this.el).attr("hrer",href)
   return this
 }
 
-pen.prototype.is = function(typees) {
+pen.fn.is = function(typees) {
   var bool;
   if (this.el.tagName.toLocaleLowerCase() === typees) {
     bool = true
@@ -161,16 +185,26 @@ pen.prototype.is = function(typees) {
   return bool
 }
 
-pen.prototype.toggle = function(csssel) {
+pen.fn.toggle = function(csssel) {
   this.el.classList.toggle(csssel)
   return this
 }
 
-pen.prototype.remove = () {
+pen.fn.remove = function () {
   this.el.parentNode.removeChild(this.el)
   return this
 }
 
-pen.prototype.returnElement = function () {
+pen.fn.returnElement = function () {
   return this.el
+}
+
+pen.fn.on = function (type, event, cp = false) {
+  this.el.addEventListener(type, event, cp)
+  return this
+}
+
+pen.fn.off = function (type, event, cp = false) {
+  this.el.removeEventListener(type, event, cp)
+  return this
 }

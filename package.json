@@ -1,20 +1,15 @@
 {
   "name": "pen",
-  "version": "2.1.1",
+  "version": "1.0.4",
   "dependencies": {},
-  "main": "src/Pen.js",
+  "main": "Pen.js",
   "devDependencies": {},
   "description": "pen a small api to manipulate elements in the dom",
   "author": "Monochromefx",
-  "scripts": {
-    "buildPen": "coffee -o src -bc lib",
-    "buildPenDev": "coffee -o src -bwc lib"
-  },
+  "scripts": {},
   "license": "MIT",
   "keywords": [
-    "coffee",
     "pen",
-    "coffeescript",
     "manipulation",
     "elements"
   ],
@@ -29,6 +24,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Monochromefx/pen-coffee.git"
+    "url": "git+https://github.com/Monochromefx/pen.git"
   }
 }
