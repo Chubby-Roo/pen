@@ -13,211 +13,121 @@ var type = (function() {
   };
 })();
 
-var pen = function (el) {
-  this.el = el;
-  if (!(this instanceof pen)) return new pen(el);
-  if (el instanceof pen) return el;
-  if (typeof el === "string") el = this.parse(el);
+var pen = function (el, cont) {
+  if (!(this instanceof pen)) {
+    return new pen(el, cont);
+  }
+  if (el instanceof pen) {
+    return el;
+  }
+  switch (type(el)) {
+    case 'string': case 'array': case 'object':
+      el = this.parse(el, cont)
+    break;
+    default:
+      var err = new Error(`Pen: argument 1 can't be ${type(el)}`)
+  }
+  this.element = el
 }
 
+pen.options = {}
+pen.options.autoAppend = "off"
+pen.options.debugMode = "off"
+pen.options.selectorMode = "off"
+pen.options.selectAll = "off"
+pen.options.autoAppendTo = document.body
+
 pen.fn = pen.prototype = {
-  get element () {
-    return this.el
+  get el () {
+    return this.element
   }
 }
 
-pen.fn.options = {
-  autoAppend:false,
-  toSelector:false,
-  selectAll:false,
-  autoAppendTo:document.body,
-  debugMode:"off",
-  smartMode:"on"
+pen.fn.parse = function (el, cont) {
+  return this.create(el, cont)
 }
 
+pen.fn.create = function (el, cont) {
+  var lsv;
+  if (type(cont) === 'string') cont = document.querySelector(cont)
+  switch (type(el)) {
+    case 'string':
+      if (pen.options.selectorMode === 'on') {
+        if (pen.options.selectAll === 'on') {
+          lsv = type(cont) !== 'undefined' ? cont.querySelectorAll(el) : document.querySelectorAll(el)
+        } else {
+          lsv = type(cont) !== 'undefined' ? cont.querySelector(el) : document.querySelector(el)
+        }
+      } else {
+        lsv = document.createElement(el)
+      }
+    break;
+    default:
+      lsv = el
+  }
+  if (pen.options.autoAppend === 'on') {
+    pen.options.autoAppendTo.append(lsv)
+  }
+  return lsv
+}
 
-pen.fn.dev = {}
-
-pen.fn.dev.debug = function (message, prefix) {
-  var self = pen
-  if (self.options.debugMode === 'on') {
-    prefix = type(prefix) !== 'undefined' ? prefix : "unknown-child";
-    message = message.replace(/;+/gi, '\n').replace(/->/gi, ' '.repeat(4));
-    console.log(`Pen-debug-${prefix}: ${message}`)
+pen.fn.handleArray = function (func, ...args) {
+  var self = this, el = this.element;
+  if (type(el) === 'array') {
+    for (var i = 0; i < el.length; i++) {
+      self[func]([...args])
+    }
   }
   return self
 }
 
-
-// 'ccOptions' short for check change options
-pen.fn.ccOptions = function (optionname, optionassign) {
-  if (type(optionassign) === 'undefined') {
-    this.dev.debug("options assignment is undefined running next check...", "ccOptions")
-    if (type(optionname) === 'object') {
-      for (var option in optionname) {
-        this.options[option] = optionname[option]
+pen.fn.html = function (str, app = false) {
+  this.handleArray("html", str, app)
+  var el = this.element, self = this
+  function def (prop, str, app) {
+    if (str != null) {
+      if (app === true) {
+        el[prop] += str
+        return self
+      } else {
+        el[prop] = str
+        return self
       }
     } else {
-      return this.options[optionname]
+      return el[prop]
     }
-    return this
-  } else {
-    this.options[optionname] = optionassign
   }
-}
-
-pen.fn.parse = function (el) {
-  err = new Error(`Pen: parameter 1 can't be a ${type(el)}`);
-  switch (type(el)) {
-    case "error": case "boolean":
-    case "number": case "function":
-    case "array": case "date":
-    case "regexp": case "undefined":
-    case "null": case "symbol":
-      throw err;
-  }
-
-  if (type(el) === 'string') {
-    if (this.options.toSelector === true) {
-      if (this.options.selectAll === true) {
-        this.el = document.querySelectorAll(el);
-      } else {
-        this.el = document.querySelector(el);
-      }
-    } else {
-      this.el = document.createElement(el);
-    }
-  } else {
-    this.el = el;
-  }
-
-  if (this.options.autoAppend === true) {
-    pen(this.autoAppendTo).append(this.el)
-  }
-
-  return this
-};
-
-pen.fn.html = function (str, app=false) {
-  var self = this
-
-  switch (this.el.tagName.toLowerCase()) {
-    case 'input': case 'textarea':
-      if (str != null) {
-        if (app === false) {
-          this.el.value = str
-          return self
-        } else {
-          this.el.value += str
-          return self
-        }
-      } else {
-        return self.el.value
-      }
+  switch (el.tagName.toLowerCase()) {
+    case 'input': case 'option': case 'textarea':
+      return def("value", str, app)
     break;
     default:
-      if (str != null) {
-        if (app === false) {
-          this.el.innerHTML = str
-          return self
-        } else {
-          this.el.innerHTML += str
-          return self
-        }
-      } else {
-        return self.el.innerHTML
-      }
+      return def("innerHTML", str, app)
   }
 }
 
-pen.fn.css = function (rules, rulestr) {
-  if (type(rulestr) === 'undefined') {
-    if (type(rules) === "object") {
-      for (var rule in rules) {
-        this.el.style[rule] = rules[rule]
+pen.fn.is = function(str) {
+  this.handleArray('is', str)
+  return this.element.tagName.toLowerCase() === str
+}
+
+pen.fn.handleObject = function (obj, cb) {
+  var self = this, el = this.element;
+  if (type(obj) === 'object') {
+    for (var prop in obj) {
+      try {
+        cb(prop)
+      } catch (err) {
+        console.error(err)
       }
-    } else {
-      return this.el.style[rules]
     }
-    return this
-  } else {
-    this.el.style[rules] = rulestr
   }
+  return self
 }
 
-pen.fn.attr = function (attrs, assign) {
-  if (type(assign) === 'undefined') {
-    if (type(attrs) === "object") {
-      for (var attr in attrs) {
-        this.el.setAttribute(attr, attrs[attr])
-      }
-    } else {
-      return this.el.getAttribute(attrs)
-    }
-  } else {
-    this.el.setAttribute(attrs, assign)
-  }
-  return this
-}
-
-pen.fn.append = function (...els) {
-  for (var i = 0 ; i < els.length; i++) {
-    var el = els[i]
-    this.el.appendChild(el)
-  }
-  return this
-}
-pen.fn.appendTo = function (el) {
-  el.appendChild(this.el)
-  return this
-}
-
-pen.fn.class = function(name) {
-  pen(this).attr("class", name)
-  return this
-}
-
-pen.fn.id = function(...ids) {
-  var id = "#"+ids.join("-")
-  pen(this.el).attr("id", id)
-  return this
-}
-
-pen.fn.href = function(href) {
-  pen(this.el).attr("hrer",href)
-  return this
-}
-
-pen.fn.is = function(typees) {
-  var bool;
-  if (this.el.tagName.toLocaleLowerCase() === typees) {
-    bool = true
-  } else {
-    bool = false
-  }
-  return bool
-}
-
-pen.fn.toggle = function(csssel) {
-  this.el.classList.toggle(csssel)
-  return this
-}
-
-pen.fn.remove = function () {
-  this.el.parentNode.removeChild(this.el)
-  return this
-}
-
-pen.fn.returnElement = function () {
-  return this.el
-}
-
-pen.fn.on = function (type, event, cp = false) {
-  this.el.addEventListener(type, event, cp)
-  return this
-}
-
-pen.fn.off = function (type, event, cp = false) {
-  this.el.removeEventListener(type, event, cp)
-  return this
+pen.fn.css = function(rules, rule) {
+  var self = this
+  this.handleObject(rules, function (rule) {
+    self.el.style[rule] = rules[rule]
+  })
 }
