@@ -14,32 +14,45 @@ var type = (function() {
 })();
 
 var pen = function (el) {
-  this.el = el
-  if (!(this instanceof pen)) {
-    el = new pen(el)
-  }
-  if (el instanceof pen) {
-    return el
-  }
-  if (typeof el === "string") {
-    el = this.parse(el)
-  }
+  this.el = el;
+  if (!(this instanceof pen)) return new pen(el);
+  if (el instanceof pen) return el;
+  if (typeof el === "string") el = this.parse(el);
 }
 
-pen.fn = pen.prototype = {}
+pen.fn = pen.prototype = {
+  get element () {
+    return this.el
+  }
+}
 
 pen.fn.options = {
   autoAppend:false,
   toSelector:false,
   selectAll:false,
   autoAppendTo:document.body,
-  debugMode:"off"
+  debugMode:"off",
+  smartMode:"on"
+}
+
+
+pen.fn.dev = {}
+
+pen.fn.dev.debug = function (message, prefix) {
+  var self = pen
+  if (self.options.debugMode === 'on') {
+    prefix = type(prefix) !== 'undefined' ? prefix : "unknown-child";
+    message = message.replace(/;+/gi, '\n').replace(/->/gi, ' '.repeat(4));
+    console.log(`Pen-debug-${prefix}: ${message}`)
+  }
+  return self
 }
 
 
 // 'ccOptions' short for check change options
 pen.fn.ccOptions = function (optionname, optionassign) {
   if (type(optionassign) === 'undefined') {
+    this.dev.debug("options assignment is undefined running next check...", "ccOptions")
     if (type(optionname) === 'object') {
       for (var option in optionname) {
         this.options[option] = optionname[option]
