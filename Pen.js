@@ -195,17 +195,27 @@ pen.fn.class = function (str) {
   }
   return this
 }
-pen.fn.id = function (str) {
-  this.handleArray("id",str)
-  this.attr("id", str)
-  return this
-}
 pen.fn.toggle = function (str) {
   this.handleArray("toggle",str)
   this.element.classList.toggle(str)
   return this
 }
+pen.fn.id = function (str) {
+  this.handleArray("id",str)
+  this.attr("id", str)
+  return this
+}
+pen.fn.href = function (str) {
+  this.handleArray("href", str)
+  this.attr("href", str)
+  return this
+}
 
 pen.fn.returnElement = function() {
   return this.element
+}
+
+pen.fn.remove = function () {
+  this.el.parentNode.removeChild(this.el)
+  return this
 }
