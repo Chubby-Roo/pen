@@ -6,7 +6,9 @@
   "devDependencies": {},
   "description": "pen a small api to manipulate elements in the dom",
   "author": "Monochromefx",
-  "scripts": {},
+  "scripts": {
+    "sass": "sass style.sass"
+  },
   "license": "MIT",
   "keywords": [
     "pen",

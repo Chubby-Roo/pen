@@ -4,5 +4,6 @@
 *.css.map
 *.sassc
 *.sass
+sass
 *.coffee
 *.zip

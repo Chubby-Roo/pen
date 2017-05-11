@@ -1,116 +1,10 @@
 var {log, error, dir} = console
 var {body, head} = document
 
-var load = pen("p").css({
-  bottom: 0,
-  right: 0,
-  position: 'fixed',
-  color: 'grey'
-}).el
+var load = pen("p").id("loader").el
 pen(body).append(load);
 
 pen(load).html("loading...");
-
-var Card = class Card {
-  constructor(title, message) {
-    this.container = pen("div").class("card-container").el;
-    this.titleContainer = pen("div").class("card-title-container").el;
-    this.messageContainer = pen("div").class("card-message-container").el;
-    this.message = pen("span").class("card-message").html(title !== null ? title : '').el;
-    this.title = pen("span").class("card-title").html(message !== null ? message : '').el;
-    pen(this.titleContainer).append(this.title);
-    pen(this.messageContainer).append(this.message);
-    pen(this.container).append(this.titleContainer, this.messageContainer);
-  }
-
-  setTitle(str) {
-    pen(this.title).html(str);
-    return this;
-  }
-
-  setMessage(str) {
-    pen(this.message).html(str);
-    return this;
-  }
-
-  Style(els, stroobj) {
-    var el;
-    if (pen.Type(els) === 'object') {
-      for (el in els) {
-        pen(this[el]).css(els[el]);
-      }
-    } else {
-      pen(this[el]).css(stroobj);
-    }
-    return this;
-  }
-
-  deploy(el) {
-    if (el != null) {
-      pen(el).append(this.container);
-    } else {
-      pen(body).append(this.container);
-    }
-    return this;
-  }
-
-};
-
-var Modal = class Modal {
-  constructor(headstr, bodystr, footstr) {
-    var Remove;
-    this.container = pen("div").class("modal-container");
-    this.head = pen("div").class("modal-head");
-    this.body = pen("div").class("modal-body");
-    this.foot = pen("div").class("modal-foot");
-    this.closebtn = pen("span").class("close-button").html("X");
-    Remove = function(e) {
-      pen(this.container).remove();
-      pen(this.closebtn).removeEventListener("click", Remove);
-    };
-    pen(this.closebtn).on("click", Remove);
-    this.headText = pen("h2").class("modal-head-text").html(headerstr !== null ? headerstr : '');
-    this.bodyText = pen("p").class("modal-body-text").html(bodystr !== null ? bodystr : '');
-    this.footText = pen("h2").class("modal-foot-text").html(footstr !== null ? footstr : '');
-    return this;
-  }
-
-  setHeadText(str) {
-    pen(this.headText).html(str);
-    return this;
-  }
-
-  setBodyText(str) {
-    pen(this.bodyText).html(str);
-    return this;
-  }
-
-  setFootText(str) {
-    pen(this.footText).html(str);
-    return this;
-  }
-
-  Style(els, stroobj) {
-    var el;
-    if (pen.Type(el) === 'object') {
-      for (el in els) {
-        pen(this[el]).css(els[el]);
-      }
-    } else {
-      pen(this[el]).css(stroobj);
-    }
-    return this;
-  }
-
-  deploy(el) {
-    if (el != null) {
-      pen(el).append(this.container);
-    } else {
-      pen(body).append(this.container);
-    }
-    return this;
-  }
-};
 
 var contextmenu = {
   commands: {},
@@ -161,7 +55,7 @@ var contextmenu = {
 var header = {
   buttons: {},
   head: pen("div").class("header").el,
-  title: pen("span").class("title").html(document.title).el,
+  title: pen("span").class("title Lil").html(document.title).el,
   addButton: function(name, event, el) {
     var self = header;
     if (el != null) {
@@ -190,7 +84,7 @@ var header = {
     brs = [];
     for (var i = 0; i <= 4; i++) {
       brs[i] = pen("br").el;
-      pen(body).append(brs[i]);
+      body.insertBefore(brs[i], body.childNodes[0])
     }
     return self;
   }

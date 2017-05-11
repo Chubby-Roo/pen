@@ -210,6 +210,6 @@ pen.fn.remove = function () {
   return this
 }
 
-if (module != null) {
+if (typeof module !== 'undefined') {
   module.exports = {pen, type}
 }
