@@ -20,6 +20,15 @@ var contextmenu = {
     return self;
   },
 
+  addLink: function (name, hr) {
+    var self = contextmenu
+    self.commands[name] = {
+      el: pen("a").html(name).class("contextmenu-command link").href(hr).el,
+      hr: pen("hr").class("contextmenu-divider").el
+    }
+    return self
+  },
+
   removeCommand: function(name) {
     var self = contextmenu;
     pen(self.commands[name].el).remove();
@@ -133,6 +142,11 @@ var Start = function(e) {
     location.href = "http://github.com/Monochromefx/pen"
   })
   addEventListener("contextmenu", (e) => {
+    var first = e.path[0]
+    switch (first.tagName.toLowerCase()) {
+      case 'img':
+        contextmenu.addLink("go to href", pen(first).attr("src"))
+    }
     e.preventDefault();
     contextmenu.init(e);
   });
@@ -154,4 +168,4 @@ var Start = function(e) {
   pen(load).on("click", mouseCl);
 };
 
-window.onload = Start;
+document.addEventListener("DOMContentLoaded", Start)
