@@ -3,6 +3,8 @@
 # Pen
 
 [![Build Status](https://travis-ci.org/Monochromefx/pen-coffee.svg?branch=master)](https://travis-ci.org/Monochromefx/pen-coffee)
+[![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg?style=flat-square)](https://github.com/Monochromefx/pen)
+[![GitHub commits](https://img.shields.io/github/commits-since/SubtitleEdit/subtitleedit/3.4.7.svg?style=flat-square)](https://github.com/Monochromefx/pen)
 
 Pen is a rather big API but not too big but only big enough for some *ink*.
 
