@@ -2,6 +2,8 @@
 
 # Pen
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Monochromefx/pen.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/Monochromefx/pen-coffee.svg?branch=master)](https://travis-ci.org/Monochromefx/pen-coffee)
 [![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg?style=flat-square)](https://github.com/Monochromefx/pen)
 [![GitHub commits](https://img.shields.io/github/commits-since/SubtitleEdit/subtitleedit/3.4.7.svg?style=flat-square)](https://github.com/Monochromefx/pen)
