@@ -6,19 +6,18 @@ var load = pen("p").css({
   right: 0,
   position: 'fixed',
   color: 'grey'
-}).returnElement();
-
+}).el
 pen(body).append(load);
 
 pen(load).html("loading...");
 
 var Card = class Card {
   constructor(title, message) {
-    this.container = pen("div").class("card-container").returnElement();
-    this.titleContainer = pen("div").class("card-title-container").returnElement();
-    this.messageContainer = pen("div").class("card-message-container").returnElement();
-    this.message = pen("span").class("card-message").html(title !== null ? title : '').returnElement();
-    this.title = pen("span").class("card-title").html(message !== null ? message : '').returnElement();
+    this.container = pen("div").class("card-container").el;
+    this.titleContainer = pen("div").class("card-title-container").el;
+    this.messageContainer = pen("div").class("card-message-container").el;
+    this.message = pen("span").class("card-message").html(title !== null ? title : '').el;
+    this.title = pen("span").class("card-title").html(message !== null ? message : '').el;
     pen(this.titleContainer).append(this.title);
     pen(this.messageContainer).append(this.message);
     pen(this.container).append(this.titleContainer, this.messageContainer);
@@ -116,13 +115,13 @@ var Modal = class Modal {
 var contextmenu = {
   commands: {},
 
-  menu: pen("div").class("contextmenu").attr("align", "center").returnElement(),
+  menu: pen("div").class("contextmenu").attr("align", "center").el,
 
   addCommand: function(name, ev) {
     var self = contextmenu;
     self.commands[name] = {
-      el: pen("span").html(name).class("contextmenu-command").on("click", ev).returnElement(),
-      hr: pen("hr").class("contextmenu-divider").returnElement()
+      el: pen("span").html(name).class("contextmenu-command").on("click", ev).el,
+      hr: pen("hr").class("contextmenu-divider").el
     };
     return self;
   },
@@ -161,18 +160,18 @@ var contextmenu = {
 
 var header = {
   buttons: {},
-  head: pen("div").class("header").returnElement(),
-  title: pen("span").class("title").html(document.title).returnElement(),
+  head: pen("div").class("header").el,
+  title: pen("span").class("title").html(document.title).el,
   addButton: function(name, event, el) {
     var self = header;
     if (el != null) {
       if (el === 'a') {
-        self.buttons[name] = pen("a").class("header-button Ril link").html(name).attr("href", event).returnElement();
+        self.buttons[name] = pen("a").class("header-button Ril link").html(name).attr("href", event).el;
       } else {
-        self.buttons[name] = pen(el).class("header-button Ril").html(name).on("click", event).returnElement();
+        self.buttons[name] = pen(el).class("header-button Ril").html(name).on("click", event).el;
       }
     } else {
-      self.buttons[name] = pen("span").class("header-button Ril").html(name).on("click", event).returnElement();
+      self.buttons[name] = pen("span").class("header-button Ril").html(name).on("click", event).el;
     }
     return self;
   },
@@ -182,15 +181,15 @@ var header = {
     return self;
   },
   init: function() {
-    var brs, i, j, name, self = header;
+    var brs, i, self = header;
     pen(self.head).append(self.title);
-    for (name in self.buttons) {
+    for (var name in self.buttons) {
       pen(self.head).append(self.buttons[name]);
     }
     pen(body).append(self.head);
     brs = [];
-    for (i = j = 0; j <= 4; i = ++j) {
-      brs[i] = pen("br").returnElement();
+    for (var i = 0; i <= 4; i++) {
+      brs[i] = pen("br").el;
       pen(body).append(brs[i]);
     }
     return self;
@@ -204,18 +203,18 @@ var wrapper = {
   divs: {},
   codes: {},
   prevs: {},
-  container: pen("div").attr("align", "center").class("wrapper").returnElement(),
+  container: pen("div").attr("align", "center").class("wrapper").el,
   addImage: function(alt, src, img, lnk) {
     if (lnk != null) {
       this.imagaes[alt] = pen("img").attr({
         alt: alt,
-        src: `https://github.com/Monochromefx/pen/blob/master/images/${src}`,
+        src: `${src}`,
         "class": "body-button link"
-      }).returnElement();
+      }).el;
       return this.links[alt] = pen("a").attr({
         alt: alt,
         href: lnk
-      }).html(this.images[alt]).returnElement();
+      }).html(this.images[alt]).el;
     }
   }
 };
@@ -239,7 +238,7 @@ var Start = function(e) {
     e.preventDefault();
     contextmenu.init(e);
   });
-  header.addButton("<img src='https://github.com/Monochromefx/pen/blob/master/GitHub-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init();
+  header.addButton("<img src='GitHub-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init();
   init = `load took ${Math.round(e.timeStamp)} second(s)`;
   mouseOv = function(e) {
     pen(this).html("want to remove this message?, if so just click me");
@@ -254,7 +253,7 @@ var Start = function(e) {
   log(init);
   pen(load).on("mouseover", mouseOv);
   pen(load).on("mouseout", mouseOu);
-  return pen(load).on("click", mouseCl);
+  pen(load).on("click", mouseCl);
 };
 
 window.onload = Start;

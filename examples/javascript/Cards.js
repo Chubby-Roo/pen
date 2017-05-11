@@ -3,11 +3,11 @@ var Card;
 
 Card = class Card {
   constructor(title, message) {
-    this.container = pen("div").Class("card-container").returnElement();
-    this.titleContainer = pen("div").Class("card-title-container").returnElement();
-    this.messageContainer = pen("div").Class("card-message-container").returnElement();
-    this.message = pen("span").Class("card-message").Html(title !== null ? title : '').returnElement();
-    this.title = pen("span").Class("card-title").Html(message !== null ? message : '').returnElement();
+    this.container = pen("div").Class("card-container").el;
+    this.titleContainer = pen("div").Class("card-title-container").el;
+    this.messageContainer = pen("div").Class("card-message-container").el;
+    this.message = pen("span").Class("card-message").Html(title !== null ? title : '').el;
+    this.title = pen("span").Class("card-title").Html(message !== null ? message : '').el;
     pen(this.titleContainer).Append(this.title);
     pen(this.messageContainer).Append(this.message);
     pen(this.container).Append(this.titleContainer, this.messageContainer);

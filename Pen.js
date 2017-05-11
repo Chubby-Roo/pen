@@ -71,12 +71,10 @@ pen.fn.create = function (el, cont) {
   return lsv
 }
 
-pen.fn.handleObject = function (obj, cb) {
+pen.fn.handleObject = function (func, obj, cb) {
   var self = this, el = this.element;
-  if (type(obj) === 'object') {
-    for (var prop in obj) {
-      cb(prop)
-    }
+  for (var prop in obj) {
+    cb(prop, self, obj)
   }
   return self
 }
@@ -129,32 +127,35 @@ pen.fn.has = function(of, str) {
 }
 
 pen.fn.css = function(rules, rule) {
-  var self = this
-  this.handleArray("css", rules, rule)
-  this.handleObject(rules, function (rule) {
-    self.el.style[rule] = rules[rule]
-    return self
-  })
+ this.handleArray("css", rules, rule)
+  if (type(rules) === 'object') {
+    return this.handleObject("css",rules, function (rule, self, rules) {
+      self.element.style[rule] = rules[rule];
+      return self;
+    });
+  }
   if (type(rule) !== 'undefined') {
     this.element.style[rules] = rule
-    return this
   } else {
     return this.element.style[rules]
   }
+  return this
 }
 pen.fn.attr = function(attr, value) {
   var self = this
+  if (type(attr) === 'object') {
+    return this.handleObject(attr, function (value, self, attr) {
+      self.el.setAttribute(value,attr[value])
+      return self
+    })
+  }
   this.handleArray("attr", attr, value)
-  this.handleObject(attr, function (value) {
-    self.el.setAttribute(value,attr[value])
-    return self
-  })
   if (type(value) !== 'undefined') {
     this.element.setAttribute(attr, value)
-    return this
   } else {
     return this.element.getAttribute(attr)
   }
+  return this
 }
 
 pen.fn.on = function (eventType, event, cb = false) {
@@ -170,7 +171,7 @@ pen.fn.off = function (eventType, event, cb = false) {
 
 pen.fn.append = function (...els) {
   this.handleArray("append", [...els])
-  for (var i=0;i<=els;i++) {
+  for (var i = 0; i < els.length; i++) {
     var el = els[i]
     this.element.appendChild(el)
   }
@@ -184,15 +185,7 @@ pen.fn.appendTo = function (el) {
 
 pen.fn.class = function (str) {
   this.handleArray("class",str)
-  str = str.split(/[\s,]+/)
-  if (type(str) === 'array') {
-    for (var i = 0; i<=str.length; i++) {
-      var tp = str[i]
-      this.element.classList.add(tp)
-    }
-  } else {
-    this.element.classList.add(str)
-  }
+  this.attr("class", str)
   return this
 }
 pen.fn.toggle = function (str) {
@@ -209,10 +202,6 @@ pen.fn.href = function (str) {
   this.handleArray("href", str)
   this.attr("href", str)
   return this
-}
-
-pen.fn.returnElement = function() {
-  return this.element
 }
 
 pen.fn.remove = function () {
