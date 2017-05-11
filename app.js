@@ -228,11 +228,11 @@ var Start = function(e) {
   }).addCommand("go back", (e) => {
     e.preventDefault();
     pen(load).html("going back...");
-    location.back();
+    history.back();
   }).addCommand("go forward", (e) => {
     e.preventDefault();
     pen(load).html("going foward...");
-    location.forward();
+    history.forward();
   }).addCommand("github repo", (e) => {
     e.preventDefault()
     pen(load).html("going to github repo...")
@@ -243,7 +243,7 @@ var Start = function(e) {
     contextmenu.init(e);
   });
   header.init();
-  init = `load took ${Math.round(e.timeStamp)} second(s)`;
+  init = `load took ${Date.now() - timestamp} second(s)`;
   mouseOv = function(e) {
     pen(this).html("want to remove this message?, if so just click me");
   };
