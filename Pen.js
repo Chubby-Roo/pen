@@ -193,6 +193,7 @@ pen.fn.toggle = function (str) {
   this.element.classList.toggle(str)
   return this
 }
+
 pen.fn.id = function (str) {
   this.handleArray("id",str)
   this.attr("id", str)
@@ -207,4 +208,8 @@ pen.fn.href = function (str) {
 pen.fn.remove = function () {
   this.el.parentNode.removeChild(this.el)
   return this
+}
+
+if (module != null) {
+  module.exports = {pen, type}
 }
