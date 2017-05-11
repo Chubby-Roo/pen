@@ -224,21 +224,25 @@ var Start = function(e) {
   contextmenu.addCommand("reload", (e) => {
     e.preventDefault();
     pen(load).html("reloading...");
-    return location.reload();
+    location.reload();
   }).addCommand("go back", (e) => {
     e.preventDefault();
     pen(load).html("going back...");
-    return location.back();
+    location.back();
   }).addCommand("go forward", (e) => {
     e.preventDefault();
     pen(load).html("going foward...");
-    return location.forward();
-  });
+    location.forward();
+  }).addCommand("github repo", (e) => {
+    e.preventDefault()
+    pen(load).html("going to github repo...")
+    location.href = "http://github.com/Monochromefx/pen"
+  })
   addEventListener("contextmenu", (e) => {
     e.preventDefault();
     contextmenu.init(e);
   });
-  header.addButton("<img src='GitHub-Mark-64px.png' alt='Github mark'></img>", "https://github.com/Monochromefx/pen", "a").init();
+  header.init();
   init = `load took ${Math.round(e.timeStamp)} second(s)`;
   mouseOv = function(e) {
     pen(this).html("want to remove this message?, if so just click me");
