@@ -2,170 +2,167 @@ var {log, error, dir} = console
 var {body, head} = document
 
 var load = pen("p").id("loader").el
-pen(body).append(load);
+pen(body).append(load)
 
-pen(load).html("loading...");
+pen(load).html("loading...")
 
 var contextmenu = {
   commands: {},
 
   menu: pen("div").class("contextmenu").attr("align", "center").el,
 
-  addCommand: function(name, ev) {
-    var self = contextmenu;
-    self.commands[name] = {
-      el: pen("span").html(name).class("contextmenu-command").on("click", ev).el,
-      hr: pen("hr").class("contextmenu-divider").el
-    };
-    return self;
+  add: function (name, evhr, type, el) {
+    var self = contextmenu, temp, hr = pen("hr").class("contextmenu-divider").el
+    if (type.match(/link/gi)) {
+      temp = pen("a").href(evhr).html(name).class("contextmenu-command link").el
+    } else if (type.match(/button/gi)) {
+      temp = pen("span").on("click", evhr).html(name).class("contextmenu-command").el
+    } else if (type.match(/custom/gi)) {
+      if (type(evhr) === 'function') {
+        temp = pen(el).on("click", evhr).html(name).class("contextmenu-command custom").el
+      } else {
+        temp = pen(el).href(evhr).html(name).class("contextmenu-command custom").el
+      }
+    }
+    self.commands[name] = {el: temp, hr}
+    return self
   },
 
-  addLink: function (name, hr) {
+  removeCommand: function(name, fully=false) {
     var self = contextmenu
-    self.commands[name] = {
-      el: pen("a").html(name).class("contextmenu-command link").href(hr).el,
-      hr: pen("hr").class("contextmenu-divider").el
+    pen(self.commands[name].el).remove()
+    fully === true ? delete self.commands[name] : void 0
+    return self
+  },
+
+  remove: function() {
+    var name, self
+    self = contextmenu
+    for (name in self.commands) {
+      self.removeCommand(name)
     }
     return self
   },
 
-  removeCommand: function(name) {
-    var self = contextmenu;
-    pen(self.commands[name].el).remove();
-    pen(self.commands[name].hr).remove();
-    return self;
-  },
-
-  remove: function() {
-    var name, self;
-    self = contextmenu;
-    for (name in self.commands) {
-      self.removeCommand(name);
-    }
-    return removeEventListener("click", self.remove);
-  },
-
   init: function(e) {
-    var name, self;
-    self = contextmenu;
+    var self = contextmenu
     pen(self.menu).css({
       top: `${e.clientY}px`,
       left: `${e.clientX}px`
-    });
-    for (name in self.commands) {
-      pen(self.menu).append(self.commands[name].el, self.commands[name].hr);
+    })
+
+    for (var name in self.commands) {
+      pen(self.menu).append(self.commands[name].el, self.commands[name].hr)
     }
-    addEventListener("click", self.remove);
-    pen(body).append(self.menu);
-    return self;
+
+    addEventListener("click", self.remove, {once: true})
+    pen(body).append(self.menu)
+    return self
   }
-};
+}
 
 var header = {
   buttons: {},
   head: pen("div").class("header").el,
   title: pen("span").class("title Lil").html(document.title).el,
-  addButton: function(name, event, el) {
-    var self = header;
-    if (el != null) {
-      if (el === 'a') {
-        self.buttons[name] = pen("a").class("header-button Ril link").html(name).attr("href", event).el;
+
+  add: function (name, evhr, type, el) {
+    var self = header, temp
+
+    if (type.match(/link/gi)) {
+      temp = pen("a").href(evhr).html(name).class("header-button link Ril").el
+    } else if (type.match(/button/gi)) {
+      temp = pen("span").on("click", evhr).html(name).class("header-button Ril").el
+    } else if (type.match(/custom/gi)) {
+      if (type(evhr) === 'function') {
+        temp = pen(el).on("click", evhr).html(name).class("header-button custom Ril").el
       } else {
-        self.buttons[name] = pen(el).class("header-button Ril").html(name).on("click", event).el;
+        temp = pen(el).href(evhr).html(name).class("header-button custom Ril").el
       }
-    } else {
-      self.buttons[name] = pen("span").class("header-button Ril").html(name).on("click", event).el;
     }
-    return self;
+
+    self.commands[name] = temp
+    return self
   },
-  removeButton: function(name) {
-    var self = header;
-    pen(self.buttons[name]).remove();
-    return self;
+
+  removeButton: function(name, fully) {
+    var self = header
+    pen(self.buttons[name]).remove()
+    fully === true ? delete self.buttons[name] : void 0
+    return self
   },
+
   init: function() {
-    var brs, i, self = header;
-    pen(self.head).append(self.title);
+    var self = header
+    pen(self.head).append(self.title)
+
     for (var name in self.buttons) {
-      pen(self.head).append(self.buttons[name]);
+      pen(self.head).append(self.buttons[name])
     }
-    pen(body).append(self.head);
-    brs = [];
-    for (var i = 0; i <= 4; i++) {
-      brs[i] = pen("br").el;
+
+    pen(body).append(self.head)
+    var brs = []
+
+    for (var i = 0; i <= 3; i++) {
+      brs[i] = pen("br").el
       body.insertBefore(brs[i], body.childNodes[0])
     }
-    return self;
-  }
-};
 
-var wrapper = {
-  links: {},
-  images: {},
-  ps: {},
-  divs: {},
-  codes: {},
-  prevs: {},
-  container: pen("div").attr("align", "center").class("wrapper").el,
-  addImage: function(alt, src, img, lnk) {
-    if (lnk != null) {
-      this.imagaes[alt] = pen("img").attr({
-        alt: alt,
-        src: `${src}`,
-        "class": "body-button link"
-      }).el;
-      return this.links[alt] = pen("a").attr({
-        alt: alt,
-        href: lnk
-      }).html(this.images[alt]).el;
-    }
+    return self
   }
-};
+}
 
 var Start = function(e) {
-  var init, mouseCl, mouseOu, mouseOv;
-  contextmenu.addCommand("reload", (e) => {
-    e.preventDefault();
-    pen(load).html("reloading...");
-    location.reload();
-  }).addCommand("go back", (e) => {
-    e.preventDefault();
-    pen(load).html("going back...");
-    history.back();
-  }).addCommand("go forward", (e) => {
-    e.preventDefault();
-    pen(load).html("going foward...");
-    history.forward();
-  }).addCommand("github repo", (e) => {
+  var init, mouseCl, mouseOu, mouseOv
+  contextmenu.add("reload", (e) => {
+    e.preventDefault()
+    pen(load).html("reloading...")
+    location.reload()
+  }, "button")
+  .add("go back", (e) => {
+    e.preventDefault()
+    pen(load).html("going back...")
+    history.back()
+  }, "button")
+  .add("go forward", (e) => {
+    e.preventDefault()
+    pen(load).html("going foward...")
+    history.forward()
+  }, "button")
+  .add("github repo", (e) => {
     e.preventDefault()
     pen(load).html("going to github repo...")
     location.href = "http://github.com/Monochromefx/pen"
-  })
+  }, "button")
+
   addEventListener("contextmenu", (e) => {
     var first = e.path[0]
     switch (first.tagName.toLowerCase()) {
       case 'img':
-        contextmenu.addLink("go to href", pen(first).attr("src"))
+        contextmenu.add("go to href", pen(first).attr("src"), "link")
     }
-    e.preventDefault();
-    contextmenu.init(e);
-  });
-  header.init();
-  init = `load took ${Date.now() - timestamp} second(s)`;
+    e.preventDefault()
+    contextmenu.init(e)
+  })
+
+  header.init()
+
   mouseOv = function(e) {
-    pen(this).html("want to remove this message?, if so just click me");
-  };
+    pen(this).html("<br>want to remove this message?, if so just click me",true)
+  }
+  init = `load took ${Date.now() - timestamp} second(s)`
   mouseOu = function(e) {
-    pen(this).html(init);
-  };
+    pen(this).html(init)
+  }
   mouseCl = function(e) {
-    return pen(this).remove();
-  };
-  pen(load).html(init);
-  log(init);
-  pen(load).on("mouseover", mouseOv);
-  pen(load).on("mouseout", mouseOu);
-  pen(load).on("click", mouseCl);
-};
+    return pen(this).remove()
+  }
+
+  pen(load).html(init)
+  log(init)
+  pen(load).on("mouseover", mouseOv)
+  pen(load).on("mouseout", mouseOu)
+  pen(load).on("click", mouseCl)
+}
 
 document.addEventListener("DOMContentLoaded", Start)

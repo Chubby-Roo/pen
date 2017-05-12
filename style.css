@@ -41,7 +41,13 @@ body {
   bottom: 0;
   right: 0;
   position: fixed;
-  color: #c16262; }
+  padding: 20px;
+  color: white;
+  font-weight: bolder;
+  background-color: rgba(55, 31, 112, 0.31);
+  transition: all 0.5s ease; }
+  #loader:hover, #loader:focus {
+    padding: 25px; }
 
 .contextmenu {
   position: fixed;
