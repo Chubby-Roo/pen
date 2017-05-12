@@ -82,7 +82,7 @@ pen.fn.handleArray = function (func, ...args) {
   var self = this, el = this.element;
   if (type(el) === 'array') {
     for (var i = 0; i < el.length; i++) {
-      self[func]([...args])
+      self[func](args != null ? [...args] : void 0)
     }
   }
   return self
@@ -206,6 +206,7 @@ pen.fn.href = function (str) {
 }
 
 pen.fn.remove = function () {
+  this.handleArray("remove")
   this.el.parentNode.removeChild(this.el)
   return this
 }
