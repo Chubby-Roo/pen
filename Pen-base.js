@@ -31,8 +31,9 @@ var pen = function (el) {
   }
   if (el instanceof Document) {
     this.el = el
-    this.__proto__.ready = function (cb, cap) {
-      return this.on("DOMContentLoaded", cb, cap)
+    this.__proto__.ready = function (...args) {
+      this.on("DOMContentLoaded", [...args])
+      return this
     }
   } else if (el instanceof pen) {
     this.attributes = el.attributes
@@ -227,3 +228,4 @@ pen.fn.create = pen.fn.createElement = function (el, ret) {
       }
     }
   }
+}
