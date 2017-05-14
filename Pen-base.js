@@ -29,7 +29,12 @@ var pen = function (el) {
   if (!(this instanceof pen)) {
     return new pen(el)
   }
-  if (el instanceof pen) {
+  if (el instanceof Document) {
+    this.el = el
+    this.__proto__.ready = function (cb, cap) {
+      return this.on("DOMContentLoaded", cb, cap)
+    }
+  } else if (el instanceof pen) {
     this.attributes = el.attributes
     this.style = el.style
     this.events = el.events
@@ -206,3 +211,19 @@ pen.fn.select = pen.fn.$ = function (el) {
 pen.fn.selectAll = pen.fn.$$ = function (el) {
   return this.el.querySelectorAll(el)
 }
+
+pen.fn.create = pen.fn.createElement = function (el, ret) {
+  el = pen(el)
+  this.append(el)
+  if (ret.match(/return parent/gi)) {
+    return this
+  } else if (ret.match(/return child/)) {
+    for (var i = 0; i < this.CHILDREN.length; i++) {
+      let child = this.CHILDREN[i]
+      if (child === el.el) {
+        child = pen(child)
+        return child
+        break
+      }
+    }
+  }
