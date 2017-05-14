@@ -1,27 +1,28 @@
 var {log, error, dir} = console
 var {body, head} = document
 
-var load = pen("p").id("loader").el
+var load = pen("<p>").attr("id", "loader")
 pen(body).append(load)
 
-pen(load).html("loading...")
+load.html("loading...")
 
 var contextmenu = {
   commands: {},
 
-  menu: pen("div").class("contextmenu").attr("align", "center").el,
+  menu: pen("<div>").attr("class", "contextmenu").attr("align", "center"),
 
   add: function (name, evhr, type, el) {
-    var self = contextmenu, temp, hr = pen("hr").class("contextmenu-divider").el
+    el = `<${el}>`
+    var self = contextmenu, temp, hr = pen("<hr>").attr("class", "contextmenu-divider")
     if (type.match(/link/gi)) {
-      temp = pen("a").href(evhr).html(name).class("contextmenu-command link").el
+      temp = pen("<a>").attr("href", evhr).html(name).attr("class", "contextmenu-command link")
     } else if (type.match(/button/gi)) {
-      temp = pen("span").on("click", evhr).html(name).class("contextmenu-command").el
+      temp = pen("<span>").on("click", evhr).html(name).attr("class", "contextmenu-command")
     } else if (type.match(/custom/gi)) {
       if (type(evhr) === 'function') {
-        temp = pen(el).on("click", evhr).html(name).class("contextmenu-command custom").el
+        temp = pen(el).on("click", evhr).html(name).attr("class", "contextmenu-command custom")
       } else {
-        temp = pen(el).href(evhr).html(name).class("contextmenu-command custom").el
+        temp = pen(el).attr("href", evhr).html(name).attr("class", "contextmenu-command custom")
       }
     }
     self.commands[name] = {el: temp, hr}
@@ -46,13 +47,13 @@ var contextmenu = {
 
   init: function(e) {
     var self = contextmenu
-    pen(self.menu).css({
+    self.menu.css({
       top: `${e.clientY}px`,
       left: `${e.clientX}px`
     })
 
     for (var name in self.commands) {
-      pen(self.menu).append(self.commands[name].el, self.commands[name].hr)
+      self.menu.append(self.commands[name].el, self.commands[name].hr)
     }
 
     addEventListener("click", self.remove, {once: true})
@@ -63,21 +64,21 @@ var contextmenu = {
 
 var header = {
   buttons: {},
-  head: pen("div").class("header").el,
-  title: pen("span").class("title Lil").html(document.title).el,
+  head: pen("<div>").attr("class", "header"),
+  title: pen("<span>").attr("class", "title Lil").html(document.title),
 
   add: function (name, evhr, type, el) {
+    el = `<${el}>`
     var self = header, temp
-
     if (type.match(/link/gi)) {
-      temp = pen("a").href(evhr).html(name).class("header-button link Ril").el
+      temp = pen("<a>").attr("href", evhr).html(name).attr("class", "header-button link Ril")
     } else if (type.match(/button/gi)) {
-      temp = pen("span").on("click", evhr).html(name).class("header-button Ril").el
+      temp = pen("<span>").on("click", evhr).html(name).attr("class", "header-button Ril")
     } else if (type.match(/custom/gi)) {
       if (type(evhr) === 'function') {
-        temp = pen(el).on("click", evhr).html(name).class("header-button custom Ril").el
+        temp = pen(el).on("click", evhr).html(name).attr("class", "header-button custom Ril")
       } else {
-        temp = pen(el).href(evhr).html(name).class("header-button custom Ril").el
+        temp = pen(el).attr("href", evhr).html(name).attr("class", "header-button custom Ril")
       }
     }
 
@@ -104,11 +105,49 @@ var header = {
     var brs = []
 
     for (var i = 0; i <= 3; i++) {
-      brs[i] = pen("br").el
+      brs[i] = pen("<br>").el
       body.insertBefore(brs[i], body.childNodes[0])
     }
 
     return self
+  }
+}
+
+class drop_down {
+  constructor(buttonhtml) {
+    this.links = {}
+
+    this.container = pen("div").attr("class", "dropdown").el
+
+    this.button = pen("button").attr("class", "dropdown-button").html(buttonhtml != null ? buttonhtml : 'button').el
+
+    this.content = pen("div").attr("class", "dropdown-content").el
+
+    pen(this.container).append(this.button, this.content)
+    return this
+  }
+
+  addLink(name, link) {
+    var a = pen("a").attr("class", "dropdown-content-link").attr("href", link).html(name).el
+    var hr = pen("hr").attr("class", "dropdown-content-divider").el
+    this.links[name] = {el:a, hr}
+    pen(this.content).append(a, hr)
+    return this
+  }
+
+  removeLink(name) {
+    pen(this.links[name]).remove()
+    return this
+  }
+
+  deployTo(el) {
+    pen(el).append(this.container)
+    return this
+  }
+
+  style(el, obj) {
+    pen(this[el]).css(obj)
+    return this
   }
 }
 
@@ -155,14 +194,15 @@ var Start = function(e) {
     pen(this).html(init)
   }
   mouseCl = function(e) {
-    return pen(this).remove()
+    pen(this).remove()
+    return
   }
 
-  pen(load).html(init)
+  load.html(init)
   log(init)
-  pen(load).on("mouseover", mouseOv)
-  pen(load).on("mouseout", mouseOu)
-  pen(load).on("click", mouseCl)
+  load.on("mouseover", mouseOv)
+  load.on("mouseout", mouseOu)
+  load.on("click", mouseCl)
 }
 
 document.addEventListener("DOMContentLoaded", Start)
