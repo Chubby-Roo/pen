@@ -233,22 +233,20 @@ pen.fn.create = pen.fn.createElement = function (el, ret) {
   var attrs = "id class href src".split(/\s+/)
   var events = "click keydown keyup keypress mousedown mouseup mouseover mousepress contextmenu dblclick".split(/\s+/)
   for (var i = 0; i < events.length; i++) {
-    var eventp = events[i]
-    pen.fn[eventp] = function (...args) {
-      if (!exists(this.events[eventp])) {
-        return this.on(eventp, [...args])
+    pen.fn[events[i]] = function (...args) {
+      if (!exists(this.events[events[i]])) {
+        return this.on(events[i], [...args])
       } else {
-        return this.off(eventp, [...args])
+        return this.off(events[i], [...args])
       }
     }
   }
   for (var i = 0; i < attrs.length; i++) {
-    var attr = attrs[i]
-    pen.fn[attr] = function (str) {
+    pen.fn[attrs[i]] = function (str) {
       if (!exists(str)) {
-        return this.attr(attr)
+        return this.attr(attrs[i])
       } else {
-        return this.attr(attr, str)
+        return this.attr(attrs[i], str)
       }
     }
   }
