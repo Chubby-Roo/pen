@@ -231,20 +231,9 @@ pen.fn.create = pen.fn.createElement = function (el, ret) {
 
 ;(function () {
   var attrs = "id class href src".split(/\s+/)
-  attrs.forEach(function(attr) {
-    pen.fn[attr] = function (str) {
-      if (!exists(str)) {
-        return this.attr(attr)
-      } else {
-        return this.attr(attr, str)
-      }
-    }
-  })
-})()
-
-;(function () {
   var events = "click keydown keyup keypress mousedown mouseup mouseover mousepress contextmenu dblclick".split(/\s+/)
-  events.forEach(function(eventp) {
+  for (var i = 0; i < events.length; i++) {
+    var eventp = events[i]
     pen.fn[eventp] = function (...args) {
       if (!exists(this.events[eventp])) {
         return this.on(eventp, [...args])
@@ -252,5 +241,15 @@ pen.fn.create = pen.fn.createElement = function (el, ret) {
         return this.off(eventp, [...args])
       }
     }
-  })
+  }
+  for (var i = 0; i < attrs.length; i++) {
+    var attr = attrs[i]
+    pen.fn[attr] = function (str) {
+      if (!exists(str)) {
+        return this.attr(attr)
+      } else {
+        return this.attr(attr, str)
+      }
+    }
+  }
 })()

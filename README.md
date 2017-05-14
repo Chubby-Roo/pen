@@ -39,32 +39,36 @@ And this will go on for a very long time. More than what is expected.*/
 ```
 
 Pen was made to make it more similar to Umbrella but does not follow an array.
-It's very easy to just manipulate only 1 element per call.
-```js
-pen('p') // returns the class but all you have to do is this: pen('p').el or pen('p').element
-```
-It also supports passing objects and arrays:
-```js
-var div = document.createElement('div')
-var arr = []
-for (var i = 0; i < 10; i++) {
-  arr[i] = document.createElement('p')
-}
-pen(arr).html("woohoo I'm copied!").id("same")
-pen(div).html("some new text").append([...arr])
-```
-Which will append all the elements inside the array to it's parent. Resulting in this:
-```html
-<div>
-  <p id='same'>woohoo I'm copied</p>
-  <p id='same'>woohoo I'm copied</p>
-  <p id='same'>woohoo I'm copied</p>
-  <!-- And so on -->
-</div>
-```
-But has the same power almost as Umbrella though it does not support AJAX.
 
-It will in the very near future.
+It's very easy to just manipulate only 1 element per call.
+if a variable is set it'll return an object but it will also return the methods with that object
+```js
+pen('<p>') // returns the object but all you have to do is this: pen('p').el or pen('p').element or not event that if you want to keep the methods
+```
+The object may look something like this (in v1.1.0 if you're on chrome
+and with the latest version of it.)
+```js
+//I'll be using a p element for this example
+pen: {
+  attributes: {class: 'moose'},
+  style: {display: 'none'},
+  events: {click: {func: function (e) {alert("moose");},capture: false},
+    keydown: {func: function (e) {alert(e.keyCode);},
+      options: {once: true,capture: true}}},
+  text: undefined,
+  el: 'p#moose',
+  TAG: 'p',
+  CHILDREN: NodeList[0]  {0: 'a'},
+  ID: 'moose',
+  CLASS: null,
+  PARENT: 'no parent'
+}
+```
+
+It also supports passing objects but not arrays yet.
+
+But has the same power almost as Umbrella though maybe a bit more but it does not support AJAX as of yet.
+It will be available in the near future if not then oh well
 
 # Documentation and examples
 [Docs](docs)

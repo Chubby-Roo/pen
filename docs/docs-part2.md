@@ -20,8 +20,7 @@ And you want to edit that paragraph element with the id of 'log'.
 Well you can easily do this by doing this:
 (with pen)
 
-```coffee
-pen.setOptions "auto append":true, "to selector":true
+```js
 pen("#log").Html "Some new text"
 ```
 
@@ -32,7 +31,7 @@ Like it can be done with JQuery but it does not have those other functionalities
 Let's try to edit the css of the same element knowing that pen is already defined and probably some other things too:
 
 ```coffee
-pen("#log").Css("color", "grey").Id "newlog"
+pen("#log").css("color", "grey").id "newlog"
 ```
 
 There are many things that can be done with pen, and there is still more to add, so it won't end there.

@@ -175,10 +175,10 @@ var Start = function(e) {
   }, "button")
 
   addEventListener("contextmenu", (e) => {
-    var first = e.path[0]
-    switch (first.tagName.toLowerCase()) {
+    var first = pen(e.path[0])
+    switch (first.TAG) {
       case 'img':
-        contextmenu.add("go to href", pen(first).attr("src"), "link")
+        contextmenu.add("go to href", pen(first).src(), "link")
     }
     e.preventDefault()
     contextmenu.init(e)

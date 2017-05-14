@@ -1,6 +1,6 @@
 # Docs part 1
 
-So **pen.coffee** is a small library to enable quick ease to edit the document.
+So **pen** is a small library to enable quick ease to edit the document.
 
 Pen does not have full functionality. It does allow for the ease of creating elements on the fly without
 editing the html file itself.
@@ -12,18 +12,17 @@ So first let's create a normal _p_ element with html:
 See how easy that is?
 
 Now let's try to create it in JavaScript without pen:
-```coffee
-para = document.createElement 'p'
+```js
+para = document.createElement('p')
 para.id = "para"
 para.innerHTML = "some paragraph"
-document.body.appendChild para
+document.body.appendChild(para)
 ```
 
 Will do the same thing. But it's a longer process, let's try with a **pen**.
 
 ```coffee
-pen.setOptions "auto append": true # the default is false
-para = pen("p").Html("some text").Id 'para' # if you want to edit it as well
+para = pen("p").html("some text").id('para') # if you want to edit it as well
 ```
 
 See how much easier that is, it takes less code to do something so simple.
