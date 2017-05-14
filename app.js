@@ -205,4 +205,6 @@ var Start = function(e) {
   load.on("click", mouseCl)
 }
 
-document.addEventListener("DOMContentLoaded", Start)
+pen(document).ready(function (e) {
+  Start(e)
+})

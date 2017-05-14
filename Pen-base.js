@@ -32,6 +32,7 @@ var pen = function (el) {
   if (el instanceof Document) {
     this.el = el
     this.__proto__.ready = function (...args) {
+      alert(this.el)
       this.on("DOMContentLoaded", [...args])
       return this
     }

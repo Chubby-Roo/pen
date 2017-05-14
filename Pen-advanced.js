@@ -31,8 +31,11 @@ var pen = function (el) {
   }
   if (el instanceof Document) {
     this.el = el
-    this.__proto__.ready = function (...args) {
-      this.on("DOMContentLoaded", [...args])
+    this.events = {}
+    this.body = el.body
+    this.head = el.head
+    this.__proto__.ready = function (callback, capture) {
+      this.on("DOMContentLoaded", callback, capture)
       return this
     }
   } else if (el instanceof pen) {
