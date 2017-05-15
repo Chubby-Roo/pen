@@ -1,3 +1,31 @@
+@keyframes flowdown {
+  0% {
+    height: 0;
+    opacity: 0; }
+  100% {
+    height: 260px;
+    opacity: 1; } }
+@keyframes flowup {
+  0% {
+    height: 260px;
+    opacity: 1; }
+  100% {
+    height: 0;
+    opacity: 0; } }
+@keyframes movedown {
+  0% {
+    opacity: 0;
+    padding-top: -10px; }
+  100% {
+    opacity: 1;
+    padding-top: 0; } }
+@keyframes moveup {
+  0% {
+    opacity: 1;
+    padding-top: -10px; }
+  100% {
+    opacity: 0;
+    padding-top: 0; } }
 * {
   text-decoration: none;
   font-family: Arial;
@@ -112,27 +140,35 @@ img {
   max-width: 60%;
   background-color: rgba(255, 255, 255, 0.5); }
 
-@keyframes flowdown {
-  0% {
-    height: 0;
-    opacity: 0; }
-  100% {
-    height: 260px;
-    opacity: 1; } }
 .dropdown {
   position: relative;
   display: inline-block;
   color: white;
-  transition: all 0.5s ease; }
+  -webkit-transition: all, 0.5s, ease;
+  -moz-transition: all, 0.5s, ease;
+  -ms-transition: all, 0.5s, ease;
+  -o-transition: all, 0.5s, ease;
+  transition: all, 0.5s, ease; }
   .dropdown:hover .dropdown-content {
-    animation: flowdown 0.9s forwards ease;
-    display: block; }
+    display: block;
+    animation-name: flowdown;
+    animation-duration: 0.2s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease; }
+  .dropdown:not(:hover) .dropdown-content {
+    display: block;
+    animation-name: flowup;
+    animation-duration: 0.2s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease; }
   .dropdown .dropdown-content {
     display: none;
-    position: absolute;
-    min-width: 150px;
+    top: 0;
+    left: 0;
+    position: aboslute;
+    min-width: 180px;
     max-height: 260px;
-    overflow-y: auto;
+    overflow: auto;
     background-color: #4041a4;
     z-index: 2; }
     .dropdown .dropdown-content .dropdown-content-divider {
@@ -145,9 +181,30 @@ img {
       background-color: rgba(0, 0, 0, 0.2);
       padding: 6px 9px;
       display: block;
-      transition: all 0.5s ease; }
+      -webkit-transition: all, 0.5s, ease;
+      -moz-transition: all, 0.5s, ease;
+      -ms-transition: all, 0.5s, ease;
+      -o-transition: all, 0.5s, ease;
+      transition: all, 0.5s, ease; }
       .dropdown .dropdown-content .dropdown-content-link:hover {
         background-color: rgba(0, 0, 0, 0.7);
         padding: 9px 9px; }
+        .dropdown .dropdown-content .dropdown-content-link:hover .dropdown-content-link-location {
+          animation-name: movedown;
+          animation-duration: 0.2s;
+          animation-fill-mode: forwards;
+          animation-timing-function: ease; }
+      .dropdown .dropdown-content .dropdown-content-link:not(:hover) {
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 3px 9px; }
+        .dropdown .dropdown-content .dropdown-content-link:not(:hover) .dropdown-content-link-location {
+          animation-name: moveup;
+          animation-duration: 0.2s;
+          animation-fill-mode: forwards;
+          animation-timing-function: ease; }
+      .dropdown .dropdown-content .dropdown-content-link .dropdown-content-link-location {
+        opacity: 0;
+        font-weight: bolder;
+        font-size: 10px; }
 
 /*# sourceMappingURL=style.css.map */

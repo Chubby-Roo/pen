@@ -1,17 +1,18 @@
-var type = (function() {
-  var classToType, i, j, len, name, ref;
-  classToType = {};
-  ref = "Boolean Number String Function Array Date RegExp Undefined Null Error Symbol".split(/\s+/);
+var Document = window.Document
+var type = (function () {
+  var classToType, i, j, len, name, ref
+  classToType = {}
+  ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol'.split(/\s+/)
   for (i = j = 0, len = ref.length; j < len; i = ++j) {
-    name = ref[i];
-    classToType[`[object ${name}]`] = name.toLowerCase();
+    name = ref[i]
+    classToType[`[object ${name}]`] = name.toLowerCase()
   }
-  return function(obj) {
-    var strType;
-    strType = Object.prototype.toString.call(obj);
-    return classToType[strType] || "object";
-  };
-})();
+  return function (obj) {
+    var strType
+    strType = Object.prototype.toString.call(obj)
+    return classToType[strType] || 'object'
+  }
+})()
 var exists = (arg) => arg != null
 var pen = function (el) {
   function setup (el) {
@@ -35,7 +36,7 @@ var pen = function (el) {
     this.body = el.body
     this.head = el.head
     this.__proto__.ready = function (callback, capture) {
-      this.on("DOMContentLoaded", callback, capture)
+      this.on('DOMContentLoaded', callback, capture)
       return this
     }
   } else if (el instanceof pen) {
@@ -57,24 +58,23 @@ var pen = function (el) {
     this.el = el
     this.TAG = this.el.tagName.toLowerCase()
     this.CHILDREN = this.el.children
-    this.ID = this.el.getAttribute("id")
-    this.CLASS = this.el.getAttribute("class")
-    this.PARENT = this.el.parentNode != null ? el.parentNode : "no parent"
+    this.ID = this.el.getAttribute('id')
+    this.CLASS = this.el.getAttribute('class')
+    this.PARENT = this.el.parentNode != null ? el.parentNode : 'no parent'
   }
 }
 
 pen.fn = pen.prototype = {}
 
-pen.fn.handleObject = function(obj, cb) {
-  var el, prop;
-  el = this.el;
+pen.fn.handleObject = function (obj, cb) {
+  var prop
   for (prop in obj) {
-    cb(prop, this, obj);
+    cb(prop, this, obj)
   }
-  return this;
+  return this
 }
 
-pen.fn.html = function (str, app=false) {
+pen.fn.html = function (str, app = false) {
   var def = (funco) => {
     this.text = str
     if (exists(str)) {
@@ -91,10 +91,10 @@ pen.fn.html = function (str, app=false) {
   }
   switch (this.TAG) {
     case 'input': case 'option': case 'textarea':
-      return def("value")
-    break
+      return def('value')
+      break
     default:
-      return def("innerHTML")
+      return def('innerHTML')
   }
 }
 
@@ -197,7 +197,7 @@ pen.fn.appendTo = function (el) {
     el.append(this.el)
   } else {
     this.PARENT = el
-    S(el).append(this.el)
+    pen(el).append(this.el)
   }
   return this
 }
@@ -234,8 +234,8 @@ pen.fn.create = pen.fn.createElement = function (el, ret) {
 }
 
 ;(function () {
-  var attrs = "id class href src".split(/\s+/)
-  var events = "click keydown keyup keypress mousedown mouseup mouseover mousepress contextmenu dblclick".split(/\s+/)
+  var attrs = 'id class href src'.split(/\s+/)
+  var events = 'click keydown keyup keypress mousedown mouseup mouseover mousepress mouseout contextmenu dblclick'.split(/\s+/)
   events.forEach(function (eventp) {
     pen.fn[eventp] = function (...args) {
       if (!exists(this.events[eventp])) {
@@ -245,7 +245,7 @@ pen.fn.create = pen.fn.createElement = function (el, ret) {
       }
     }
   })
-  attrs.forEach(function(attr) {
+  attrs.forEach(function (attr) {
     pen.fn[attr] = function (str) {
       if (!exists(str)) {
         return this.attr(attr)
