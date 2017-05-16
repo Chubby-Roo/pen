@@ -27,14 +27,14 @@ var pen = function (el, autoAttach = false, autoAttachTo = document.body) {
     }
   }
   if (!(this instanceof pen)) {
-    return new pen(el)
+    return new pen(el, autoAttach, autoAttachTo)
   }
   if (el instanceof Document) {
     this.el = el
     this.events = {}
     this.body = el.body
     this.head = el.head
-    this.__proto__.ready = function (callback, capture) {
+    pen.fn.ready = function (callback, capture) {
       this.on('DOMContentLoaded', callback, capture)
       return this
     }
@@ -53,9 +53,9 @@ var pen = function (el, autoAttach = false, autoAttachTo = document.body) {
       this.TAG = el.tagName.toLowerCase()
       if (this.TAG === 'template') {
         this.CONTENT = el.content
-        this.__proto__.selectInner = this.__proto__.$1 = (str) => this.CONTENT.querySelector(str)
-        this.__proto__.selectInnerAll = this.__proto__.$$1 = (str) => this.CONTENT.querySelectorAll(str)
-        this.__proto__.clone = function (deep = false) {
+        pen.fn.selectInner = pen.fn.$1 = (str) => this.CONTENT.querySelector(str)
+        pen.fn.selectInnerAll = pen.fn.$$1 = (str) => this.CONTENT.querySelectorAll(str)
+        pen.fn.clone = function (deep = false) {
           return document.importNode(this.el.content, deep)
         }
       } else {
