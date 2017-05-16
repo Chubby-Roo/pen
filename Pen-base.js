@@ -1,21 +1,20 @@
-var Document = window.Document
 var type = (function () {
-  var classToType, i, j, len, name, ref
-  classToType = {}
-  ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol'.split(/\s+/)
+  var classToType, i, j, len, name, ref;
+  classToType = {};
+  ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol'.split(/\s+/);
   for (i = j = 0, len = ref.length; j < len; i = ++j) {
-    name = ref[i]
-    classToType[`[object ${name}]`] = name.toLowerCase()
-  }
+    name = ref[i];
+    classToType[`[object ${name}]`] = name.toLowerCase();
+  };
   return function (obj) {
-    var strType
-    strType = Object.prototype.toString.call(obj)
-    return classToType[strType] || 'object'
-  }
-})()
-var exists = (arg) => arg != null
-var pen = function (el) {
-  function setup (el) {
+    var strType;
+    strType = Object.prototype.toString.call(obj);
+    return classToType[strType] || 'object';
+  };
+})();
+var exists = (arg) => arg != null;
+var pen = function (el, autoAttach = false, autoAttachTo = document.body) {
+  setup = (el) => {
     if (type(el) === 'string') {
       if (el.match(/<|>/gi)) {
         el = el.replace(/<|>/gi, '')
@@ -43,24 +42,36 @@ var pen = function (el) {
     this.attributes = el.attributes
     this.style = el.style
     this.events = el.events
-    this.CHILDREN = el.children
     this.el = el.el
-    this.TAG = el.tag
-    this.ID = el.id
-    this.CLASS = el.class
-    this.PARENT = el.parent
+    this.CHILDREN = el.CHILDREN
+    this.TAG = el.TAG
+    this.ID = el.ID
+    this.CLASS = el.CLASS
+    this.PARENT = el.PARENT
   } else if (type(el) === 'string' || type(el) === 'object') {
+    setup2 = (el) => {
+      this.TAG = el.tagName.toLowerCase()
+      if (this.TAG === 'template') {
+        this.CONTENT = el.content
+        this.__proto__.selectInner = this.__proto__.$1 = (str) => this.CONTENT.querySelector(str)
+        this.__proto__.selectInnerAll = this.__proto__.$$1 = (str) => this.CONTENT.querySelectorAll(str)
+      } else {
+        this.CHILDREN = el.children
+      }
+      this.ID = this.el.getAttribute('id')
+      this.CLASS = this.el.getAttribute('class')
+      this.PARENT = exists(el.parentNode) ? el.parentNode : 'no parent'
+    }
     el = setup(el)
     this.attributes = {}
     this.style = {}
     this.events = {}
     this.text = void 0
     this.el = el
-    this.TAG = this.el.tagName.toLowerCase()
-    this.CHILDREN = this.el.children
-    this.ID = this.el.getAttribute('id')
-    this.CLASS = this.el.getAttribute('class')
-    this.PARENT = this.el.parentNode != null ? el.parentNode : 'no parent'
+    setup2(this.el)
+  }
+  if (autoAttach === true) {
+    autoAttachTo.append(el)
   }
 }
 
@@ -92,7 +103,7 @@ pen.fn.html = function (str, app = false) {
   switch (this.TAG) {
     case 'input': case 'option': case 'textarea':
       return def('value')
-      break
+    break
     default:
       return def('innerHTML')
   }
@@ -151,24 +162,42 @@ pen.fn.css = function (rule, rules) {
 }
 
 pen.fn.on = function (eventType, callback, capture) {
+  addEvent = (eventT, cback, cpture) => {
+    if (exists(this.el.addEventListener)) {
+      this.el.addEventListener(eventT, cback, cpture)
+    } else if (exists(this.el.attachEvent)) {
+      this.el.attachEvent(eventT, cback)
+    } else {
+      this.el["on"+eventT] = cback
+    }
+  }
   this.events[eventType] = {}
-  this.events[eventType].func = callback
+  this.events[eventType].fn = callback
   if (type(capture) === 'object') {
     this.events[eventType].options = exists(capture) ? capture : {}
-    this.el.addEventListener(eventType, callback, exists(capture) ? capture : {})
+    addEvent(eventType, callback, exists(capture) ? capture : {})
   } else {
     this.events[eventType].capture = exists(capture) ? capture : false
-    this.el.addEventListener(eventType, callback, exists(capture) ? capture : false)
+    addEvent(eventType, callback, exists(capture) ? capture : false)
   }
   return this
 }
 
 pen.fn.off = function (eventType, callback) {
+  removeEvent = (eventT, cback) => {
+    if (exists(this.el.removeEventListener)) {
+      this.el.removeEventListener(eventT, cback, cpture)
+    } else if (exists(this.el.detachEvent)) {
+      this.el.detachEvent(eventT, cback)
+    } else {
+      this.el["on"+eventT] = null
+    }
+  }
   if (exists(callback)) {
-    this.el.removeEventListener(eventType, callback)
+    removeEvent(eventType, callback)
     delete this.events[eventType]
   } else {
-    this.el.removeEventListener(eventType, this.events[eventType])
+    removeEvent(eventType, this.events[eventType].fn)
     delete this.events[eventType]
   }
   return this
@@ -182,7 +211,7 @@ pen.fn.append = function (...els) {
   for (var i = 0; i < els.length; i++) {
     var el = els[i]
     if (el instanceof pen) {
-      el.parent = this.el
+      el.PARENT = this.el
       this.el.appendChild(el.el)
     } else {
       this.el.appendChild(el)
@@ -227,7 +256,6 @@ pen.fn.create = pen.fn.createElement = function (el, ret) {
       if (child === el.el) {
         child = pen(child)
         return child
-        break
       }
     }
   }

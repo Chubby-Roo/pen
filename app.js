@@ -233,9 +233,9 @@ var Start = function (e) {
 
   load.html(init)
   log(init)
-  load.mouseover(mouseOv)
-  load.mouseout(mouseOu)
-  load.click(mouseCl)
+  load.on("mouseover", mouseOv)
+  load.on("mouseout", mouseOu)
+  load.on("click", mouseCl)
 }
 
 pen(document).ready(function (e) {
