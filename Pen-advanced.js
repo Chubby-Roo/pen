@@ -68,7 +68,7 @@ var pen = function (el, autoAttach = false, autoAttachTo = document.body) {
     this.events = {}
     this.text = void 0
     this.el = el
-    setup2(this.el)
+    setup2(el)
   }
   if (autoAttach === true) {
     autoAttachTo.append(el)
@@ -81,6 +81,13 @@ pen.fn.handleObject = function (obj, cb) {
   var prop
   for (prop in obj) {
     cb(prop, this, obj)
+  }
+  return this
+}
+
+pen.fn.selfInstance = function (obj, cb) {
+  if (obj instanceof pen) {
+    cb(obj, this)
   }
   return this
 }
@@ -107,6 +114,9 @@ pen.fn.html = function (str, app = false) {
     default:
       return def('innerHTML')
   }
+  this.selfInstance(str, function (self, p) {
+    p.html(self.el.outerHTML)
+  })
 }
 
 pen.fn.attr = function (attribute, value) {
