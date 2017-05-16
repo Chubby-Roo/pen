@@ -65,7 +65,7 @@ var contextmenu = {
 
   menu: pen('<div>').class('contextmenu').attr('align', 'center'),
 
-  add: function (name, evhr, commandType, el) {
+  add: function (name, evhr, commandType = "button", el) {
     el = `<${el}>`
     var self = contextmenu
     var temp
@@ -125,7 +125,7 @@ var header = {
   head: pen('<div>').class('header'),
   title: pen('<span>').class('title Lil').html(document.title),
 
-  add: function (name, evhr, buttonType, el) {
+  add: function (name, evhr, buttonType = "button", el) {
     el = `<${el}>`
     console.log(name)
     var self = header
@@ -184,28 +184,31 @@ var Start = function (e) {
     e.preventDefault()
     pen(load).html('reloading...')
     window.location.reload()
-  }, 'button')
+  })
   .add('go back', (e) => {
     e.preventDefault()
     pen(load).html('going back...')
     window.history.back()
-  }, 'button')
+  })
   .add('go forward', (e) => {
     e.preventDefault()
     pen(load).html('going foward...')
     window.history.forward()
-  }, 'button')
+  })
   .add('github repo', (e) => {
     e.preventDefault()
     pen(load).html('going to github repo...')
     window.location.href = 'http://github.com/Monochromefx/pen'
-  }, 'button')
+  })
 
   window.addEventListener('contextmenu', (e) => {
-    var first = pen(e.path[0])
-    switch (first.TAG) {
-      case 'img':
-        contextmenu.add('go to href', pen(first).src(), 'link')
+    var first = e.path[0]
+    if ('tagName' in first) {
+      switch (first.tagName.toLowerCase()) {
+        case 'img':
+          contextmenu.add('go to href', pen(first).src(), 'link')
+        break
+      }
     }
     e.preventDefault()
     contextmenu.init(e)
