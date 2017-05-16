@@ -111,12 +111,16 @@ pen.fn.html = function (str, app = false) {
     case 'input': case 'option': case 'textarea':
       return def('value')
     break
+    case 'template':
+      if (type(str) !== 'object') {
+        throw new Error("parameter 1 must be an element/object")
+      }
+      this.el.content.appendChild(str)
+      return this
+    break
     default:
       return def('innerHTML')
   }
-  this.selfInstance(str, function (self, p) {
-    p.html(self.el.outerHTML)
-  })
 }
 
 pen.fn.attr = function (attribute, value) {
@@ -222,9 +226,17 @@ pen.fn.append = function (...els) {
     var el = els[i]
     if (el instanceof pen) {
       el.PARENT = this.el
-      this.el.appendChild(el.el)
+      if (this.TAG === 'template') {
+        this.el.content.appendChild(el.el)
+      } else {
+        this.el.appendChild(el.el)
+      }
     } else {
-      this.el.appendChild(el)
+      if (this.TAG === 'template') {
+        this.el.content.appendChild(el)
+      } else {
+        this.el.appendChild(el)
+      }
     }
   }
   return this
