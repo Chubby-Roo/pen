@@ -55,6 +55,9 @@ var pen = function (el, autoAttach = false, autoAttachTo = document.body) {
         this.CONTENT = el.content
         this.__proto__.selectInner = this.__proto__.$1 = (str) => this.CONTENT.querySelector(str)
         this.__proto__.selectInnerAll = this.__proto__.$$1 = (str) => this.CONTENT.querySelectorAll(str)
+        this.__proto__.clone = function (deep = false) {
+          return document.importNode(this.el.content, deep)
+        }
       } else {
         this.CHILDREN = el.children
       }
