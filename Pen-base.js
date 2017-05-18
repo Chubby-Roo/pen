@@ -1,27 +1,20 @@
 var type = (function () {
-  var classToType, i, j, len, name, ref;
-  classToType = {};
-  ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol'.split(/\s+/);
-  for (i = j = 0, len = ref.length; j < len; i = ++j) {
-    name = ref[i];
-    classToType[`[object ${name}]`] = name.toLowerCase();
+  var class2Type = {};
+  var ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol'.split(/\s+/);
+  for (var i = 0; i < ref.length; ++i) {
+    var name = ref[i];
+    class2Type[`[object ${name}]`] = name.toLowerCase();
   };
   return function (obj) {
-    var strType;
-    strType = Object.prototype.toString.call(obj);
-    return classToType[strType] || 'object';
+    var strType = Object.prototype.toString.call(obj);
+    return class2Type[strType] || 'object';
   };
 })();
 var exists = (arg) => arg != null;
 var pen = function (el, autoAttach = false, autoAttachTo = document.body) {
   setup = (el) => {
     if (type(el) === 'string') {
-      if (el.match(/<|>/gi)) {
-        el = el.replace(/<|>/gi, '')
-        return document.createElement(el)
-      } else {
-        return document.querySelector(el)
-      }
+      return el.match(/<|>/gi) ? (el = el.replace(/<|>/gi, ''), document.createElement(el)) : document.querySelector(el)
     } else {
       return el
     }
@@ -73,8 +66,32 @@ var pen = function (el, autoAttach = false, autoAttachTo = document.body) {
     this.el = el
     setup2(el)
   }
-  if (autoAttach === true) {
-    autoAttachTo.append(el)
+  if (type(autoAttach) === 'boolean') {
+    if (autoAttach === true) {
+      autoAttachTo.append(el)
+    }
+  } else if (type(autoAttach) === 'object') {
+    for (var attr in autoAttach) {
+      if (attr !== 'options') {
+        this.attr(attr, autoAttach[attr])
+      } else {
+        var value = autoAttach[attr]
+        if (exists(value.options)) {
+          if (exists(value.options.autoAttach)) {
+            if (value.options.autoAttach === true) {
+              value.options.autoAttachTo.append(el)
+            }
+          } else {
+            value.options.autoAttach === false
+          }
+        } else {
+          value.options.autoAttach === false
+          value.options.autoAttachTo === document.body
+        }
+      }
+    }
+  } else {
+    var err = new Error(`Pen: option 1 can't be a ${type(autoAttach)}`)
   }
 }
 
@@ -99,13 +116,7 @@ pen.fn.html = function (str, app = false) {
   var def = (funco) => {
     this.text = str
     if (exists(str)) {
-      if (app === true) {
-        this.el[funco] += str
-        return this
-      } else {
-        this.el[funco] = str
-        return this
-      }
+      return app === true ? (this.el[funco] += str, this) : (this.el[funco] = str, this)
     } else {
       return this.el[funco]
     }
@@ -126,14 +137,10 @@ pen.fn.html = function (str, app = false) {
   }
 }
 
-pen.fn.attr = function (attribute, value) {
+pen.fn.attr = pen.fn.attributes = function (attribute, value) {
   if (exists(attribute)) {
     if (type(attribute) === 'object') {
-      if (exists(attribute.id)) {
-        this.ID = attribute.id
-      } else if (exists(attribute.class)) {
-        this.CLASS = attribute.class
-      }
+      exists(attribute.id) ? this.ID = attribute.id : this.CLASS = attribute.class
       return this.handleObject(attribute, function (prop, self) {
         self.attributes[prop] = attribute[prop]
         self.el.setAttribute(prop, attribute[prop])
@@ -142,8 +149,7 @@ pen.fn.attr = function (attribute, value) {
     } else if (exists(value)) {
       if (attribute === 'id') {
         this.ID = value
-      }
-      if (attribute === 'class') {
+      } else if (attribute === 'class') {
         this.CLASS = value
       }
       this.attributes[attribute] = value
@@ -157,7 +163,7 @@ pen.fn.attr = function (attribute, value) {
   }
 }
 
-pen.fn.css = function (rule, rules) {
+pen.fn.css = pen.fn.style = function (rule, rules) {
   if (exists(rule)) {
     if (type(rule) === 'object') {
       return this.handleObject(rule, function (prop, self) {
@@ -166,13 +172,7 @@ pen.fn.css = function (rule, rules) {
         return self
       })
     }
-    if (exists(rules)) {
-      this.style[rule] = rules
-      this.el.style[rule] = rules
-      return this
-    } else {
-      return this.el.style[rule]
-    }
+    return exists(rules) ? (this.style[rule] = rules, this.el.style[rule] = rules, this) : this.el.style[rule]
   } else {
     return this.el.style
   }
@@ -180,43 +180,24 @@ pen.fn.css = function (rule, rules) {
 
 pen.fn.on = function (eventType, callback, capture) {
   addEvent = (eventT, cback, cpture) => {
-    if (exists(this.el.addEventListener)) {
-      this.el.addEventListener(eventT, cback, cpture)
-    } else if (exists(this.el.attachEvent)) {
-      this.el.attachEvent(eventT, cback)
-    } else {
-      this.el["on"+eventT] = cback
-    }
+    exists(this.el.addEventListener) ? this.el.addEventListener(eventT, cback, cpture)
+    : exists(this.el.attachEvent) ? this.el.attachEvent(eventT, cback)
+    : this.el[`on${eventT}`] = cback
   }
   this.events[eventType] = {}
   this.events[eventType].fn = callback
-  if (type(capture) === 'object') {
-    this.events[eventType].options = exists(capture) ? capture : {}
-    addEvent(eventType, callback, exists(capture) ? capture : {})
-  } else {
-    this.events[eventType].capture = exists(capture) ? capture : false
-    addEvent(eventType, callback, exists(capture) ? capture : false)
-  }
+  type(capture) === 'object' ? (this.events[eventType].options = (exists(capture) ? capture : {}), addEvent(eventType, callback, (exists(capture) ? capture : {})))
+  : (this.events[eventType].capture = (exists(capture) ? capture : false), addEvent(eventType, callback, (exists(capture) ? capture : false)))
   return this
 }
 
 pen.fn.off = function (eventType, callback) {
   removeEvent = (eventT, cback) => {
-    if (exists(this.el.removeEventListener)) {
-      this.el.removeEventListener(eventT, cback, cpture)
-    } else if (exists(this.el.detachEvent)) {
-      this.el.detachEvent(eventT, cback)
-    } else {
-      this.el["on"+eventT] = null
-    }
+    exists(this.el.removeEventListener) ? this.el.removeEventListener(eventT, cback, cpture)
+    : exists(this.el.detachEvent) ? this.el.detachEvent(eventT, cback)
+    : this.el[`on${eventT}`] = void 0
   }
-  if (exists(callback)) {
-    removeEvent(eventType, callback)
-    delete this.events[eventType]
-  } else {
-    removeEvent(eventType, this.events[eventType].fn)
-    delete this.events[eventType]
-  }
+  exists(callback) ? (removeEvent(eventType, callback), delete this.events[eventType]) : (removeEvent(eventType, this.events[eventType].fn), delete this.events[eventType])
   return this
 }
 
@@ -229,30 +210,16 @@ pen.fn.append = function (...els) {
     var el = els[i]
     if (el instanceof pen) {
       el.PARENT = this.el
-      if (this.TAG === 'template') {
-        this.el.content.appendChild(el.el)
-      } else {
-        this.el.appendChild(el.el)
-      }
+      this.TAG === 'template' ? this.el.content.appendChild(el.el) : this.el.appendChild(el.el)
     } else {
-      if (this.TAG === 'template') {
-        this.el.content.appendChild(el)
-      } else {
-        this.el.appendChild(el)
-      }
+      this.TAG === 'template' ? this.el.content.appendChild(el) : this.el.appendChild(el)
     }
   }
   return this
 }
 
 pen.fn.appendTo = function (el) {
-  if (el instanceof pen) {
-    this.PARENT = el.el
-    el.append(this.el)
-  } else {
-    this.PARENT = el
-    pen(el).append(this.el)
-  }
+  el instanceof pen ? (this.PARENT = el.el, el.append(this.el)) : (this.PARENT = el, pen(el).append(this.el))
   return this
 }
 
