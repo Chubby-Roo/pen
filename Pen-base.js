@@ -252,3 +252,9 @@ pen.fn.create = pen.fn.createElement = function (el, ret) {
     }
   }
 }
+
+if (exists(module)) {
+  if (exists(module.exports)) {
+    module.exports = {pen, type, exists}
+  }
+}
