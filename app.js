@@ -1,63 +1,55 @@
-var {log} = console
-var pen = window.pen
-var timestamp = window.timestamp
-var type = window.type
-var {body} = document
+var log = navigator.platform.toLowerCase() === 'iphone' ? alert : console.log
+var {body, head} = document
 
 var load = pen('<p>').id('loader')
 pen(body).append(load)
 
 load.html('loading...')
 
-class DropDown {
-  constructor (buttonhtml) {
-    if (!(this instanceof DropDown)) {
-      return new DropDown(buttonhtml)
+function dropdown(btnhtml = 'button') {
+  if (!(this instanceof DropDown)) {
+    return new dropdown(btnhtml)
+  }
+  if (btnhtml instanceof dropdown) {
+    for (var prop in btnhtml) {
+      this[prop] = btnhtml[prop]
     }
+  } else {
     this.links = {}
-
     this.container = pen('<div>').class('dropdown')
-
-    this.button = pen('<button>').class('dropdown-button').html(buttonhtml != null ? buttonhtml : 'button')
-
+    this.button = pen('<button>').class('dropdown-button').html(btnhtml)
     this.content = pen('<div>').class('dropdown-content')
-
-    pen(this.container).append(this.button, this.content)
-    return this
+    this.container.append(this.button, this.content)
   }
+}
 
-  addLink (name, link) {
-    var a = pen('<a>')
-    .class('dropdown-content-link')
-    .html(name + '<br>')
-    .href(link)
-    var min = pen('<span>')
-    .class('dropdown-content-link-location')
-    .html(link)
-    min.appendTo(a)
-    var hr = pen('<hr>').class('dropdown-content-divider')
-    this.links[name] = {
-      el: a,
-      hr
-    }
-    pen(this.content).append(a, hr)
-    return this
-  }
+dropdown.fn = dropdown.prototype = {}
 
-  removeLink (name) {
-    pen(this.links[name]).remove()
-    return this
-  }
+dropdown.fn.addLink = function (name, link) {
+  var a = pen('<a>').class(`dropdown-content`).html(name + '<br>').href(link)
+  var min = pen('<span>').class(`dropdown-content-link-location`).html(link)
+  var hr = pen('<hr>').class(`dropdown-content-divider`)
+  this.links[name] = {}
+  this.links[name].el = a
+  this.links[name].hr = hr
+  this.content.append(a, hr)
+  return this
+}
 
-  deployTo (el) {
-    pen(el).append(this.container)
-    return this
-  }
+dropdown.fn.removeLink = function (name, fully = false) {
+  this.links[name].el.remove()
+  fully === true ? delete this.links[name] : null
+  return this
+}
 
-  style (el, obj) {
-    pen(this[el]).css(obj)
-    return this
-  }
+dropdown.fn.deployTo = dropdown.fn.deploy = function (element) {
+  this.container.appendTo(element)
+  return this
+}
+
+dropdown.fn.css = dropdown.fn.style = function (element = String, ...optionsObject) {
+  this[element].css([...optionsObject])
+  return this
 }
 
 var contextmenu = {
@@ -112,7 +104,7 @@ var contextmenu = {
       self.menu.append(self.commands[name].el, self.commands[name].hr)
     }
 
-    window.addEventListener('click', self.remove, {
+    addEventListener('click', self.remove, {
       once: true
     })
     pen(body).append(self.menu)
@@ -183,25 +175,25 @@ var Start = function (e) {
   contextmenu.add('reload', (e) => {
     e.preventDefault()
     pen(load).html('reloading...')
-    window.location.reload()
+    location.reload()
   })
   .add('go back', (e) => {
     e.preventDefault()
     pen(load).html('going back...')
-    window.history.back()
+    history.back()
   })
   .add('go forward', (e) => {
     e.preventDefault()
     pen(load).html('going foward...')
-    window.history.forward()
+    history.forward()
   })
   .add('github repo', (e) => {
     e.preventDefault()
     pen(load).html('going to github repo...')
-    window.location.href = 'http://github.com/Monochromefx/pen'
+    location.href = 'http://github.com/Monochromefx/pen'
   })
 
-  window.addEventListener('contextmenu', (e) => {
+  addEventListener('contextmenu', (e) => {
     var first = e.path[0]
     if ('tagName' in first) {
       switch (first.tagName.toLowerCase()) {
