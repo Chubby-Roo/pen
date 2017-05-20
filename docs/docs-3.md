@@ -29,20 +29,34 @@ You can even create a custom modal with this:
 ```js
 class Modal {
   constructor (headstr, bodystr, footstr)  {
-    this.container = pen("div").class "modal-container"
-    this.head = pen("div").class "modal-head"
-    this.body = pen("div").class "modal-body"
-    this.foot = pen("div").class "modal-foot"
+    this.container = pen("div").class("modal-container")
+
+    this.head = pen("div").class("modal-head")
+
+    this.body = pen("div").class("modal-body")
+
+    this.foot = pen("div").class("modal-foot")
+
     this.closebtn = pen("span").class("close-button").html("X")
-    Remove = (e) ->
+
+    Remove = (e) => {
       pen(this.container).remove()
       pen(this.closebtn).off("click")
-      return
+    }
+
     pen(this.closebtn).on("click", Remove)
-    this.headText = pen("h2").class("modal-head-text").html(exists(headerstr) ? headerstr : '')
-    this.bodyText = pen("p").class("modal-body-text").html(exists(bodystr) ? bodystr : '')
-    this.footText = pen("h2").class("modal-foot-text").html(exists(footstr) ? footstr : '')
-    return this
+
+    this.headText = pen("h2")
+    .class("modal-head-text")
+    .html(exists(headerstr) ? headerstr : '')
+
+    this.bodyText = pen("p")
+    .class("modal-body-text")
+    .html(exists(bodystr) ? bodystr : '')
+
+    this.footText = pen("h2")
+    .class("modal-foot-text")
+    .html(exists(footstr) ? footstr : '')
   }
 }
 
@@ -66,4 +80,4 @@ would return this:
 </div>
 ```
 
-### now go out there and make sure to keep that pen or pen-cil with you!
+### now go out there and make sure to keep that pen or pencil with you!

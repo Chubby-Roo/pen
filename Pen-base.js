@@ -82,18 +82,10 @@ function pen (el, autoAttach = false, autoAttachTo = document.body) {
       this.TAG = el.tagName.toLowerCase()
       // if it's a template element
       // then it'll run it for a different setup
-      // having the functions of selecting the innards of the template
-      // and also adding selecting all the innards
-      // then adding a function to clone the template
+      // adding a function to clone the template
       // and returning the cloned template
       if (this.TAG === 'template') {
         this.CONTENT = el.content
-        pen.fn.selectInner = pen.fn.$1 = function (str) {
-          return this.CONTENT.querySelector(str)
-        }
-        pen.fn.selectInnerAll = pen.fn.$$1 = function (str) {
-          return this.CONTENT.querySelectorAll(str)
-        }
         pen.fn.clone = function (deep = false) {
           return document.importNode(this.el.content, deep)
         }
@@ -307,12 +299,12 @@ pen.fn.remove = function () {
 
 // selecting the children
 pen.fn.select = pen.fn.$ = function (el) {
-  return this.el.querySelector(el)
+  return this.TAG === 'template' ? this.el.content.querySelector(str) : this.el.querySelector(str)
 }
 
 // selecting all the children
 pen.fn.selectAll = pen.fn.$$ = function (el) {
-  return this.el.querySelectorAll(el)
+  return this.TAG === 'template' ? this.el.content.querySelectorAll(str) : this.el.querySelectorAll(str)
 }
 
 // create an element inside of the parent
@@ -340,23 +332,29 @@ pen.fn.create = pen.fn.createElement = function (el, ret) {
 
 // NONE AT THE MOMENT
 pen.fn.insertChildBefore = function (newNode, reference) {
+  if (reference instanceof pen) reference = reference.el
+  if (newNode instanceof pen) newNode = newNode.el
   this.element.el.insertBefore(newNode, reference)
+  // this.element.el.insertBefore(newNode, reference)
   return this
 }
 
 // NONE AT THE MOMENT
 pen.fn.insertParentBefore = function (parentNode, referenceInParent) {
-  parentNode.insertBefore(this.el.element, referenceInParent)
+  var el
+  if (this.el instanceof pen) {el = this.element.el} else {el = this.element}
+  if (referenceInParent instanceof pen) referenceInParent = referenceInParent.el
+  parentNode.insertBefore(el, referenceInParent)
   return this
 }
 
 // module declaration
-if (exists(module)) {
-  if (exists(module.exports)) {
-    if (exists(window)) {
-      window.pen = pen
-      window.exists = exists
-      window.type = type
-    }
+if (typeof module !== 'undefined') {
+  if (typeof module.exports !== 'undefined') {
+    module.exports = {pen, exists, type}
+  } else {
+    typeof pen !== 'undefined' ? window.pen = pen : void 0
+    typeof exists !== 'undefined' ? window.exists = exists : void 0
+    typeof type !== 'undefined' ? window.type = type : void 0
   }
 }
