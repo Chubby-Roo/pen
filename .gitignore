@@ -1,9 +1,11 @@
 *.bat
 *.ps1
+*.coffee
 *.sass-cache
 *.css.map
 *.sassc
 *.sass
+*.lib.js
+*.lib.coffee
 sass
-*.coffee
 *.zip

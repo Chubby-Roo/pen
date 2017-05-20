@@ -1,378 +1,393 @@
-/*
-* For defining the typeof of a value since
-* the original typeof is broken
-*/
-var type = (function () {
-  var class2Type = {};
-  var ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol'.split(/\s+/);
-  for (var i = 0; i < ref.length; ++i) {
-    var name = ref[i];
+var exists, pen, type;
+
+type = (function() {
+  var class2Type, i, j, len, name, ref;
+  class2Type = {};
+  ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol'.split(/\s+/gi);
+  for (i = j = 0, len = ref.length; j < len; i = ++j) {
+    name = ref[i];
     class2Type[`[object ${name}]`] = name.toLowerCase();
-  };
-  return function (obj) {
-    var strType = Object.prototype.toString.call(obj);
+  }
+  return function(obj) {
+    var strType;
+    strType = Object.prototype.toString.call(obj);
     return class2Type[strType] || 'object';
   };
 })();
 
-/*
-* To see if a value exists or not
-*/
-var exists = (arg) => arg !== null && typeof arg !== 'undefined';
+exists = (arg) => {
+  return arg !== null && typeof arg !== 'undefined';
+};
 
-/*
-* The main function, takes 3 parameters
-* the 1st is a must be and it can either be a string or an object (element)
-* or be an instance of pen itself
-* the 2 parameter can be an object or a boolean
-* it defaults to a boolean but can be an object
-* basically allowing automatically attatching the element to the element specified in parameter 3
-* if it's an object however it'll parse the object to see if there's any attributes to be said
-* if so then it'll automatically set the attributes defined in the object to the element
-* if the parser comes across the options object inside of the main object
-* then the options it comes across will be set if none is set for both boolean and object
-* then parameter 2 defaults to false and parameter 3 defaults to the body inside the document
-*/
-function pen (el, autoAttach = false, autoAttachTo = document.body) {
-  /*
-  * The original setup function used to be defined in element.__proto__
-  * So I made it in the function itself so it will never be passed to the child.
-  */
+pen = function(element, autoAttach = false, autoAttachTo = document.body) {
+  var attr, j, len, prop, setup, value;
   setup = (el) => {
-    // This is to see if the type of the value is a string
-    // if so then it'll be passed onto parsing for either creation or selection
-    // if not however then it'll return itself aka the element
+    var ev, tag;
+    tag = /<([^\n]*?)>/gi;
     if (type(el) === 'string') {
-      /*
-      This is to check to see if the string passed matched the start and or end of a tag
-      if so then it'll create a new element
-      if not then it'll do a querySelector
-      */
-      return el.match(/<|>/gi) ? (el = el.replace(/<|>/gi, ''), document.createElement(el)) : document.querySelector(el)
-    } else {
-      return el
-    }
-  }
-  // for setting up the new operator so you would just have to go pen('<p>').mooCow(...)
-  if (!(this instanceof pen)) {
-    return new pen(el, autoAttach, autoAttachTo)
-  }
-  // if the element passed is the instanceof the document itself
-  // it'll add different properties and values
-  // and add a function to when the dom is ready just like jQuery
-  if (el instanceof Document) {
-    this.el = el
-    this.events = {}
-    this.body = el.body
-    this.head = el.head
-    pen.fn.ready = function (callback, capture) {
-      this.on('DOMContentLoaded', callback, capture)
-      return this
-    }
-  } else if (el instanceof pen) {
-    // Else if it's an instanceof pen then for each property
-    // it'll set the properties for 'this' to be the properties of the instance passed
-    for (var prop in el) {
-      this[prop] = el[prop]
-    }
-  } else if (type(el) === 'string' || type(el) === 'object') {
-    // this is for setting up the instance
-    // cause I'm lazy and I don't want to repeat myself
-    setup2 = (el) => {
-      this.TAG = el.tagName.toLowerCase()
-      // if it's a template element
-      // then it'll run it for a different setup
-      // adding a function to clone the template
-      // and returning the cloned template
-      if (this.TAG === 'template') {
-        this.CONTENT = el.content
-        pen.fn.clone = function (deep = false) {
-          return document.importNode(this.el.content, deep)
-        }
+      if (tag.test(el) === true) {
+        el = el.replace(/<|>/gi, '');
+        ev = document.createElement(el);
       } else {
-        // else it'll just be children
-        this.CHILDREN = el.children
+        ev = document.querySelector(el);
       }
-      // the rest of the setup
-      this.ID = this.el.getAttribute('id')
-      this.CLASS = this.el.getAttribute('class')
-      this.PARENT = exists(el.parentNode) ? el.parentNode : 'no parent'
+    } else {
+      ev = el;
     }
-    el = setup(el) // the init
-    this.attributes = {} // the attributes
-    this.style = {} // the style object
-    this.events = {} // the events for later use
-    this.text = void 0 // the text which is always defaulted to undefined
-    this.el = this.element = el // the element
-    setup2(el) // the main
+    this.attributes = {};
+    this.style = {};
+    this.events = {};
+    this.text = void 0;
+    this.element = this.el = ev;
+    this.tag = ev.tagName.toLowerCase();
+    if (this.tag === 'template') {
+      this.content = ev.content;
+      pen.fn.clone = function(deep = false) {
+        return document.importNode(this.el.content, deep);
+      };
+    } else {
+      this.children = el.children;
+    }
+    this.Id = ev.getAttribute('id');
+    this.Class = ev.getAttribute('class');
+    this.Parent = exists(ev.parentNode) ? ev.parentNode : 'no parent';
+    return ev;
+  };
+  if (!(this instanceof pen)) {
+    return new pen(element, autoAttach, autoAttachTo);
+  }
+  if (element instanceof Document) {
+    this.element = this.el = element;
+    this.events = {};
+    this.body = element.body;
+    this.head = element.head;
+    pen.fn.ready = function(callback, capture) {
+      this.on('DOMContentLoaded', callback, capture);
+      return this;
+    };
+  } else if (element instanceof pen) {
+    for (prop in element) {
+      this[prop] = element[prop];
+    }
+  } else {
+    setup(element);
   }
   if (type(autoAttach) === 'boolean') {
     if (autoAttach === true) {
-      autoAttachTo.appendChild(el)
+      pen(autoAttachTo).append(el);
     }
   } else if (type(autoAttach) === 'object') {
-    for (var attr in autoAttach) {
+    for (j = 0, len = autoAttach.length; j < len; j++) {
+      attr = autoAttach[j];
       if (attr !== 'options') {
-        this.attr(attr, autoAttach[attr])
+        this.attr(attr, autoAttach[attr]);
       } else {
-        var value = autoAttach[attr]
+        value = autoAttach[attr];
         if (exists(value.options)) {
           if (exists(value.options.autoAttach)) {
             if (value.options.autoAttach === true) {
-              value.options.autoAttachTo.appendChild(el)
+              value.options.autoAttachTo.appendChild(el);
             }
           } else {
-            value.options.autoAttach === false
+            value.options.autoAttach = false;
           }
         } else {
-          value.options.autoAttach === false
-          value.options.autoAttachTo === document.body
+          value.options.autoAttach = false;
+          value.options.autoAttachTo = document.body;
         }
       }
     }
   } else {
-    // if every other test fails then it'll throw an error
-    var err = new Error(`Pen: option 1 can't be a ${type(autoAttach)}`)
+    throw new Error(`Pen: option 1 can't be a ${type(autoAttach)}`);
   }
-}
+};
 
-
-// the prototype makes things faster this way
 pen.fn = pen.prototype = {
   constructor: pen
-}
+};
 
-// handling objects
-pen.fn.handleObject = function (obj, cb) {
-  var prop
-  for (prop in obj) {
-    cb(prop, this, obj)
+pen.prototype.handleObject = function(obj, cb) {
+  var j, len, prop;
+  for (j = 0, len = obj.length; j < len; j++) {
+    prop = obj[j];
+    cb(prop, this, obj);
   }
-  return this
-}
+  return this;
+};
 
-// handling the self instance
-pen.fn.selfInstance = function (obj, cb) {
+pen.prototype.selfInstance = function(obj, cb) {
   if (obj instanceof pen) {
-    cb(obj, this)
+    cb(obj, this);
   }
-  return this
-}
+  return this;
+};
 
-// the html of the element
-// which I had set to be smart about it
-pen.fn.html = function (str, app = false) {
-  // the default for handling the smarts
-  // also because I'm lazy and don't want to repeat myself
-  var def = (funco) => {
-    this.text = str
+pen.prototype.html = function(str, app = false) {
+  var def;
+  def = (funco) => {
+    this.text = str;
     if (exists(str)) {
-      return app === true ? (this.el[funco] += str, this) : (this.el[funco] = str, this)
+      if (app === true) {
+        this.el[funco] += str;
+        return this;
+      } else {
+        this.el[funco] = str;
+        return this;
+      }
     } else {
-      return this.el[funco]
+      return this.el[funco];
     }
-  }
-  // the brain of the html function
-  switch (this.TAG) {
-    case 'input': case 'option': case 'textarea':
-      return def('value')
-    break
+  };
+  switch (this.tag) {
+    case 'input':
+    case 'option':
+    case 'textarea':
+      return def('value');
     case 'template':
       if (type(str) !== 'object') {
-        throw new Error("parameter 1 must be an element/object")
+        throw new Error("parameter 1 must be an element/object");
       }
-      this.el.content.appendChild(str)
-      return this
-    break
+      this.el.content.appendChild(str);
+      return this;
     default:
-      return def('innerHTML')
+      return def('innerHTML');
   }
-}
+};
 
-// for handling the attributes
-pen.fn.attr = function (attribute, value) {
+pen.prototype.attr = function(attribute, value) {
   if (exists(attribute)) {
     if (type(attribute) === 'object') {
-      // if it's an object then handle it
-      exists(attribute.id) ? this.ID = attribute.id : this.CLASS = attribute.class
-      return this.handleObject(attribute, function (prop, self) {
-        self.attributes[prop] = attribute[prop]
-        self.el.setAttribute(prop, attribute[prop])
-        return self
-      })
-    } else if (exists(value)) {
-      // this will set the instance of the id and class back in the main function
-      if (attribute === 'id') {
-        this.ID = value
-      } else if (attribute === 'class') {
-        this.CLASS = value
+      if (exists(attribute.id)) {
+        this.Id = attribute.id;
+      } else {
+        this.Class = attribute.class;
       }
-      // for setting the attributes
-      this.attributes[attribute] = value
-      this.el.setAttribute(attribute, value)
-      return this
+      return this.handleObject(attribute, function(prop, self) {
+        self.attributes[prop] = attribute[prop];
+        self.el.setAttribute(prop, attribute[prop]);
+        return self;
+      });
+    } else if (exists(value)) {
+      if (attribute === 'id') {
+        this.ID = value;
+      } else {
+        this.CLASS = value;
+      }
+      this.attributes[attribute] = value;
+      this.el.setAttribute(attribute, value);
+      return this;
     } else {
-      // return the attribute if no value was passed
-      return this.el.getAttribute(attribute)
+      return this.el.getAttribute(attribute);
     }
   } else {
-    // return the attributes object
-    return this.attributes
+    return this.attributes;
   }
-}
+};
 
-// this is for the styling of the element
-// this handles the css
-pen.fn.css = function (rule, rules) {
+pen.prototype.css = function(rule, rules) {
   if (exists(rule)) {
     if (type(rule) === 'object') {
-      return this.handleObject(rule, function (prop, self) {
-        self.style[prop] = rule[prop]
-        self.el.style[prop] = rule[prop]
-        return self
-      })
+      return this.handleObject(rule, function(prop, self) {
+        self.style[prop] = rule[prop];
+        self.el.style[prop] = rule[prop];
+        return self;
+      });
     }
-    return exists(rules) ? (this.style[rule] = rules, this.el.style[rule] = rules, this) : this.el.style[rule]
-  } else {
-    return this.el.style
-  }
-}
-
-
-// on and off handling of the addEventListener and removeEventListener of elements
-// cross browser
-pen.fn.on = function (eventType, callback, capture) {
-  addEvent = (eventT, cback, cpture) => {
-    exists(this.el.addEventListener) ? this.el.addEventListener(eventT, cback, cpture)
-    : exists(this.el.attachEvent) ? this.el.attachEvent(eventT, cback)
-    : this.el[`on${eventT}`] = cback
-  }
-  this.events[eventType] = {}
-  this.events[eventType].fn = callback
-  type(capture) === 'object' ? (this.events[eventType].options = (exists(capture) ? capture : {}), addEvent(eventType, callback, (exists(capture) ? capture : {})))
-  : (this.events[eventType].capture = (exists(capture) ? capture : false), addEvent(eventType, callback, (exists(capture) ? capture : false)))
-  return this
-}
-
-pen.fn.off = function (eventType, callback) {
-  removeEvent = (eventT, cback) => {
-    exists(this.el.removeEventListener) ? this.el.removeEventListener(eventT, cback, cpture)
-    : exists(this.el.detachEvent) ? this.el.detachEvent(eventT, cback)
-    : this.el[`on${eventT}`] = void 0
-  }
-  exists(callback) ? (removeEvent(eventType, callback), delete this.events[eventType]) : (removeEvent(eventType, this.events[eventType].fn), delete this.events[eventType])
-  return this
-}
-
-// checks if the instances tag is the tag passed
-pen.fn.is = function (tag) {
-  return this.TAG === tag
-}
-
-// for appending children to the parent element
-pen.fn.append = function (...els) {
-  for (var i = 0; i < els.length; i++) {
-    var el = els[i]
-    if (el instanceof pen) {
-      el.PARENT = this.el
-      this.TAG === 'template' ? this.el.content.appendChild(el.el) : this.el.appendChild(el.el)
+    if (exists(rules)) {
+      this.style[rule] = rules;
+      this.el.style[rule] = rules;
+      return this;
     } else {
-      this.TAG === 'template' ? this.el.content.appendChild(el) : this.el.appendChild(el)
+      return this.el.style[rule];
     }
+  } else {
+    return this.el.style;
   }
-  return this
-}
+};
 
-// appending the parent to another parent
-pen.fn.appendTo = function (el) {
-  el instanceof pen ? (this.PARENT = el.el, el.append(this.el)) : (this.PARENT = el, pen(el).append(this.el))
-  return this
-}
+pen.prototype.on = function(eventType, callback, capture) {
+  var addEvent;
+  addEvent = (eventT, cback, cpture) => {
+    if (exists(this.el.addEventListener)) {
+      this.el.addEventListener(eventT, cback, cpture);
+    } else if (exists(this.el.attachEvent)) {
+      this.el.attachEvent(eventT, cback);
+    } else {
+      this.el[`on${eventT}`] = cback;
+    }
+  };
+  this.events[eventType] = {};
+  this.events[eventType].fn = callback;
+  if (type(capture) === 'object') {
+    this.events[eventType].options = (exists(capture) ? capture : {});
+    addEvent(eventType, callback, (exists(capture) ? capture : {}));
+  } else {
+    this.events[eventType].capture = (exists(capture) ? capture : false);
+    addEvent(eventType, callback, (exists(capture) ? capture : false));
+  }
+  return this;
+};
 
-// removing the element since it's not working current for an unknown reason
-// love ya developers of js
-pen.fn.remove = function () {
-  var el = this.el instanceof pen ? this.element.el : this.element
-  this.PARENT.removeChild(this.el)
-  this.PARENT = void 0
-  return this
-}
+pen.prototype.off = function(eventType, callback) {
+  var removeEvent;
+  removeEvent = (eventT, cback) => {
+    if (exists(this.el.removeEventListener)) {
+      this.el.removeEventListener(eventT, cback, cpture);
+    } else if (exists(this.el.detachEvent)) {
+      this.el.detachEvent(eventT, cback);
+    } else {
+      this.el[`on${eventT}`] = void 0;
+    }
+  };
+  if (exists(callback)) {
+    removeEvent(eventType, callback);
+    delete this.events[eventType];
+  } else {
+    removeEvent(eventType, this.events[eventType].fn);
+    delete this.events[eventType];
+  }
+  return this;
+};
 
-// selecting the children
-pen.fn.select = pen.fn.$ = function (el) {
-  return this.TAG === 'template' ? this.el.content.querySelector(str) : this.el.querySelector(str)
-}
+pen.prototype.is = function(tag) {
+  return this.tag === tag;
+};
 
-// selecting all the children
-pen.fn.selectAll = pen.fn.$$ = function (el) {
-  return this.TAG === 'template' ? this.el.content.querySelectorAll(str) : this.el.querySelectorAll(str)
-}
-
-// create an element inside of the parent
-// takes two parameters
-// the two are a must
-// the first can be an object or string and runs it through the main function
-// the second parameter allows to either return the parent or child that was created
-pen.fn.create = pen.fn.createElement = function (el, ret) {
-  el = pen(el)
-  this.append(el)
-  if (ret.match(/return parent/gi)) {
-    return this
-  } else if (ret.match(/return child/)) {
-    var ref = this.CHILDREN
-    for (var i = 0; i < ref.length; i++) {
-      let child = ref[i]
-      if (child === el.el) {
-        child = pen(child)
-        return child
+pen.prototype.append = function(...els) {
+  var el, i, j, len;
+  for (i = j = 0, len = els.length; j < len; i = ++j) {
+    el = els[i];
+    if (el instanceof pen) {
+      el.PARENT = this.el;
+      if (this.tag === 'template') {
+        this.el.content.appendChild(el.el);
+      } else {
+        this.el.appendChild(el.el);
+      }
+    } else {
+      if (this.tag === 'template') {
+        this.el.content.appendChild(el);
+      } else {
+        this.el.appendChild(el);
       }
     }
   }
-}
+  return this;
+};
 
-
-// NONE AT THE MOMENT
-pen.fn.insertChildBefore = function (newNode, reference) {
-  if (reference instanceof pen) reference = reference.el
-  if (newNode instanceof pen) newNode = newNode.el
-  this.element.el.insertBefore(newNode, reference)
-  // this.element.el.insertBefore(newNode, reference)
-  return this
-}
-
-// NONE AT THE MOMENT
-pen.fn.insertParentBefore = function (parentNode, referenceInParent) {
-  var el
-  if (this.el instanceof pen) {el = this.element.el} else {el = this.element}
-  if (referenceInParent instanceof pen) referenceInParent = referenceInParent.el
-  parentNode.insertBefore(el, referenceInParent)
-  return this
-}
-
-
-// this is the end of the code and allows for self passed events and attributes
-;(function () {
-  var attrs = 'id class href src contentEditable charset title rows cols'.split(/\s+/)
-  var events = 'click keydown keyup keypress mousedown mouseup mouseover mousepress mouseout contextmenu dblclick'.split(/\s+/)
-  events.forEach(function (eventp) {
-    pen.fn[eventp] = function (...args) {
-      return !exists(this.events[eventp]) ? this.on(eventp, [...args]) : this.off(eventp, [...args])
-    }
-  })
-  attrs.forEach(function (attr) {
-    pen.fn[attr] = function (str) {
-      return !exists(str) ? this.attr(attr) : this.attr(attr, str)
-    }
-  })
-})()
-
-// module declaration
-if (typeof module !== 'undefined') {
-  if (typeof module.exports !== 'undefined') {
-    module.exports = {pen, exists, type}
+pen.prototype.appendTo = function(el) {
+  if (el instanceof pen) {
+    this.PARENT = el.el;
+    el.append(this.el);
   } else {
-    typeof pen !== 'undefined' ? window.pen = pen : void 0
-    typeof exists !== 'undefined' ? window.exists = exists : void 0
-    typeof type !== 'undefined' ? window.type = type : void 0
+    this.PARENT = el;
+    pen(el).append(this.el);
+  }
+  return this;
+};
+
+pen.prototype.remove = function() {
+  var el;
+  el = this.el instanceof pen ? this.element.el : this.element;
+  this.PARENT.removeChild(this.el);
+  this.PARENT = void 0;
+  return this;
+};
+
+pen.prototype.select = pen.fn.$ = function(el) {
+  if (this.tag === 'template') {
+    return this.el.content.querySelector(str);
+  } else {
+    return this.el.querySelector(str);
+  }
+};
+
+pen.prototype.selectAll = pen.fn.$$ = function(el) {
+  if (this.tag === 'template') {
+    return this.el.content.querySelectorAll(str);
+  } else {
+    return this.el.querySelectorAll(str);
+  }
+};
+
+pen.prototype.create = pen.fn.createElement = function(el, ret) {
+  var child, i, j, len, ref;
+  el = pen(el);
+  this.append(el);
+  if (ret.match(/return parent/gi)) {
+    return this;
+  } else if (ret.match(/return child/)) {
+    ref = this.CHILDREN;
+    for (i = j = 0, len = ref.length; j < len; i = ++j) {
+      child = ref[i];
+      child = this.CHILDREN[i];
+    }
+    if (child === el.el) {
+      child = pen(child);
+      return child;
+    }
+  }
+};
+
+pen.prototype.insertChildBefore = function(newNode, reference) {
+  if (reference instanceof pen) {
+    reference = reference.el;
+  }
+  if (newNode instanceof pen) {
+    newNode = newNode.el;
+  }
+  this.element.el.insertBefore(newNode, reference);
+  return this;
+};
+
+pen.prototype.insertParentBefore = function(parentNode, referenceInParent) {
+  var el;
+  if (this.el instanceof pen) {
+    el = this.element.el;
+  } else {
+    el = this.element;
+  }
+  if (referenceInParent instanceof pen) {
+    referenceInParent = referenceInParent.el;
+  }
+  parentNode.insertBefore(el, referenceInParent);
+  return this;
+};
+
+(function() {
+  var attrs, events;
+  attrs = 'id class href src contentEditable charset title rows cols'.split(/\s+/);
+  events = 'click keydown keyup keypress mousedown mouseup mouseover mousepress mouseout contextmenu dblclick'.split(/\s+/);
+  events.forEach(function(eventp) {
+    return pen.fn[eventp] = function(...args) {
+      if (!exists(this.events[eventp])) {
+        return this.on(eventp, [...args]);
+      } else {
+        return this.off(eventp, [...args]);
+      }
+    };
+  });
+  return attrs.forEach(function(attr) {
+    return pen.fn[attr] = function(str) {
+      if (!exists(str)) {
+        return this.attr(attr);
+      } else {
+        return this.attr(attr, str);
+      }
+    };
+  });
+})();
+
+if (typeof module !== "undefined" && module !== null) {
+  if (module.exports != null) {
+    module.exports = {
+      pen: pen,
+      exists: exists,
+      type: type
+    };
+  } else {
+    window.pen = pen;
+    window.exists = exists;
+    window.type = type;
   }
 }

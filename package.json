@@ -5,9 +5,13 @@
   "main": "Pen.js",
   "devDependencies": {},
   "description": "pen a small api to manipulate elements in the dom",
-  "author": "Monochromefx",
+  "author": {
+    "name": "Monochromefx",
+    "email": "toxicibu@icloud.com"
+  },
   "scripts": {
-    "sass": "sass style.sass"
+    "sass": "sass style.sass",
+    "minify": "node minify.lib.js Pen-advanced.js Pen-base.js"
   },
   "license": "MIT",
   "keywords": [
@@ -21,8 +25,7 @@
   "homepage": "https://github.com/Monochromefx/pen-coffee#readme",
   "directories": {
     "doc": "docs",
-    "example": "examples",
-    "test": "test"
+    "example": "examples"
   },
   "repository": {
     "type": "git",
