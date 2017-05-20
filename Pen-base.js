@@ -292,6 +292,7 @@ pen.fn.appendTo = function (el) {
 // removing the element since it's not working current for an unknown reason
 // love ya developers of js
 pen.fn.remove = function () {
+  var el = this.el instanceof pen ? this.element.el : this.element
   this.PARENT.removeChild(this.el)
   this.PARENT = void 0
   return this

@@ -7,7 +7,7 @@ pen(body).append(load)
 load.html('loading...')
 
 function dropdown(btnhtml = 'button') {
-  if (!(this instanceof DropDown)) {
+  if (!(this instanceof dropdown)) {
     return new dropdown(btnhtml)
   }
   if (btnhtml instanceof dropdown) {
@@ -26,8 +26,9 @@ function dropdown(btnhtml = 'button') {
 dropdown.fn = dropdown.prototype = {}
 
 dropdown.fn.addLink = function (name, link) {
-  var a = pen('<a>').class(`dropdown-content`).html(name + '<br>').href(link)
+  var a = pen('<a>').class(`dropdown-content-link`).html(name + '<br>').href(link)
   var min = pen('<span>').class(`dropdown-content-link-location`).html(link)
+  min.appendTo(a)
   var hr = pen('<hr>').class(`dropdown-content-divider`)
   this.links[name] = {}
   this.links[name].el = a
@@ -122,7 +123,7 @@ var header = {
     console.log(name)
     var self = header
     var temp
-    if (evhr instanceof DropDown) {
+    if (evhr instanceof dropdown) {
       temp = pen('<span>').html(evhr.container.el.outerHTML).class('header-button custom Ril')
       self.buttons[name] = temp
       return self
@@ -206,11 +207,11 @@ var Start = function (e) {
     contextmenu.init(e)
   })
 
-  // var projects = new DropDown('projects')
-  // projects.addLink('Pen', 'https://github.com/Monochromefx/pen')
-  // projects.addLink('Schem', 'https://github.com/Monochromefx/schem')
+  var projects = dropdown('projects')
+  .addLink('Pen', 'https://github.com/Monochromefx/pen')
+  .addLink('Schem', 'https://github.com/Monochromefx/schem')
 
-  // header.add('pjdropdown', projects)
+  header.add('pjdropdown', projects)
 
   header.init()
 

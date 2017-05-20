@@ -1,12 +1,12 @@
-.button, .contextmenu .contextmenu-command, .header .button-header, .dropdown .dropdown-button {
-  background-color: #79ef98;
+.button, .contextmenu .contextmenu-command, .header .header-button, .dropdown .dropdown-button {
+  background-color: #62ec87;
   color: white;
   display: inline-block;
   margin: 3px;
   cursor: pointer;
   transition: all ease 0.5s; }
-  .button:hover, .contextmenu .contextmenu-command:hover, .header .button-header:hover, .dropdown .dropdown-button:hover, .button:focus, .contextmenu .contextmenu-command:focus, .header .button-header:focus, .dropdown .dropdown-button:focus {
-    background-color: #0b5e21; }
+  .button:hover, .contextmenu .contextmenu-command:hover, .header .header-button:hover, .dropdown .dropdown-button:hover, .button:focus, .contextmenu .contextmenu-command:focus, .header .header-button:focus, .dropdown .dropdown-button:focus {
+    background-color: #13a239; }
 
 ::-webkit-scrollbar {
   width: 0.7rem; }
@@ -135,9 +135,9 @@ img {
     padding-left: 5px;
     padding-top: 10px;
     padding-bottom: 10px; }
-  .header .button-header {
+  .header .header-button {
     padding: 5px 10px; }
-    .header .button-header:hover, .header .button-header:focus {
+    .header .header-button:hover, .header .header-button:focus {
       padding: 10px 20px; }
 
 .dropdown {
@@ -169,7 +169,7 @@ img {
     min-width: 180px;
     max-height: 260px;
     overflow: auto;
-    background-color: #4041a4;
+    background-color: #13a239;
     z-index: 2; }
     .dropdown .dropdown-content .dropdown-content-divider {
       border: solid 3px rgba(0, 0, 0, 0.5);
@@ -179,7 +179,7 @@ img {
       text-align: center;
       color: white;
       background-color: rgba(0, 0, 0, 0.2);
-      padding: 6px 9px;
+      padding: 3px 9px;
       display: block;
       -webkit-transition: all, 0.5s, ease;
       -moz-transition: all, 0.5s, ease;
@@ -188,7 +188,7 @@ img {
       transition: all, 0.5s, ease; }
       .dropdown .dropdown-content .dropdown-content-link:hover {
         background-color: rgba(0, 0, 0, 0.7);
-        padding: 9px 9px; }
+        padding: 6px 9px; }
         .dropdown .dropdown-content .dropdown-content-link:hover .dropdown-content-link-location {
           animation-name: movedown;
           animation-duration: 0.2s;
