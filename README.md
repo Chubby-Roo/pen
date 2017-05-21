@@ -82,3 +82,22 @@ git clone https://github.com/Monochromefx/pen.git
 ```
 Adjust fixes if needed to add features you think need to be in it.
 Then make a pull request.
+
+# NOTE ABOUT ADVANCED.
+IF you are looking forward to using the advanced version of pen.
+Then you agree to be okay with your site being slow to load.
+
+The parser in the advanced version is made to check to see.
+If there's any sort of attributes and maybe in the future nested elements.
+
+BUT it is slow to check all these. Parse and add
+so expect it to be slow. I'm not responsible for your choices.
+
+How to make it less slow is to use the defined functions after the init:
+```js
+// how to make it less slow
+pen("<p>").class("some-class")
+
+// how to do things quicker but slower for the page
+pen("<p class='some-class'>")
+```
