@@ -22,26 +22,55 @@ exists = function(arg) {
 pen = function(element, autoAttach = false, autoAttachTo = document.body) {
   var attr, j, len, prop, setup, value;
   setup = (el) => {
-    var ev, tag;
+    var attrs, ev, ind, j, len, prop, res, reu, tag;
+    this.attributes = {};
+    this.style = {};
+    this.events = {};
+    this.text = void 0;
     tag = /<([^\n]*?)>/gi;
+    attrs = /\ ([^\n]*?)=['"]([^\n]*?)['"]/gi;
     if (type(el) === 'string') {
       if (tag.test(el) === true) {
         el = el.replace(/<|>/gi, '');
+        if (attrs.test(el) === true) {
+          reu = (function() {
+            var attributes, index, j, len, result, results;
+            attributes = el.match(attrs);
+            results = [];
+            for (index = j = 0, len = attributes.length; j < len; index = ++j) {
+              result = attributes[index];
+              result = result.trim();
+              result = JSON.parse(result.replace(/([^\n]*?)=['"]([^\n]+)['"]/gi, function(...args) {
+                var ret;
+                ret = {};
+                ret[args[1]] = args[2];
+                return JSON.stringify(ret);
+              }));
+              results.push(result);
+            }
+            return results;
+          })();
+          el = el.replace(/\ ([^\n]*?)="([^\n]*?)"/gi, '');
+        }
         ev = document.createElement(el);
+        for (ind = j = 0, len = reu.length; j < len; ind = ++j) {
+          res = reu[ind];
+          for (prop in res) {
+            ev.setAttribute(prop, res[prop]);
+            this.attributes[prop] = res[prop];
+          }
+        }
       } else {
         ev = document.querySelector(el);
       }
     } else {
       ev = el;
     }
-    this.attributes = {};
-    this.style = {};
-    this.events = {};
-    this.text = void 0;
     this.element = this.el = ev;
     this.tag = ev.tagName.toLowerCase();
     if (this.tag === 'template') {
       this.content = ev.content;
+      this.children = ev.content.children;
       pen.fn.clone = function(deep = false) {
         return document.importNode(this.el.content, deep);
       };
@@ -105,6 +134,11 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
 
 pen.fn = pen.prototype = {
   constructor: pen
+};
+
+pen.prototype.initLocalName = function() {
+  this.tag + (this.Id != null ? `#${this.Id}` : "") + (this.Class != null ? `.${this.Class}` : "");
+  return this;
 };
 
 pen.prototype.handleObject = function(obj, cb) {
@@ -176,8 +210,10 @@ pen.prototype.attr = function(attribute, value) {
         this.Class = value;
       }
       this.element.setAttribute(attribute, value);
+      this.initLocalName();
       return this;
     } else {
+      this.initLocalName();
       return this.element.getAttribute(attribute);
     }
   } else {
@@ -299,15 +335,16 @@ pen.prototype.create = pen.prototype.createElement = function(element, ret = "re
   element = `<${element}>`;
   element = pen(element);
   this.append(element);
+  log(this.element);
   if (ret.startsWith("return")) {
-    arg = ret.split(/\s+/gi).slice(1).toLowerCase();
+    arg = ret.split(/\s+/gi).slice(1)[0].toLowerCase();
     if (arg === 'parent') {
       return this;
     } else if (arg === 'child') {
       ref = this.children;
       for (index = j = 0, len = ref.length; j < len; index = ++j) {
         child = ref[index];
-        if (child === element.el) {
+        if (child === element.element) {
           child = pen(child);
           return child;
         }
