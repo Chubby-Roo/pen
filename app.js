@@ -68,6 +68,10 @@ dropdown.prototype.css = dropdown.prototype.style = function(element = String, .
   return this;
 };
 
+dropdown.prototype.embedInto = function(element) {
+  return this.button.el.outerHTML + this.content.el.outerHTML;
+};
+
 contextmenu = {
   commands: {},
   menu: pen('<div class="contextmenu">').attr('align', 'center'),
@@ -141,7 +145,7 @@ header = {
     console.log(name);
     self = header;
     if (evhr instanceof dropdown) {
-      temp = pen('<span class="header-button custom Ril">').html(evhr.container.el.outerHTML);
+      temp = pen('<span align="center" class="header-button dropdown Ril">').html(evhr.button.element.outerHTML + evhr.content.element.outerHTML);
       self.buttons[name] = temp;
       return self;
     }
@@ -187,23 +191,25 @@ header = {
   }
 };
 
-imager = function(src, alt) {
+imager = function(src, alt, msg = "no message was set") {
   var ion, prop;
-  ion = (src, alt) => {
+  ion = (src, alt, msg) => {
     this.container = pen("<div class='image-view'>");
     this.link = pen(`<a href='${src}'>`);
     this.image = pen(`<img src='${src}' class='image-view-image' alt='${alt}'>`);
-    this.title = pen("<span class='image-view-title'>").html(src);
-    return this.link.append(this.title, this.image).appendTo(this.container);
+    this.title = pen("<span class='image-view-title'>").html(alt);
+    this.br = pen("<br class='image-breaker'>");
+    this.msg = pen("<span class='image-view-message'>").html(msg);
+    return this.link.append(this.title, this.br, this.msg, this.image).appendTo(this.container);
   };
   if (!(this instanceof imager)) {
-    return new imager(src, alt);
+    return new imager(src, alt, msg);
   } else if (src instanceof imager) {
     for (prop in src) {
       this[prop] = src[prop];
     }
   } else {
-    ion(src, alt);
+    ion(src, alt, msg);
   }
 };
 
@@ -272,7 +278,7 @@ Start = function(e) {
   load.on("mouseover", mouseOv);
   load.on("mouseout", mouseOu);
   load.on("click", mouseCl);
-  penImage = imager("pen.logo.png", "pen logo");
+  penImage = imager("pen.logo.png", "Pen", "the official logo");
   penImage.deploy(body);
 };
 
