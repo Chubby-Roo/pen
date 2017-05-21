@@ -15,7 +15,7 @@ type = (function() {
   };
 })();
 
-exists = (arg) => {
+exists = function(arg) {
   return arg !== null && typeof arg !== 'undefined';
 };
 
@@ -51,6 +51,7 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
     this.Id = ev.getAttribute('id');
     this.Class = ev.getAttribute('class');
     this.Parent = exists(ev.parentNode) ? ev.parentNode : 'no parent';
+    this.localName = this.tag + (this.Id != null ? `#${this.Id}` : "") + (this.Class != null ? `.${this.Class}` : "");
     return ev;
   };
   if (!(this instanceof pen)) {
@@ -107,9 +108,8 @@ pen.fn = pen.prototype = {
 };
 
 pen.prototype.handleObject = function(obj, cb) {
-  var j, len, prop;
-  for (j = 0, len = obj.length; j < len; j++) {
-    prop = obj[j];
+  var prop;
+  for (prop in obj) {
     cb(prop, this, obj);
   }
   return this;
@@ -128,14 +128,14 @@ pen.prototype.html = function(str, app = false) {
     this.text = str;
     if (exists(str)) {
       if (app === true) {
-        this.el[funco] += str;
+        this.element[funco] += str;
         return this;
       } else {
-        this.el[funco] = str;
+        this.element[funco] = str;
         return this;
       }
     } else {
-      return this.el[funco];
+      return this.element[funco];
     }
   };
   switch (this.tag) {
@@ -147,7 +147,7 @@ pen.prototype.html = function(str, app = false) {
       if (type(str) !== 'object') {
         throw new Error("parameter 1 must be an element/object");
       }
-      this.el.content.appendChild(str);
+      this.element.content.appendChild(str);
       return this;
     default:
       return def('innerHTML');
@@ -155,29 +155,30 @@ pen.prototype.html = function(str, app = false) {
 };
 
 pen.prototype.attr = function(attribute, value) {
-  if (exists(attribute)) {
+  if (attribute != null) {
     if (type(attribute) === 'object') {
-      if (exists(attribute.id)) {
+      if (attribute.id != null) {
         this.Id = attribute.id;
-      } else {
+      }
+      if (attribute.class != null) {
         this.Class = attribute.class;
       }
       return this.handleObject(attribute, function(prop, self) {
         self.attributes[prop] = attribute[prop];
-        self.el.setAttribute(prop, attribute[prop]);
+        self.element.setAttribute(prop, attribute[prop]);
         return self;
       });
-    } else if (exists(value)) {
+    } else if (value != null) {
       if (attribute === 'id') {
-        this.ID = value;
-      } else {
-        this.CLASS = value;
+        this.Id = value;
       }
-      this.attributes[attribute] = value;
-      this.el.setAttribute(attribute, value);
+      if (attribute === 'class') {
+        this.Class = value;
+      }
+      this.element.setAttribute(attribute, value);
       return this;
     } else {
-      return this.el.getAttribute(attribute);
+      return this.element.getAttribute(attribute);
     }
   } else {
     return this.attributes;
@@ -185,159 +186,134 @@ pen.prototype.attr = function(attribute, value) {
 };
 
 pen.prototype.css = function(rule, rules) {
-  if (exists(rule)) {
+  if (rule != null) {
     if (type(rule) === 'object') {
       return this.handleObject(rule, function(prop, self) {
         self.style[prop] = rule[prop];
-        self.el.style[prop] = rule[prop];
+        self.element.style[prop] = rule[prop];
         return self;
       });
-    }
-    if (exists(rules)) {
+    } else if (rules != null) {
       this.style[rule] = rules;
-      this.el.style[rule] = rules;
+      this.element.style[rule] = rules;
       return this;
     } else {
-      return this.el.style[rule];
+      return this.element.style[rule];
     }
   } else {
-    return this.el.style;
+    return this.style;
   }
 };
 
 pen.prototype.on = function(eventType, callback, capture) {
   var addEvent;
-  addEvent = (eventT, cback, cpture) => {
-    if (exists(this.el.addEventListener)) {
-      this.el.addEventListener(eventT, cback, cpture);
-    } else if (exists(this.el.attachEvent)) {
-      this.el.attachEvent(eventT, cback);
+  this.events[eventType] = {};
+  addEvent = (eventType, callback, capture) => {
+    this.events[eventType].capture = capture;
+    if (this.element.addEventListener != null) {
+      this.element.addEventListener(eventType, callback, capture);
+    } else if (this.element.attachEvent != null) {
+      this.element.attachEvent(eventType, callback);
     } else {
-      this.el[`on${eventT}`] = cback;
+      this.element[`on${eventType}`] = callback;
     }
   };
-  this.events[eventType] = {};
   this.events[eventType].fn = callback;
-  if (type(capture) === 'object') {
-    this.events[eventType].options = (exists(capture) ? capture : {});
-    addEvent(eventType, callback, (exists(capture) ? capture : {}));
-  } else {
-    this.events[eventType].capture = (exists(capture) ? capture : false);
-    addEvent(eventType, callback, (exists(capture) ? capture : false));
-  }
+  addEvent(eventType, callback, capture);
   return this;
 };
 
 pen.prototype.off = function(eventType, callback) {
   var removeEvent;
-  removeEvent = (eventT, cback) => {
-    if (exists(this.el.removeEventListener)) {
-      this.el.removeEventListener(eventT, cback, cpture);
-    } else if (exists(this.el.detachEvent)) {
-      this.el.detachEvent(eventT, cback);
+  removeEvent = function(eventType, callback = this.events[eventType].fn) {
+    if (this.element.removeEventListener) {
+      this.element.removeEventListener(eventType, callback);
+    } else if (this.element.detachEvent) {
+      this.element.detachEvent(eventType, callback);
     } else {
-      this.el[`on${eventT}`] = void 0;
+      this.element[`on${eventType}`] = void 0;
     }
+    delete this.events[eventType];
   };
-  if (exists(callback)) {
-    removeEvent(eventType, callback);
-    delete this.events[eventType];
-  } else {
-    removeEvent(eventType, this.events[eventType].fn);
-    delete this.events[eventType];
-  }
-  return this;
+  return removeEvent(eventType, callback);
 };
 
 pen.prototype.is = function(tag) {
   return this.tag === tag;
 };
 
-pen.prototype.append = function(...els) {
-  var el, i, j, len;
-  for (i = j = 0, len = els.length; j < len; i = ++j) {
-    el = els[i];
-    if (el instanceof pen) {
-      el.PARENT = this.el;
-      if (this.tag === 'template') {
-        this.el.content.appendChild(el.el);
-      } else {
-        this.el.appendChild(el.el);
-      }
+pen.prototype.append = function(...elements) {
+  var element, index, j, len;
+  for (index = j = 0, len = elements.length; j < len; index = ++j) {
+    element = elements[index];
+    if (element instanceof pen) {
+      element.Parent = this.element;
+    }
+    if (this.tag === 'template') {
+      this.element.content.appendChild((element instanceof pen ? element.el : element));
     } else {
-      if (this.tag === 'template') {
-        this.el.content.appendChild(el);
-      } else {
-        this.el.appendChild(el);
-      }
+      this.element.appendChild((element instanceof pen ? element.el : element));
     }
   }
   return this;
 };
 
-pen.prototype.appendTo = function(el) {
-  if (el instanceof pen) {
-    this.PARENT = el.el;
-    el.append(this.el);
+pen.prototype.appendTo = function(element) {
+  if (element instanceof pen) {
+    this.Parent = element.el;
   } else {
-    this.PARENT = el;
-    pen(el).append(this.el);
+    this.Parent = element;
   }
+  pen(element).append(this.element);
   return this;
 };
 
 pen.prototype.remove = function() {
-  var el;
-  el = this.el instanceof pen ? this.element.el : this.element;
-  this.PARENT.removeChild(this.el);
-  this.PARENT = void 0;
+  if (this.Parent !== 'no parent') {
+    this.Parent.removeChild(this.element);
+    this.Parent = void 0;
+  } else {
+    throw new Error(`Pen-remove: There's no parent to remove this (${this.localName}) from`);
+  }
   return this;
 };
 
-pen.prototype.select = pen.fn.$ = function(el) {
+pen.prototype.select = pen.prototype.$ = function(element) {
   if (this.tag === 'template') {
-    return this.el.content.querySelector(str);
+    return this.element.content.querySelector(element);
   } else {
-    return this.el.querySelector(str);
+    return this.element.querySelector(element);
   }
 };
 
-pen.prototype.selectAll = pen.fn.$$ = function(el) {
+pen.prototype.selectAll = pen.prototype.$$ = function(element) {
   if (this.tag === 'template') {
-    return this.el.content.querySelectorAll(str);
+    return this.element.content.querySelectorAll(element);
   } else {
-    return this.el.querySelectorAll(str);
+    return this.element.querySelectorAll(element);
   }
 };
 
-pen.prototype.create = pen.fn.createElement = function(el, ret) {
-  var child, i, j, len, ref;
-  el = pen(el);
-  this.append(el);
-  if (ret.match(/return parent/gi)) {
-    return this;
-  } else if (ret.match(/return child/)) {
-    ref = this.CHILDREN;
-    for (i = j = 0, len = ref.length; j < len; i = ++j) {
-      child = ref[i];
-      child = this.CHILDREN[i];
+pen.prototype.create = pen.prototype.createElement = function(element, ret = "return child") {
+  var arg, child, index, j, len, ref;
+  element = `<${element}>`;
+  element = pen(element);
+  this.append(element);
+  if (ret.startsWith("return")) {
+    arg = ret.split(/\s+/gi).slice(1).toLowerCase();
+    if (arg === 'parent') {
+      return this;
+    } else if (arg === 'child') {
+      ref = this.children;
+      for (index = j = 0, len = ref.length; j < len; index = ++j) {
+        child = ref[index];
+        if (child === element.el) {
+          child = pen(child);
+          return child;
+        }
+      }
     }
-    if (child === el.el) {
-      child = pen(child);
-      return child;
-    }
   }
-};
-
-pen.prototype.insertChildBefore = function(newNode, reference) {
-  if (reference instanceof pen) {
-    reference = reference.el;
-  }
-  if (newNode instanceof pen) {
-    newNode = newNode.el;
-  }
-  this.element.el.insertBefore(newNode, reference);
-  return this;
 };
 
 pen.prototype.insertParentBefore = function(parentNode, referenceInParent) {

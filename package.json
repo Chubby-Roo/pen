@@ -1,6 +1,6 @@
 {
   "name": "pen",
-  "version": "1.0.4",
+  "version": "1.2.1",
   "dependencies": {},
   "main": "Pen.js",
   "devDependencies": {},
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "sass": "sass style.sass",
-    "minify": "node minify.lib.js Pen-advanced.js Pen-base.js"
+    "minify": "node minify.lib.js app.js Pen-advanced.js Pen-base.js"
   },
   "license": "MIT",
   "keywords": [
