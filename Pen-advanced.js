@@ -22,7 +22,7 @@ exists = function(arg) {
 pen = function(element, autoAttach = false, autoAttachTo = document.body) {
   var prop, setup;
   setup = (el) => {
-    var attrs, ev, ind, j, len, prop, res, reu, tag;
+    var attrs, ev, ind, j, len, prop, res, reu, soc, tag;
     this.attributes = {};
     this.style = {};
     this.events = {};
@@ -32,7 +32,8 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
     if (type(el) === 'string') {
       if (tag.test(el) === true) {
         el = el.replace(/<|>/gi, '');
-        if (attrs.test(el) === true) {
+        soc = attrs.test(el);
+        if (soc === true) {
           reu = (function() {
             var attributes, index, j, len, result, results;
             attributes = el.match(attrs);
@@ -53,11 +54,13 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
           el = el.replace(/\ ([^\n]*?)="([^\n]*?)"/gi, '');
         }
         ev = document.createElement(el);
-        for (ind = j = 0, len = reu.length; j < len; ind = ++j) {
-          res = reu[ind];
-          for (prop in res) {
-            ev.setAttribute(prop, res[prop]);
-            this.attributes[prop] = res[prop];
+        if (soc === true) {
+          for (ind = j = 0, len = reu.length; j < len; ind = ++j) {
+            res = reu[ind];
+            for (prop in res) {
+              ev.setAttribute(prop, res[prop]);
+              this.attributes[prop] = res[prop];
+            }
           }
         }
       } else {
