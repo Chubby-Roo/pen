@@ -335,7 +335,6 @@ pen.prototype.create = pen.prototype.createElement = function(element, ret = "re
   element = `<${element}>`;
   element = pen(element);
   this.append(element);
-  log(this.element);
   if (ret.startsWith("return")) {
     arg = ret.split(/\s+/gi).slice(1)[0].toLowerCase();
     if (arg === 'parent') {

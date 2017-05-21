@@ -23,6 +23,10 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
   var attr, j, len, prop, setup, value;
   setup = (el) => {
     var ev, tag;
+    this.attributes = {};
+    this.style = {};
+    this.events = {};
+    this.text = void 0;
     tag = /<([^\n]*?)>/gi;
     if (type(el) === 'string') {
       if (tag.test(el) === true) {
@@ -34,14 +38,11 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
     } else {
       ev = el;
     }
-    this.attributes = {};
-    this.style = {};
-    this.events = {};
-    this.text = void 0;
     this.element = this.el = ev;
     this.tag = ev.tagName.toLowerCase();
     if (this.tag === 'template') {
       this.content = ev.content;
+      this.children = ev.content.children;
       pen.fn.clone = function(deep = false) {
         return document.importNode(this.el.content, deep);
       };
@@ -105,6 +106,11 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
 
 pen.fn = pen.prototype = {
   constructor: pen
+};
+
+pen.prototype.initLocalName = function() {
+  this.tag + (this.Id != null ? `#${this.Id}` : "") + (this.Class != null ? `.${this.Class}` : "");
+  return this;
 };
 
 pen.prototype.handleObject = function(obj, cb) {
@@ -176,8 +182,10 @@ pen.prototype.attr = function(attribute, value) {
         this.Class = value;
       }
       this.element.setAttribute(attribute, value);
+      this.initLocalName();
       return this;
     } else {
+      this.initLocalName();
       return this.element.getAttribute(attribute);
     }
   } else {
@@ -300,14 +308,14 @@ pen.prototype.create = pen.prototype.createElement = function(element, ret = "re
   element = pen(element);
   this.append(element);
   if (ret.startsWith("return")) {
-    arg = ret.split(/\s+/gi).slice(1).toLowerCase();
+    arg = ret.split(/\s+/gi).slice(1)[0].toLowerCase();
     if (arg === 'parent') {
       return this;
     } else if (arg === 'child') {
       ref = this.children;
       for (index = j = 0, len = ref.length; j < len; index = ++j) {
         child = ref[index];
-        if (child === element.el) {
+        if (child === element.element) {
           child = pen(child);
           return child;
         }
