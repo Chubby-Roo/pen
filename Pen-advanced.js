@@ -20,7 +20,7 @@ exists = function(arg) {
 };
 
 pen = function(element, autoAttach = false, autoAttachTo = document.body) {
-  var attr, j, len, prop, setup, value;
+  var prop, setup;
   setup = (el) => {
     var attrs, ev, ind, j, len, prop, res, reu, tag;
     this.attributes = {};
@@ -102,33 +102,8 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
   } else {
     setup(element);
   }
-  if (type(autoAttach) === 'boolean') {
-    if (autoAttach === true) {
-      pen(autoAttachTo).append(el);
-    }
-  } else if (type(autoAttach) === 'object') {
-    for (j = 0, len = autoAttach.length; j < len; j++) {
-      attr = autoAttach[j];
-      if (attr !== 'options') {
-        this.attr(attr, autoAttach[attr]);
-      } else {
-        value = autoAttach[attr];
-        if (exists(value.options)) {
-          if (exists(value.options.autoAttach)) {
-            if (value.options.autoAttach === true) {
-              value.options.autoAttachTo.appendChild(el);
-            }
-          } else {
-            value.options.autoAttach = false;
-          }
-        } else {
-          value.options.autoAttach = false;
-          value.options.autoAttachTo = document.body;
-        }
-      }
-    }
-  } else {
-    throw new Error(`Pen: option 1 can't be a ${type(autoAttach)}`);
+  if (autoAttach === true) {
+    pen(autoAttachTo).append(el);
   }
 };
 
