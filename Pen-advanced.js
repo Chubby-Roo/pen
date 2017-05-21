@@ -28,7 +28,7 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
     this.events = {};
     this.text = void 0;
     tag = /<([^\n]*?)>/gi;
-    attrs = /\ ([^\n]*?)=['"]([^\n]*?)['"]/gi;
+    attrs = /([^\n\ ]*?)=['"]([^\n]*?)['"]/gi;
     if (type(el) === 'string') {
       if (tag.test(el) === true) {
         el = el.replace(/<|>/gi, '');
@@ -41,7 +41,7 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
             for (index = j = 0, len = attributes.length; j < len; index = ++j) {
               result = attributes[index];
               result = result.trim();
-              result = JSON.parse(result.replace(/([^\n]*?)=['"]([^\n]+)['"]/gi, function(...args) {
+              result = JSON.parse(result.replace(attrs, function(...args) {
                 var ret;
                 ret = {};
                 ret[args[1]] = args[2];
@@ -51,7 +51,8 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
             }
             return results;
           })();
-          el = el.replace(/\ ([^\n]*?)="([^\n]*?)"/gi, '');
+          el = el.replace(attrs, '');
+          el = el.trim();
         }
         ev = document.createElement(el);
         if (soc === true) {
@@ -106,7 +107,7 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
     setup(element);
   }
   if (autoAttach === true) {
-    pen(autoAttachTo).append(el);
+    pen(autoAttachTo).append(element);
   }
 };
 
@@ -341,6 +342,15 @@ pen.prototype.insertParentBefore = function(parentNode, referenceInParent) {
     referenceInParent = referenceInParent.el;
   }
   parentNode.insertBefore(el, referenceInParent);
+  return this;
+};
+
+pen.prototype.toggle = function(...clsss) {
+  var clss, index, j, len;
+  for (index = j = 0, len = clsss.length; j < len; index = ++j) {
+    clss = clsss[index];
+    this.element.classList.toggle(clss);
+  }
   return this;
 };
 

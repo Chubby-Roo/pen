@@ -20,7 +20,7 @@ exists = function(arg) {
 };
 
 pen = function(element, autoAttach = false, autoAttachTo = document.body) {
-  var attr, j, len, prop, setup, value;
+  var prop, setup;
   setup = (el) => {
     var ev, tag;
     this.attributes = {};
@@ -74,33 +74,8 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
   } else {
     setup(element);
   }
-  if (type(autoAttach) === 'boolean') {
-    if (autoAttach === true) {
-      pen(autoAttachTo).append(el);
-    }
-  } else if (type(autoAttach) === 'object') {
-    for (j = 0, len = autoAttach.length; j < len; j++) {
-      attr = autoAttach[j];
-      if (attr !== 'options') {
-        this.attr(attr, autoAttach[attr]);
-      } else {
-        value = autoAttach[attr];
-        if (exists(value.options)) {
-          if (exists(value.options.autoAttach)) {
-            if (value.options.autoAttach === true) {
-              value.options.autoAttachTo.appendChild(el);
-            }
-          } else {
-            value.options.autoAttach = false;
-          }
-        } else {
-          value.options.autoAttach = false;
-          value.options.autoAttachTo = document.body;
-        }
-      }
-    }
-  } else {
-    throw new Error(`Pen: option 1 can't be a ${type(autoAttach)}`);
+  if (autoAttach === true) {
+    pen(autoAttachTo).append(el);
   }
 };
 
@@ -337,6 +312,30 @@ pen.prototype.insertParentBefore = function(parentNode, referenceInParent) {
   parentNode.insertBefore(el, referenceInParent);
   return this;
 };
+
+(function() {
+  var attrs, events;
+  attrs = 'id class href src contentEditable charset title rows cols'.split(/\s+/);
+  events = 'click keydown keyup keypress mousedown mouseup mouseover mousepress mouseout contextmenu dblclick'.split(/\s+/);
+  events.forEach(function(eventp) {
+    return pen.fn[eventp] = function(...args) {
+      if (!exists(this.events[eventp])) {
+        return this.on(eventp, [...args]);
+      } else {
+        return this.off(eventp, [...args]);
+      }
+    };
+  });
+  return attrs.forEach(function(attr) {
+    return pen.fn[attr] = function(str) {
+      if (!exists(str)) {
+        return this.attr(attr);
+      } else {
+        return this.attr(attr, str);
+      }
+    };
+  });
+})();
 
 if (typeof module !== "undefined" && module !== null) {
   if (module.exports != null) {

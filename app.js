@@ -1,4 +1,4 @@
-var Start, body, contextmenu, dropdown, head, header, load, log;
+var Start, body, contextmenu, dropdown, head, header, imager, load, log;
 
 log = navigator.platform.toLowerCase() === 'iphone' ? alert : console.log;
 
@@ -22,9 +22,9 @@ dropdown = function(btnhtml = 'button') {
     }
   } else {
     this.links = {};
-    this.container = pen('<div>').class('dropdown');
-    this.button = pen('<button>').class('dropdown-button').html(btnhtml);
-    this.content = pen('<div>').class('dropdown-content');
+    this.container = pen('<div class="dropdown">');
+    this.button = pen('<button class="dropdown-button">').html(btnhtml);
+    this.content = pen('<div class="dropdown-content">');
     this.container.append(this.button, this.content);
   }
 };
@@ -35,12 +35,12 @@ dropdown.fn = dropdown.prototype = {
 
 dropdown.prototype.addLink = function(name, link, desc = "no description") {
   var a, hr, min;
-  a = pen('<a>').class("dropdown-content-link").html(name + '<br>').href(link);
-  min = pen('<span>').class("dropdown-content-link-location").html(link + '<br>');
+  a = pen('<a class="dropdown-content-link" href="' + link + '">').html(name + '<br>');
+  min = pen('<span class="dropdown-content-link-location">').html(link + '<br>');
   min.appendTo(a);
-  desc = pen('<span>').class("dropdown-content-link-location").html(desc);
+  desc = pen('<span class="dropdown-content-link-location">').html(desc);
   desc.appendTo(a);
-  hr = pen('<hr>').class("dropdown-content-divider");
+  hr = pen('<hr class="dropdown-content-divider">');
   this.links[name] = {};
   this.links[name].el = a;
   this.links[name].hr = hr;
@@ -70,16 +70,16 @@ dropdown.prototype.css = dropdown.prototype.style = function(element = String, .
 
 contextmenu = {
   commands: {},
-  menu: pen('<div>').class('contextmenu').attr('align', 'center'),
+  menu: pen('<div class="contextmenu">').attr('align', 'center'),
   add: function(name, evhr, commandType = "button", el) {
     var hr, self, temp;
     el = `<${el}>`;
     self = contextmenu;
-    hr = pen('<hr>').class('contextmenu-divider');
+    hr = pen('<hr class="contextmenu-divider">');
     if (commandType.match(/link/gi)) {
-      temp = pen('<a>').href(evhr).html(name).class('contextmenu-command link');
+      temp = pen('<a href="' + evhr + '" class="contextmenu-command link">').html(name);
     } else if (commandType.match(/button/gi)) {
-      temp = pen('<span>').on('click', evhr).html(name).class('contextmenu-command');
+      temp = pen('<span class="contextmenu-command">').on('click', evhr).html(name);
     } else if (commandType.match(/custom/gi)) {
       if (type(evhr) === 'function') {
         temp = pen(el).on('click', evhr).html(name).class('contextmenu-command custom');
@@ -133,22 +133,22 @@ contextmenu = {
 
 header = {
   buttons: {},
-  head: pen('<div>').class('header'),
-  title: pen('<span>').class('title Lil').html(document.title),
+  head: pen('<div class="header">'),
+  title: pen('<span class="title Lil">').html(document.title),
   add: function(name, evhr, buttonType = "button", el) {
     var self, temp;
     el = `<${el}>`;
     console.log(name);
     self = header;
     if (evhr instanceof dropdown) {
-      temp = pen('<span>').html(evhr.container.el.outerHTML).class('header-button custom Ril');
+      temp = pen('<span class="header-button custom Ril">').html(evhr.container.el.outerHTML);
       self.buttons[name] = temp;
       return self;
     }
     if (buttonType.match(/link/gi)) {
-      temp = pen('<a>').href(evhr).html(name).class('header-button link Ril');
+      temp = pen('<a class="header-button link Ril" href="' + evhr + '">').html(name);
     } else if (buttonType.match(/button/gi)) {
-      temp = pen('<span>').on('click', evhr).html(name).class('header-button Ril');
+      temp = pen('<span class="header-button Ril">').on('click', evhr).html(name);
     } else if (buttonType.match(/custom/gi)) {
       if (type(evhr) === 'function') {
         temp = pen(el).on('click', evhr).html(name).class('header-button custom Ril');
@@ -187,8 +187,43 @@ header = {
   }
 };
 
+imager = function(src, alt) {
+  var ion, prop;
+  ion = (src, alt) => {
+    this.container = pen("<div class='image-view'>");
+    this.link = pen(`<a href='${src}'>`);
+    this.image = pen(`<img src='${src}' class='image-view-image' alt='${alt}'>`);
+    this.title = pen("<span class='image-view-title'>").html(src);
+    return this.link.append(this.title, this.image).appendTo(this.container);
+  };
+  if (!(this instanceof imager)) {
+    return new imager(src, alt);
+  } else if (src instanceof imager) {
+    for (prop in src) {
+      this[prop] = src[prop];
+    }
+  } else {
+    ion(src, alt);
+  }
+};
+
+imager.fn = imager.prototype = {
+  constructor: imager
+};
+
+imager.prototype.changeTitle = function(str) {
+  this.title.html(str);
+  this.image.attr("alt", str);
+  return this;
+};
+
+imager.prototype.deploy = imager.deployTo = function(element) {
+  pen(element).append(this.container);
+  return this;
+};
+
 Start = function(e) {
-  var init, mouseCl, mouseOu, mouseOv, projects, usualgit;
+  var init, mouseCl, mouseOu, mouseOv, penImage, projects, usualgit;
   contextmenu.add('reload', function(e) {
     e.preventDefault();
     pen(load).html('reloading...');
@@ -237,6 +272,8 @@ Start = function(e) {
   load.on("mouseover", mouseOv);
   load.on("mouseout", mouseOu);
   load.on("click", mouseCl);
+  penImage = imager("pen.logo.png", "pen logo");
+  penImage.deploy(body);
 };
 
 pen(document).ready(function(e) {
