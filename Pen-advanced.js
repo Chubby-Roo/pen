@@ -3,7 +3,7 @@ var exists, pen, type;
 type = (function() {
   var class2Type, i, j, len, name, ref;
   class2Type = {};
-  ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol'.split(/\s+/gi);
+  ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise'.split(/\s+/gi);
   for (i = j = 0, len = ref.length; j < len; i = ++j) {
     name = ref[i];
     class2Type[`[object ${name}]`] = name.toLowerCase();
