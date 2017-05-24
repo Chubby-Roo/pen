@@ -1,6 +1,6 @@
 var exists, pen, type;
 
-type = (function() {
+(function(window, document) {}, type = (function() {
   var class2Type, i, j, len, name, ref;
   class2Type = {};
   ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise'.split(/\s+/gi);
@@ -13,13 +13,9 @@ type = (function() {
     strType = Object.prototype.toString.call(obj);
     return class2Type[strType] || 'object';
   };
-})();
-
-exists = function(arg) {
+})(), exists = function(arg) {
   return arg !== null && typeof arg !== 'undefined';
-};
-
-pen = function(element, autoAttach = false, autoAttachTo = document.body) {
+}, pen = function(element, autoAttach = false, autoAttachTo = document.body) {
   var prop, setup;
   setup = (el) => {
     var attrs, ev, ind, j, len, prop, res, reu, soc, tag;
@@ -109,33 +105,23 @@ pen = function(element, autoAttach = false, autoAttachTo = document.body) {
   if (autoAttach === true) {
     pen(autoAttachTo).append(element);
   }
-};
-
-pen.fn = pen.prototype = {
+}, pen.fn = pen.prototype = {
   constructor: pen
-};
-
-pen.prototype.initLocalName = function() {
+}, pen.prototype.initLocalName = function() {
   this.tag + (this.Id != null ? `#${this.Id}` : "") + (this.Class != null ? `.${this.Class}` : "");
   return this;
-};
-
-pen.prototype.handleObject = function(obj, cb) {
+}, pen.prototype.handleObject = function(obj, cb) {
   var prop;
   for (prop in obj) {
     cb(prop, this, obj);
   }
   return this;
-};
-
-pen.prototype.selfInstance = function(obj, cb) {
+}, pen.prototype.selfInstance = function(obj, cb) {
   if (obj instanceof pen) {
     cb(obj, this);
   }
   return this;
-};
-
-pen.prototype.html = function(str, app = false) {
+}, pen.prototype.html = function(str, app = false) {
   var def;
   def = (funco) => {
     this.text = str;
@@ -165,9 +151,7 @@ pen.prototype.html = function(str, app = false) {
     default:
       return def('innerHTML');
   }
-};
-
-pen.prototype.attr = function(attribute, value) {
+}, pen.prototype.attr = function(attribute, value) {
   if (attribute != null) {
     if (type(attribute) === 'object') {
       if (attribute.id != null) {
@@ -198,9 +182,7 @@ pen.prototype.attr = function(attribute, value) {
   } else {
     return this.attributes;
   }
-};
-
-pen.prototype.css = function(rule, rules) {
+}, pen.prototype.css = function(rule, rules) {
   if (rule != null) {
     if (type(rule) === 'object') {
       return this.handleObject(rule, function(prop, self) {
@@ -218,9 +200,7 @@ pen.prototype.css = function(rule, rules) {
   } else {
     return this.style;
   }
-};
-
-pen.prototype.on = function(eventType, callback, capture) {
+}, pen.prototype.on = function(eventType, callback, capture) {
   var addEvent;
   this.events[eventType] = {};
   addEvent = (eventType, callback, capture) => {
@@ -236,9 +216,7 @@ pen.prototype.on = function(eventType, callback, capture) {
   this.events[eventType].fn = callback;
   addEvent(eventType, callback, capture);
   return this;
-};
-
-pen.prototype.off = function(eventType, callback) {
+}, pen.prototype.off = function(eventType, callback) {
   var removeEvent;
   removeEvent = function(eventType, callback = this.events[eventType].fn) {
     if (this.element.removeEventListener) {
@@ -251,13 +229,9 @@ pen.prototype.off = function(eventType, callback) {
     delete this.events[eventType];
   };
   return removeEvent(eventType, callback);
-};
-
-pen.prototype.is = function(tag) {
+}, pen.prototype.is = function(tag) {
   return this.tag === tag;
-};
-
-pen.prototype.append = function(...elements) {
+}, pen.prototype.append = function(...elements) {
   var element, index, j, len;
   for (index = j = 0, len = elements.length; j < len; index = ++j) {
     element = elements[index];
@@ -271,9 +245,7 @@ pen.prototype.append = function(...elements) {
     }
   }
   return this;
-};
-
-pen.prototype.appendTo = function(element) {
+}, pen.prototype.appendTo = function(element) {
   if (element instanceof pen) {
     this.Parent = element.el;
   } else {
@@ -281,9 +253,7 @@ pen.prototype.appendTo = function(element) {
   }
   pen(element).append(this.element);
   return this;
-};
-
-pen.prototype.remove = function() {
+}, pen.prototype.remove = function() {
   if (this.Parent !== 'no parent') {
     this.Parent.removeChild(this.element);
     this.Parent = void 0;
@@ -291,25 +261,19 @@ pen.prototype.remove = function() {
     throw new Error(`Pen-remove: There's no parent to remove this (${this.localName}) from`);
   }
   return this;
-};
-
-pen.prototype.select = pen.prototype.$ = function(element) {
+}, pen.prototype.select = pen.prototype.$ = function(element) {
   if (this.tag === 'template') {
     return this.element.content.querySelector(element);
   } else {
     return this.element.querySelector(element);
   }
-};
-
-pen.prototype.selectAll = pen.prototype.$$ = function(element) {
+}, pen.prototype.selectAll = pen.prototype.$$ = function(element) {
   if (this.tag === 'template') {
     return this.element.content.querySelectorAll(element);
   } else {
     return this.element.querySelectorAll(element);
   }
-};
-
-pen.prototype.create = pen.prototype.createElement = function(element, ret = "return child") {
+}, pen.prototype.create = pen.prototype.createElement = function(element, ret = "return child") {
   var arg, child, index, j, len, ref;
   element = `<${element}>`;
   element = pen(element);
@@ -329,9 +293,7 @@ pen.prototype.create = pen.prototype.createElement = function(element, ret = "re
       }
     }
   }
-};
-
-pen.prototype.insertParentBefore = function(parentNode, referenceInParent) {
+}, pen.prototype.insertParentBefore = function(parentNode, referenceInParent) {
   var el;
   if (this.el instanceof pen) {
     el = this.element.el;
@@ -343,18 +305,14 @@ pen.prototype.insertParentBefore = function(parentNode, referenceInParent) {
   }
   parentNode.insertBefore(el, referenceInParent);
   return this;
-};
-
-pen.prototype.toggle = function(...clsss) {
+}, pen.prototype.toggle = function(...clsss) {
   var clss, index, j, len;
   for (index = j = 0, len = clsss.length; j < len; index = ++j) {
     clss = clsss[index];
     this.element.classList.toggle(clss);
   }
   return this;
-};
-
-(function() {
+}, (function() {
   var attrs, events;
   attrs = 'id class href src contentEditable charset title rows cols'.split(/\s+/);
   events = 'click keydown keyup keypress mousedown mouseup mouseover mousepress mouseout contextmenu dblclick'.split(/\s+/);
@@ -376,18 +334,8 @@ pen.prototype.toggle = function(...clsss) {
       }
     };
   });
-})();
-
-if (typeof module !== "undefined" && module !== null) {
-  if (module.exports != null) {
-    module.exports = {
-      pen: pen,
-      exists: exists,
-      type: type
-    };
-  } else {
-    window.pen = pen;
-    window.exists = exists;
-    window.type = type;
-  }
-}
+})(), typeof module !== "undefined" && module !== null ? module.exports != null ? module.exports = {
+  pen: pen,
+  exists: exists,
+  type: type
+} : (window.pen = pen, window.exists = exists, window.type = type) : (window.pen = pen, window.exists = exists, window.type = type))(window, document);
