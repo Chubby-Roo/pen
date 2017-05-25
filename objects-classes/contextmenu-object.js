@@ -1,3 +1,5 @@
+var contextmenu;
+
 contextmenu = {
   commands: {},
   menu: pen('<div class="contextmenu">').attr('align', 'center'),

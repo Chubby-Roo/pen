@@ -1,6 +1,4 @@
-var Start, body, contextmenu, dropdown, head, header, imager, load, log;
-
-log = navigator.platform.toLowerCase() === 'iphone' ? alert : console.log;
+var Start, body, contextmenu, dropdown, head, header, imager, load;
 
 ({body, head} = document);
 
@@ -274,7 +272,6 @@ Start = function(e) {
     pen(this).remove();
   };
   load.html(init);
-  log(init);
   load.on("mouseover", mouseOv);
   load.on("mouseout", mouseOu);
   load.on("click", mouseCl);

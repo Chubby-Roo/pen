@@ -1,3 +1,5 @@
+var header;
+
 header = {
   buttons: {},
   head: pen('<div class="header">'),

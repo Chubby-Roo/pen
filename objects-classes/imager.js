@@ -1,3 +1,5 @@
+var imager;
+
 imager = function(src, alt, msg = "no message was set") {
   var ion, prop;
   ion = (src, alt, msg) => {

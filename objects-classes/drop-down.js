@@ -1,11 +1,13 @@
+var dropdown;
+
 dropdown = function(btnhtml = 'button') {
-  var j, len, prop;
+  var i, len, prop;
   if (!(this instanceof dropdown)) {
     return new dropdown(btnhtml);
   }
   if (btnhtml instanceof dropdown) {
-    for (j = 0, len = btnhtml.length; j < len; j++) {
-      prop = btnhtml[j];
+    for (i = 0, len = btnhtml.length; i < len; i++) {
+      prop = btnhtml[i];
       this[prop] = btnhtml[prop];
     }
   } else {
