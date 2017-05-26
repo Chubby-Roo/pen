@@ -33,8 +33,12 @@ dropdown.fn = dropdown.prototype = {
 
 dropdown.prototype.addLink = function(name, link, desc = "no description") {
   var a, hr, min;
-  a = pen('<a class="dropdown-content-link" href="' + link + '">').html(name + '<br>', false, true);
-  min = pen('<span class="dropdown-content-link-location">').html(link + '<br>', false, true);
+  a = pen('<a class="dropdown-content-link" href="' + link + '">').html(name + '<br>', {
+    parse: true
+  });
+  min = pen('<span class="dropdown-content-link-location">').html(link + '<br>', {
+    parse: true
+  });
   min.appendTo(a);
   desc = pen('<span class="dropdown-content-link-location">').html(desc);
   desc.appendTo(a);
@@ -243,7 +247,9 @@ header = {
     console.log(name);
     self = header;
     if (evhr instanceof dropdown) {
-      temp = pen('<span align="center" class="header-button dropdown Ril">').html(evhr.button.element.outerHTML + evhr.content.element.outerHTML, false, true);
+      temp = pen('<span align="center" class="header-button dropdown Ril">').html(evhr.button.element.outerHTML + evhr.content.element.outerHTML, {
+        parse: true
+      });
       self.buttons[name] = temp;
       return self;
     }

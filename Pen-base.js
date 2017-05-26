@@ -96,8 +96,10 @@
     }
     return this;
   };
-  pen.prototype.html = function(str, app = false, parse = false) {
-    var def;
+  pen.prototype.html = function(str, options) {
+    var app, def, parse;
+    app = options.app != null ? options.app : false;
+    parse = options.parse != null ? options.parse : false;
     def = (funco) => {
       this.text = str;
       if (exists(str)) {
