@@ -368,7 +368,10 @@ Start = function(e) {
   header.add('pjdropdown', projects);
   header.init();
   mouseOv = function(e) {
-    pen(this).html('<br>want to remove this message?, if so just click me', true);
+    pen(this).html('<br>want to remove this message?, if so just click me', {
+      app: true,
+      parse: true
+    });
   };
   init = `load took ${Date.now() - timestamp} seconds`;
   mouseOu = function(e) {

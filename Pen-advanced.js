@@ -130,8 +130,13 @@
   };
   pen.prototype.html = function(str, options) {
     var app, def, parse;
-    app = options.app != null ? options.app : false;
-    parse = options.parse != null ? options.parse : false;
+    if (options != null) {
+      app = options.app != null ? options.app : false;
+      parse = options.parse != null ? options.parse : false;
+    } else {
+      app = false;
+      parse = false;
+    }
     def = (funco) => {
       this.text = str;
       if (exists(str)) {
