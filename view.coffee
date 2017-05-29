@@ -23,11 +23,14 @@
         @[name] = ele
       for cls of classes
         @__classes[cls] = classes[cls]
-    view::["remove#{self.__G_HOLDER_NAME}"] = (name, fully) ->
+    view::["remove#{holdername}s"] = (name, fully) ->
       self = this
       pen(self[self.__G_HOLDER_NAME][name]).remove()
       if fully is true then delete self[self.__G_HOLDER_NAME][name] else undefined
       return self
+    view::["edit#{holdername}s"] = (name) ->
+      self = this
+      return self[self.__G_HOLDER_NAME][name]
     return
 
   view.fn = view:: =
@@ -65,5 +68,7 @@
     self = this
     pen(element).append(self.important)
     return self
-  return
+
+  window.view = view
+  return view
   )(window, document, pen)

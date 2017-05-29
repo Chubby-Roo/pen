@@ -174,8 +174,16 @@
     if (rule != null) {
       if (type(rule) === 'object') {
         return this.handleObject(rule, function(prop, self) {
-          self.style[prop] = rule[prop];
-          self.element.style[prop] = rule[prop];
+          var namespace;
+          if (type(rule[prop]) === 'object') {
+            for (namespace in rule[prop]) {
+              self.style[prop + "-" + namespace] = rule[prop][namespace];
+              self.element.style[prop + "-" + namespace] = rule[prop][namespace];
+            }
+          } else {
+            self.style[prop] = rule[prop];
+            self.element.style[prop] = rule[prop];
+          }
           return self;
         });
       } else if (rules != null) {

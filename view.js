@@ -34,7 +34,7 @@
         this.__classes[cls] = classes[cls];
       }
     }
-    view.prototype[`remove${self.__G_HOLDER_NAME}`] = function(name, fully) {
+    view.prototype[`remove${holdername}s`] = function(name, fully) {
       var self;
       self = this;
       pen(self[self.__G_HOLDER_NAME][name]).remove();
@@ -44,6 +44,11 @@
         void 0;
       }
       return self;
+    };
+    view.prototype[`edit${holdername}s`] = function(name) {
+      var self;
+      self = this;
+      return self[self.__G_HOLDER_NAME][name];
     };
   };
   view.fn = view.prototype = {
@@ -88,4 +93,6 @@
     pen(element).append(self.important);
     return self;
   };
+  window.view = view;
+  return view;
 })(window, document, pen);
