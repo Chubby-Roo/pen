@@ -1,9 +1,20 @@
 (function(window, document) {
-  var exists, pen, type;
+  var $, $$, body, create, dir, error, exists, head, log, pen, type;
+  ({log, error, dir} = console);
+  ({body, head} = document);
+  create = (el) => {
+    return document.createElement(el);
+  };
+  $ = (el) => {
+    return document.querySelector(el);
+  };
+  $$ = (el) => {
+    return document.querySelectorAll(el);
+  };
   type = (function() {
     var class2Type, i, j, len, name, ref;
     class2Type = {};
-    ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol'.split(/\s+/gi);
+    ref = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise'.split(/\s+/gi);
     for (i = j = 0, len = ref.length; j < len; i = ++j) {
       name = ref[i];
       class2Type[`[object ${name}]`] = name.toLowerCase();
@@ -17,7 +28,7 @@
   exists = function(arg) {
     return arg !== null && typeof arg !== 'undefined';
   };
-  pen = function(element, autoAttach = false, autoAttachTo = document.body) {
+  pen = function(element, autoAttach = false, autoAttachTo = body) {
     var prop, setup;
     setup = (el) => {
       var ev, tag;
@@ -29,9 +40,9 @@
       if (type(el) === 'string') {
         if (tag.test(el) === true) {
           el = el.replace(/<|>/gi, '');
-          ev = document.createElement(el);
+          ev = create(el);
         } else {
-          ev = document.querySelector(el);
+          ev = $(el);
         }
       } else {
         ev = el;
@@ -73,8 +84,18 @@
       setup(element);
     }
     if (autoAttach === true) {
-      pen(autoAttachTo).append(el);
+      pen(autoAttachTo).append(element);
     }
+  };
+  pen.select = pen.$ = (element, parseIt = false) => {
+    if (parseIt === true) {
+      return pen($(element));
+    } else {
+      return $(element);
+    }
+  };
+  pen.selectAll = pen.$$ = (element) => {
+    return $$(element);
   };
   pen.fn = pen.prototype = {
     constructor: pen
@@ -256,19 +277,30 @@
     return this;
   };
   pen.prototype.remove = function() {
+    var err;
     if (this.Parent !== 'no parent') {
       this.Parent.removeChild(this.element);
       this.Parent = void 0;
     } else {
-      throw new Error(`Pen-remove: There's no parent to remove this (${this.localName}) from`);
+      err = new Error(`There's no parent to remove this (${this.localName}) from`);
+      err.name = "Pen-remove";
+      throw err;
     }
     return this;
   };
-  pen.prototype.select = pen.prototype.$ = function(element) {
+  pen.prototype.select = pen.prototype.$ = function(element, parseIt = false) {
     if (this.tag === 'template') {
-      return this.element.content.querySelector(element);
+      if (parseIt === true) {
+        return pen(this.element.content.querySelector(element));
+      } else {
+        return this.element.content.querySelector(element);
+      }
     } else {
-      return this.element.querySelector(element);
+      if (parseIt === true) {
+        return pen(this.element.querySelector(element));
+      } else {
+        return this.element.querySelector(element);
+      }
     }
   };
   pen.prototype.selectAll = pen.prototype.$$ = function(element) {
@@ -299,26 +331,5 @@
       }
     }
   };
-  pen.prototype.insertParentBefore = function(parentNode, referenceInParent) {
-    var el;
-    if (this.el instanceof pen) {
-      el = this.element.el;
-    } else {
-      el = this.element;
-    }
-    if (referenceInParent instanceof pen) {
-      referenceInParent = referenceInParent.el;
-    }
-    parentNode.insertBefore(el, referenceInParent);
-    return this;
-  };
-  if (typeof module !== "undefined" && module !== null) {
-    if (module.exports != null) {
-      module.exports = {
-        pen: pen
-      };
-    } else {
-      window.pen = pen;
-    }
-  }
+  return window.pen = pen;
 })(window, document);
