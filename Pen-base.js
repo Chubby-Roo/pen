@@ -118,7 +118,7 @@
     return this;
   };
   pen.prototype.html = function(str, options) {
-    var app, def, parse;
+    var app, def, err, parse;
     if (options != null) {
       app = options.app != null ? options.app : false;
       parse = options.parse != null ? options.parse : false;
@@ -147,7 +147,9 @@
         return def('value');
       case 'template':
         if (type(str) !== 'object') {
-          throw new Error("parameter 1 must be an element/object");
+          err = new Error("parameter 1 must be an element/object");
+          err.name = "Pen-html-error";
+          throw err;
         }
         this.element.content.appendChild(str);
         return this;
@@ -286,7 +288,7 @@
       this.Parent = 'no parent';
     } else {
       err = new Error(`There's no parent to remove this (${this.localName}) from`);
-      err.name = "Pen-remove";
+      err.name = "Pen-remove-error";
       throw err;
     }
     return this;
@@ -333,6 +335,27 @@
         }
       }
     }
+  };
+  pen.prototype.insertParentBefore = function(parentNode, referenceInParent) {
+    var el;
+    if (this.el instanceof pen) {
+      el = this.element.el;
+    } else {
+      el = this.element;
+    }
+    if (referenceInParent instanceof pen) {
+      referenceInParent = referenceInParent.el;
+    }
+    parentNode.insertBefore(el, referenceInParent);
+    return this;
+  };
+  pen.prototype.toggle = function(...clsss) {
+    var clss, index, j, len;
+    for (index = j = 0, len = clsss.length; j < len; index = ++j) {
+      clss = clsss[index];
+      this.element.classList.toggle(clss);
+    }
+    return this;
   };
   return window.pen = pen;
 })(window, document);

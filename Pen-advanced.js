@@ -150,7 +150,7 @@
     return this;
   };
   pen.prototype.html = function(str, options) {
-    var app, def, parse;
+    var app, def, err, parse;
     if (options != null) {
       app = options.app != null ? options.app : false;
       parse = options.parse != null ? options.parse : false;
@@ -179,7 +179,9 @@
         return def('value');
       case 'template':
         if (type(str) !== 'object') {
-          throw new Error("parameter 1 must be an element/object");
+          err = new Error("parameter 1 must be an element/object");
+          err.name = "Pen-html-error";
+          throw err;
         }
         this.element.content.appendChild(str);
         return this;
@@ -318,7 +320,7 @@
       this.Parent = 'no parent';
     } else {
       err = new Error(`There's no parent to remove this (${this.localName}) from`);
-      err.name = "Pen-remove";
+      err.name = "Pen-remove-error";
       throw err;
     }
     return this;
