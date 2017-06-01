@@ -280,7 +280,10 @@
     var err;
     if (this.Parent !== 'no parent') {
       this.Parent.removeChild(this.element);
-      this.Parent = void 0;
+      this.Parent = 'no parent';
+    } else if (this.element.parentNode != null) {
+      this.element.parentNode.removeChild(this.element);
+      this.Parent = 'no parent';
     } else {
       err = new Error(`There's no parent to remove this (${this.localName}) from`);
       err.name = "Pen-remove";
