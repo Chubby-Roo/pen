@@ -1,11 +1,6 @@
-*.bat
-*.ps1
 *.coffee
 *.sass-cache
 *.css.map
 *.sassc
-*.sass
-*.pug
 *.lib.js
 *.lib.coffee
-sass
