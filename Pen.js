@@ -65,17 +65,17 @@ pen = (function() {
       return ev.getAttribute(ting);
     }
   };
-  def = (prop, str) => {
-    this.text = str;
+  def = (prop, str, it) => {
+    it.text = str;
     if (str != null) {
       if (app === true) {
-        this.element[prop] += str;
+        it.element[prop] += str;
       } else {
-        this.element[prop] = str;
+        it.element[prop] = str;
       }
-      return this;
+      return it;
     } else {
-      return this.element[prop];
+      return it.element[prop];
     }
   };
   pen = function(element, options) {
@@ -261,12 +261,12 @@ pen = (function() {
       case 'input':
       case 'option':
       case 'textarea':
-        return def('value', str);
+        return def('value', str, this);
       case 'template':
         log("Please use pen.append");
         return;
       default:
-        return def(parse === true ? 'innerHTML' : 'innerText');
+        return def((parse === true ? 'innerHTML' : 'innerText'), str, this);
     }
   };
   pen.prototype.attr = function(attribute, value) {
