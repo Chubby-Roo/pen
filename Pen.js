@@ -221,6 +221,7 @@ pen = (function() {
     this.Children = this.tag === 'template' ? ev.content.children : ev.children;
     this.Parent = ev.parentNode != null ? ev.parentNode : null;
     this.initLocalName();
+    this.initClases();
     if (this.tag === 'template') {
       this.content = ev.content;
       pen.prototype.clone = function() {
@@ -244,6 +245,13 @@ pen = (function() {
     str = `${it2.tag}${res1}${res2}`;
     this.localName = str;
     return str;
+  };
+  pen.prototype.initClases = function() {
+    var it2, res;
+    it2 = this;
+    res = Array.prototype.slice.call(it2.element.classList);
+    this.Classes = res;
+    return res;
   };
   pen.prototype.selfInstance = function(obj, cb) {
     if (obj instanceof pen) {
@@ -318,17 +326,20 @@ pen = (function() {
         this.element.setAttribute(attribute, value);
         this.attributes[attribute] = value;
         this.initLocalName();
+        this.initClases();
         return this;
       } else if (type(attribute) === 'string') {
-        attrs = this.parseAttributes(attributes);
+        attrs = this.parseAttributes(attribute);
         for (attr in attrs) {
           this[res] = (attrs[attr] != null) && attr === ('id' || 'class') ? attrs[attr] : void 0;
           this.element.setAttribute(attr, attrs[attr]);
           this.attributes[attr] = attrs[attr];
         }
         this.initLocalName();
+        this.initClases();
       } else {
         this.initLocalName();
+        this.initClases();
         return this.element.getAttribute(attribute);
       }
     } else {
@@ -357,14 +368,16 @@ pen = (function() {
     }
   };
   pen.prototype.on = function(evtp, cb, cp) {
-    var args, typeEvent;
-    args = Array.prototype.slice.call(arguments);
+    var typeEvent;
+    if (cp == null) {
+      cp = false;
+    }
     this.events[evtp] = {};
-    this.events[evtp].capture = capture;
+    this.events[evtp].capture = cp;
     typeEvent = this.el.addEventListener != null ? 'addEventListener' : this.el.attachEvent != null ? 'attachEvent' : `on${evtp}`;
     switch (typeEvent) {
       case 'addEventListener':
-        this.el[typeEvent]([...args]);
+        this.el[typeEvent](evtp, cb, cp);
         break;
       case 'attachEvent':
         this.el[typeEvent](evtp, cb);
@@ -375,12 +388,11 @@ pen = (function() {
     return this;
   };
   pen.prototype.off = function(evtp, cb) {
-    var args, typeEvent;
-    args = Array.prototype.slice.call(arguments);
+    var typeEvent;
     typeEvent = this.el.addEventListener != null ? 'removeEventListener' : this.el.attachEvent != null ? 'detachEvent' : `on${evtp}`;
     switch (typeEvent) {
       case 'removeEventListener':
-        this.el[typeEvent]([...args]);
+        this.el[typeEvent](evtp, cb);
         break;
       case 'detachEvent':
         this.el[typeEvent](evtp, cb);
@@ -472,7 +484,7 @@ pen = (function() {
   atribs = 'id class href src contentEditable charset title rows cols'.split(/\s+/);
   evs = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split(/\s+/);
   evs.forEach(function(evp) {
-    pen.prototype[evp] = (cb, cp) => {
+    pen.prototype[evp] = function(cb, cp) {
       if (this.events[evp] == null) {
         return this.on(evp, cb, cp);
       } else {
@@ -481,11 +493,11 @@ pen = (function() {
     };
   });
   atribs.forEach(function(atrib) {
-    pen.prototype[atrib] = (str) => {
+    pen.prototype[atrib] = function(str) {
       if (str != null) {
-        return this.attr(atrib);
-      } else {
         return this.attr(atrib, str);
+      } else {
+        return this.attr(atrib);
       }
     };
   });
