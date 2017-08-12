@@ -65,7 +65,15 @@ pen = (function() {
       return ev.getAttribute(ting);
     }
   };
-  def = (prop, str, it) => {
+  def = (prop, str, it, ops) => {
+    var app, parse;
+    if (ops != null) {
+      app = ops.app != null ? ops.app : false;
+      parse = ops.parse != null ? ops.parse : false;
+    } else {
+      app = it.options.global.html.app != null ? it.options.global.html.app : false;
+      parse = it.options.global.html.parse != null ? it.options.global.html.parse : false;
+    }
     it.text = str;
     if (str != null) {
       if (app === true) {
@@ -187,7 +195,7 @@ pen = (function() {
         soc = attribute.test(el);
         if (soc === true) {
           reu = this.parseAttributes(el);
-          el = el.replace(attributes, '').trim();
+          el = el.replace(attribute, '').trim();
         }
         ev = pen.crt(el);
         if (soc === true) {
@@ -229,18 +237,13 @@ pen = (function() {
     return parser(/([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2);
   })();
   pen.prototype.initLocalName = function() {
-    var it2, str;
+    var it2, res1, res2, str;
     it2 = this;
-    str = `${this.tag}${(this.Id != null ? `#${this.Id}` : '')}${(this.Class != null ? `.${this.element.classList.join('')}` : void 0)}`;
+    res1 = this.Id != null ? `#${this.Id}` : '';
+    res2 = this.Class != null ? `.${Array.prototype.slice.call(this.element.classList).join('.')}` : void 0;
+    str = `${this.tag}${res1}${res2}`;
     this.localName = str;
     return str;
-  };
-  pen.prototype.handleObject = function(obj, cb) {
-    var prop;
-    for (prop in obj) {
-      cb(prop, this, obj);
-    }
-    return this;
   };
   pen.prototype.selfInstance = function(obj, cb) {
     if (obj instanceof pen) {
@@ -261,27 +264,40 @@ pen = (function() {
       case 'input':
       case 'option':
       case 'textarea':
-        return def('value', str, this);
+        return def('value', str, this, ops);
       case 'template':
         log("Please use pen.append");
         return;
       default:
-        return def((parse === true ? 'innerHTML' : 'innerText'), str, this);
+        return def((parse === true ? 'innerHTML' : 'innerText'), str, this, ops);
     }
   };
   pen.prototype.attr = function(attribute, value) {
-    var attr, attrs, res, vl;
+    var attr, attrs, func, res, vl;
+    func = (atribz, nm) => {
+      var prop;
+      for (prop in atribz) {
+        if (type(atribz[prop]) === 'object') {
+          func(atribz[prop], nm);
+        } else {
+          if (nm != null) {
+            this.attributes[`${nm}-${prop}`] = atribz[prop];
+            this.element.setAttribute(`${nm}-${prop}`, atribz[prop]);
+          } else {
+            this.attributes[prop] = atribz[prop];
+            this.element.setAttribute(prop, atribz[prop]);
+          }
+        }
+      }
+      return this;
+    };
     res = attribute === 'id' ? 'id' : attribute === 'class' ? 'class' : void 0;
     vl = (value != null) && attribute === ('id' || 'class') ? value : void 0;
     if (attribute != null) {
       if (type(attribute) === 'object') {
         this.Id = attribute.id != null ? attribute.id : null;
         this.Class = attribute.class != null ? attribute.class : null;
-        return this.handleObject(attribute, function(prop, it) {
-          it.attributes[prop] = attribute[prop];
-          it.element.setAttribute(prop, attribute[prop]);
-          return it;
-        });
+        return func(attribute);
       } else if (value != null) {
         this[res] = vl;
         this.element.setAttribute(attribute, value);
@@ -305,29 +321,33 @@ pen = (function() {
     }
   };
   pen.prototype.css = function(rule, rules) {
-    var st, style, styles;
+    var func, st, style, styles;
+    func = (rulz, nm) => {
+      var prop;
+      for (prop in rulz) {
+        if (type(rulz[prop]) === 'object') {
+          func(rulz[prop], prop);
+        } else {
+          if (nm != null) {
+            this.style[`${nm}-${prop}`] = rulz[prop];
+            this.element.style[`${nm}-${prop}`] = rulz[prop];
+          } else {
+            this.style[prop] = rulz[prop];
+            this.element.style[prop] = rulz[prop];
+          }
+        }
+      }
+      return this;
+    };
     if (rule != null) {
       if (type(rule) === 'object') {
-        return this.handleObject(rule, function(prop, it) {
-          var layout, namespace;
-          layout = rule[prop];
-          if (type(layout) === 'object') {
-            for (namespace in layout) {
-              it.style[`${prop}-${namespace}`] = layout[namespace];
-              it.element.style[`${prop}-${namespace}`] = layout[namespace];
-            }
-          } else {
-            it.style[prop] = layout;
-            it.element[prop] = layout;
-          }
-          return it;
-        });
+        return func(rule);
       } else if (type(rule) === 'string') {
         styles = this.parseCss(rule);
         for (style in styles) {
           st = styles[style];
-          this.style = st;
-          this.element.style[rule] = st;
+          this.style[style] = st;
+          this.element.style[style] = st;
         }
         return this;
       } else {
@@ -345,7 +365,7 @@ pen = (function() {
     typeEvent = this.el.addEventListener != null ? 'addEventListener' : this.el.attachEvent != null ? 'attachEvent' : `on${evtp}`;
     switch (typeEvent) {
       case 'addEventListener':
-        this.el[typeEvent](args);
+        this.el[typeEvent]([...args]);
         break;
       case 'attachEvent':
         this.el[typeEvent](evtp, cb);
@@ -361,7 +381,7 @@ pen = (function() {
     typeEvent = this.el.addEventListener != null ? 'removeEventListener' : this.el.attachEvent != null ? 'detachEvent' : `on${evtp}`;
     switch (typeEvent) {
       case 'removeEventListener':
-        this.el[typeEvent](args);
+        this.el[typeEvent]([...args]);
         break;
       case 'detachEvent':
         this.el[typeEvent](evtp, cb);
