@@ -1,7 +1,7 @@
 var pen;
 
 pen = (function() {
-  var atribs, def, detectAndReturn, dir, empty, error, evs, log, parser, type;
+  var atribs, def, detectAndReturn, dir, empty, error, evs, funcoso, log, parser, type;
   type = (function() {
     var class2Type, i, len, name, ref;
     class2Type = {};
@@ -239,9 +239,9 @@ pen = (function() {
   pen.prototype.initLocalName = function() {
     var it2, res1, res2, str;
     it2 = this;
-    res1 = this.Id != null ? `#${this.Id}` : '';
-    res2 = this.Class != null ? `.${Array.prototype.slice.call(this.element.classList).join('.')}` : void 0;
-    str = `${this.tag}${res1}${res2}`;
+    res1 = it2.Id != null ? `#${it2.Id}` : '';
+    res2 = it2.Class != null ? `.${Array.prototype.slice.call(it2.element.classList).join('.')}` : '';
+    str = `${it2.tag}${res1}${res2}`;
     this.localName = str;
     return str;
   };
@@ -272,25 +272,40 @@ pen = (function() {
         return def((parse === true ? 'innerHTML' : 'innerText'), str, this, ops);
     }
   };
-  pen.prototype.attr = function(attribute, value) {
-    var attr, attrs, func, res, vl;
-    func = (atribz, nm) => {
+  funcoso = function(it, typeso, typesi) {
+    var chk1, funcso;
+    if (typesi == null) {
+      typesi = typeso;
+    }
+    chk1 = function(whl, propz, prop) {
+      if (type(it.element[typesi]) === 'function') {
+        it.element[typesi](whl, propz[prop]);
+      } else {
+        it.element[typesi][whl] = propz[prop];
+      }
+    };
+    funcso = function(propz, nm) {
       var prop;
-      for (prop in atribz) {
-        if (type(atribz[prop]) === 'object') {
-          func(atribz[prop], nm);
+      for (prop in propz) {
+        if (type(propz[prop]) === 'object') {
+          funcso(propz[prop], prop);
         } else {
           if (nm != null) {
-            this.attributes[`${nm}-${prop}`] = atribz[prop];
-            this.element.setAttribute(`${nm}-${prop}`, atribz[prop]);
+            it[typeso][`${nm}-${prop}`] = propz[prop];
+            chk1(`${nm}-${prop}`, propz, prop);
           } else {
-            this.attributes[prop] = atribz[prop];
-            this.element.setAttribute(prop, atribz[prop]);
+            it[typeso][prop] = propz[prop];
+            chk1(prop, propz, prop);
           }
         }
       }
-      return this;
+      return it;
     };
+    return funcso;
+  };
+  pen.prototype.attr = function(attribute, value) {
+    var attr, attrs, func, res, vl;
+    func = funcoso(this, 'attributes', 'setAttribute');
     res = attribute === 'id' ? 'id' : attribute === 'class' ? 'class' : void 0;
     vl = (value != null) && attribute === ('id' || 'class') ? value : void 0;
     if (attribute != null) {
@@ -322,23 +337,7 @@ pen = (function() {
   };
   pen.prototype.css = function(rule, rules) {
     var func, st, style, styles;
-    func = (rulz, nm) => {
-      var prop;
-      for (prop in rulz) {
-        if (type(rulz[prop]) === 'object') {
-          func(rulz[prop], prop);
-        } else {
-          if (nm != null) {
-            this.style[`${nm}-${prop}`] = rulz[prop];
-            this.element.style[`${nm}-${prop}`] = rulz[prop];
-          } else {
-            this.style[prop] = rulz[prop];
-            this.element.style[prop] = rulz[prop];
-          }
-        }
-      }
-      return this;
-    };
+    func = funcoso(this, 'style');
     if (rule != null) {
       if (type(rule) === 'object') {
         return func(rule);
