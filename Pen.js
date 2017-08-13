@@ -31,7 +31,7 @@ pen = (function() {
       resg = regs;
       regs = new RegExp(regs, flags);
     }
-    return function(str) {
+    return (str) => {
       var i, len, match, retsi, returns;
       returns = str.match(regs);
       retsi = {};
@@ -231,12 +231,8 @@ pen = (function() {
       };
     }
   };
-  pen.prototype.parseAttributes = (() => {
-    return parser(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3);
-  })();
-  pen.prototype.parseCss = (() => {
-    return parser(/([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2);
-  })();
+  pen.prototype.parseAttributes = parser(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3);
+  pen.prototype.parseCss = parser(/([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2);
   pen.prototype.initLocalName = function() {
     var it2, res1, res2, str;
     it2 = this;
@@ -339,6 +335,7 @@ pen = (function() {
         }
         this.initLocalName();
         this.initClases();
+        return this;
       } else {
         this.initLocalName();
         this.initClases();
