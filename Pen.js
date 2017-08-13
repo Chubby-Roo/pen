@@ -270,9 +270,11 @@ pen = (function() {
     }
     switch (this.tag) {
       case 'input':
-      case 'option':
       case 'textarea':
         return def('value', str, this, ops);
+      case 'option':
+        def('value', str, this, ops);
+        return def('innerText', str, this, ops);
       case 'template':
         log("Please use pen.append");
         return;
@@ -443,10 +445,10 @@ pen = (function() {
     }
     return this;
   };
-  pen.prototype.$ = function(element) {
+  pen.prototype.$ = function(element, parseIt) {
     var result;
     result = this.tag === 'template' ? this.element.content : this.element;
-    if (this.options.global.parseIt === true) {
+    if (this.options.global.parseIt === true || parseIt === true) {
       return pen(result.querySelector(element));
     } else {
       return result.querySelector(element);
@@ -458,7 +460,7 @@ pen = (function() {
     return result.querySelectorAll(element);
   };
   pen.prototype.create = pen.prototype.createElement = function(element, ret) {
-    var res, result;
+    var result;
     element = pen(`<${element}>`);
     this.append(element);
     if (/child|parent/gi.test(ret) === true) {
@@ -466,8 +468,7 @@ pen = (function() {
       if (result.endsWith("parent") === true) {
         return this;
       } else {
-        res = (this.tag === 'template' ? this.element.content.children : this.el.children).pop();
-        return res;
+        return element;
       }
     } else {
 
