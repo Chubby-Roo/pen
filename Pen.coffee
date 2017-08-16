@@ -69,6 +69,7 @@ pen = do ->
     if not (this instanceof pen)
       return new pen element, options
     @events = {}
+    @hidden = false
     @attributes = {}
     @style = {}
     @options =
@@ -132,15 +133,14 @@ pen = do ->
           el = el.replace attribute, ''
           .trim()
         ev = pen.crt el
-        if soc is true
-          for prop of reu
-            ev.setAttribute prop, reu[prop]
-            @attributes[prop] = reu[prop]
       else
         ev = pen.$ el
     else
       ev = el
     @element = @el = ev
+    if soc is true
+      for prop of reu
+        @attr prop, reu[prop]
     @tag = if ev.tagName? then ev.tagName.toLowerCase() else 'ios-element'
     @partialSetup ev
     return ev
@@ -369,13 +369,17 @@ pen = do ->
       @element.classList.toggle classs
     return this
 
-  atribs = 'id class href src contentEditable charset title rows cols'.split /\s+/
-  evs = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split /\s+/
-  evs.forEach (evp) ->
-    pen::[evp] = (cb, cp) -> if not @events[evp]? then @on(evp, cb, cp) else @off(evp, cb, cp)
-    return
-  atribs.forEach (atrib) ->
+  for atrib in 'id class href src contentEditable charset title rows cols'.split /\s+/
     pen::[atrib] = (str) -> if str? then @attr atrib, str else @attr atrib
-    return
+  for evp in 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split /\s+/
+    pen::[evp] = (cb, cp) -> if not @events[evp]? then @on(evp, cb, cp) else @off(evp, cb, cp)
+
+  pen::hide = () ->
+    if @hidden isnt true
+      @hidden = true
+      @css 'display', 'none'
+    else
+      @hidden = false
+      @css 'display', null
 
   return pen

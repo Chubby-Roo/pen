@@ -4,22 +4,20 @@ Now there are many new methods added to pen. Which hopefully adds more to it,
 like such:
 
 ```js
-para = pen("<p>").html("moo").Id "para"
+para = pen("<p id='para'>").html("moo")
 // assuming body is defined:
-pen(body).Append para
+pen(body).append para
 // and you can do this or that
 // this:
 para.html("moo cow")
 // that:
-pen("#para").html "moo cow"
-// or even:
-pen("#para").innerHTML = "moo cow"
+pen("#para").html("moo cow")
 // why do I use moo cow so much?, well I just don't know, moo cow. just moo cow
 // also if you're expecting me to be proper with this, I'm not lol I joke and stuff and seeing all this "'i'm fancy and only make my scripts top noch with my talking capabilities'" stuff is boring-
 // so why not make it fun?
 // now you can also make something with text or an object already defined:
-dir = pen("div").id('dir') //, text **if** you want it
-bacon = pen("p").html("I love tuna feesh")
+dir = pen("<div id='dir'>")
+bacon = pen("<p>").html("I love tuna feesh")
 pen(body).append(bacon, dir)
 ```
 

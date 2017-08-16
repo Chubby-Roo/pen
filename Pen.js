@@ -1,7 +1,7 @@
 var pen;
 
 pen = (function() {
-  var atribs, dir, error, evs, funcoso, log, vrs;
+  var atrib, dir, error, evp, funcoso, i, j, len, len1, log, ref, ref1, vrs;
   vrs = {};
   vrs.type = (function() {
     var class2Type, i, len, name, ref;
@@ -100,6 +100,7 @@ pen = (function() {
       return new pen(element, options);
     }
     this.events = {};
+    this.hidden = false;
     this.attributes = {};
     this.style = {};
     this.options = {
@@ -188,12 +189,6 @@ pen = (function() {
           el = el.replace(attribute, '').trim();
         }
         ev = pen.crt(el);
-        if (soc === true) {
-          for (prop in reu) {
-            ev.setAttribute(prop, reu[prop]);
-            this.attributes[prop] = reu[prop];
-          }
-        }
       } else {
         ev = pen.$(el);
       }
@@ -201,6 +196,11 @@ pen = (function() {
       ev = el;
     }
     this.element = this.el = ev;
+    if (soc === true) {
+      for (prop in reu) {
+        this.attr(prop, reu[prop]);
+      }
+    }
     this.tag = ev.tagName != null ? ev.tagName.toLowerCase() : 'ios-element';
     this.partialSetup(ev);
     return ev;
@@ -489,18 +489,9 @@ pen = (function() {
     }
     return this;
   };
-  atribs = 'id class href src contentEditable charset title rows cols'.split(/\s+/);
-  evs = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split(/\s+/);
-  evs.forEach(function(evp) {
-    pen.prototype[evp] = function(cb, cp) {
-      if (this.events[evp] == null) {
-        return this.on(evp, cb, cp);
-      } else {
-        return this.off(evp, cb, cp);
-      }
-    };
-  });
-  atribs.forEach(function(atrib) {
+  ref = 'id class href src contentEditable charset title rows cols'.split(/\s+/);
+  for (i = 0, len = ref.length; i < len; i++) {
+    atrib = ref[i];
     pen.prototype[atrib] = function(str) {
       if (str != null) {
         return this.attr(atrib, str);
@@ -508,6 +499,26 @@ pen = (function() {
         return this.attr(atrib);
       }
     };
-  });
+  }
+  ref1 = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split(/\s+/);
+  for (j = 0, len1 = ref1.length; j < len1; j++) {
+    evp = ref1[j];
+    pen.prototype[evp] = function(cb, cp) {
+      if (this.events[evp] == null) {
+        return this.on(evp, cb, cp);
+      } else {
+        return this.off(evp, cb, cp);
+      }
+    };
+  }
+  pen.prototype.hide = function() {
+    if (this.hidden !== true) {
+      this.hidden = true;
+      return this.css('display', 'none');
+    } else {
+      this.hidden = false;
+      return this.css('display', null);
+    }
+  };
   return pen;
 })();

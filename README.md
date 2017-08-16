@@ -42,11 +42,14 @@ Pen was made to make it more similar to Umbrella but does not follow an array.
 
 It's very easy to just manipulate only 1 element per call.
 if a variable is set it'll return an object but it will also return the methods with that object
+
 ```js
 pen('<p>') // returns the object but all you have to do is this: pen('p').el or pen('p').element or not event that if you want to keep the methods
 ```
+
 The object may look something like this (in v1.1.0 if you're on chrome
 and with the latest version of it.)
+
 ```js
 //I'll be using a p element for this example
 pen: {
@@ -55,13 +58,14 @@ pen: {
   events: {click: {func: function (e) {alert("moose");},capture: false},
     keydown: {func: function (e) {alert(e.keyCode);},
       options: {once: true,capture: true}}},
-  text: undefined,
+  text: null,
+  element: 'p#moose'
   el: 'p#moose',
-  TAG: 'p',
-  CHILDREN: NodeList[0]  {0: 'a'},
-  ID: 'moose',
-  CLASS: null,
-  PARENT: 'no parent'
+  tag: 'p',
+  Children: NodeList[0]  {0: 'a'},
+  Id: 'moose',
+  Class: null,
+  PARENT: null
 }
 ```
 

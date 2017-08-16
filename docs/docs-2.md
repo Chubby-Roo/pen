@@ -21,7 +21,7 @@ Well you can easily do this by doing this:
 (with pen)
 
 ```js
-pen("#log").Html "Some new text"
+pen("#log").html("Some new text")
 ```
 
 It will edit the element and change the text to what was put in.
@@ -30,8 +30,8 @@ pen is designed for element creation and selection you just need to put selectio
 Like it can be done with JQuery but it does not have those other functionalities as JQuery.
 Let's try to edit the css of the same element knowing that pen is already defined and probably some other things too:
 
-```coffee
-pen("#log").css("color", "grey").id "newlog"
+```js
+pen("#log").css("color", "grey").id("newlog")
 ```
 
 There are many things that can be done with pen, and there is still more to add, so it won't end there.
