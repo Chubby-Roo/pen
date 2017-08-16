@@ -19,17 +19,20 @@ pen = do ->
     (str) =>
       if str?
         returns = str.match regs
-        retsi = {}
-        for match in returns
-          match
-          .trim()
-          .replace regs, (args...) ->
-            if vrs.type(resg) is 'string'
-              retsi[args[num1]] = args[num2]
-            else
-              retsi[args[flags]] = args[num1]
-            return
-        return retsi
+        if returns?
+          retsi = {}
+          for match in returns
+            match
+            .trim()
+            .replace regs, (args...) ->
+              if vrs.type(resg) is 'string'
+                retsi[args[num1]] = args[num2]
+              else
+                retsi[args[flags]] = args[num1]
+              return
+          return retsi
+        else
+          return null
       else
         return null
 
@@ -187,7 +190,7 @@ pen = do ->
     str = "#{it2.tag}#{res1}#{res2}#{res3}"
     @localName = str
     return str
-    
+
   pen::initClases = () ->
     it2 = this
     res = Array::slice.call(it2.element.classList)

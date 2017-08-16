@@ -36,18 +36,22 @@ pen = (function() {
       var i, len, match, retsi, returns;
       if (str != null) {
         returns = str.match(regs);
-        retsi = {};
-        for (i = 0, len = returns.length; i < len; i++) {
-          match = returns[i];
-          match.trim().replace(regs, function(...args) {
-            if (vrs.type(resg) === 'string') {
-              retsi[args[num1]] = args[num2];
-            } else {
-              retsi[args[flags]] = args[num1];
-            }
-          });
+        if (returns != null) {
+          retsi = {};
+          for (i = 0, len = returns.length; i < len; i++) {
+            match = returns[i];
+            match.trim().replace(regs, function(...args) {
+              if (vrs.type(resg) === 'string') {
+                retsi[args[num1]] = args[num2];
+              } else {
+                retsi[args[flags]] = args[num1];
+              }
+            });
+          }
+          return retsi;
+        } else {
+          return null;
         }
-        return retsi;
       } else {
         return null;
       }
