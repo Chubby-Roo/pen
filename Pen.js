@@ -34,19 +34,23 @@ pen = (function() {
     }
     return (str) => {
       var i, len, match, retsi, returns;
-      returns = str.match(regs);
-      retsi = {};
-      for (i = 0, len = returns.length; i < len; i++) {
-        match = returns[i];
-        match.trim().replace(regs, function(...args) {
-          if (vrs.type(resg) === 'string') {
-            retsi[args[num1]] = args[num2];
-          } else {
-            retsi[args[flags]] = args[num1];
-          }
-        });
+      if (str != null) {
+        returns = str.match(regs);
+        retsi = {};
+        for (i = 0, len = returns.length; i < len; i++) {
+          match = returns[i];
+          match.trim().replace(regs, function(...args) {
+            if (vrs.type(resg) === 'string') {
+              retsi[args[num1]] = args[num2];
+            } else {
+              retsi[args[flags]] = args[num1];
+            }
+          });
+        }
+        return retsi;
+      } else {
+        return null;
       }
-      return retsi;
     };
   };
   vrs.empty = (obj) => {
@@ -147,7 +151,7 @@ pen = (function() {
       }
     }
   };
-  pen.$ = (element, parseIt) => {
+  pen.$ = function(element, parseIt) {
     if (parseIt == null) {
       parseIt = false;
     }
@@ -157,10 +161,10 @@ pen = (function() {
       return document.querySelector(element);
     }
   };
-  pen.$$ = (element) => {
+  pen.$$ = function(element) {
     return document.querySelectorAll(element);
   };
-  pen.crt = (element, parseIt) => {
+  pen.crt = function(element, parseIt) {
     if (parseIt == null) {
       parseIt = false;
     }
@@ -202,10 +206,20 @@ pen = (function() {
     return ev;
   };
   pen.prototype.partialSetup = function(ev) {
+    var attr, attrs, str, sty, stys;
     this.Id = vrs.detectAndReturn('id', ev);
     this.Class = vrs.detectAndReturn('class', ev);
     this.Children = this.tag === 'template' ? ev.content.children : ev.children;
     this.Parent = ev.parentNode != null ? ev.parentNode : null;
+    str = ev.outerHTML;
+    attrs = pen.parseAttributes(str);
+    stys = pen.parseCss(attrs != null ? attrs.style : void 0);
+    for (sty in stys) {
+      this.style[sty] = stys[sty];
+    }
+    for (attr in attrs) {
+      this.attributes[attr] = attrs[attr];
+    }
     this.inits();
     switch (this.tag) {
       case 'template':

@@ -17,18 +17,21 @@ pen = do ->
       regs = new RegExp regs, flags
 
     (str) =>
-      returns = str.match regs
-      retsi = {}
-      for match in returns
-        match
-        .trim()
-        .replace regs, (args...) ->
-          if vrs.type(resg) is 'string'
-            retsi[args[num1]] = args[num2]
-          else
-            retsi[args[flags]] = args[num1]
-          return
-      return retsi
+      if str?
+        returns = str.match regs
+        retsi = {}
+        for match in returns
+          match
+          .trim()
+          .replace regs, (args...) ->
+            if vrs.type(resg) is 'string'
+              retsi[args[num1]] = args[num2]
+            else
+              retsi[args[flags]] = args[num1]
+            return
+        return retsi
+      else
+        return null
 
   vrs.empty = (obj) => if not obj? then true else false
 
@@ -105,11 +108,14 @@ pen = do ->
         window[toDef] = vrs[toDef]
     return
 
-  pen.$ = (element, parseIt) =>
+  pen.$ = (element, parseIt) ->
     parseIt ?= false
-    if parseIt is yes then pen(document.querySelector element) else document.querySelector element
-  pen.$$ = (element) => document.querySelectorAll element
-  pen.crt = (element, parseIt) =>
+    if parseIt is yes
+      return pen(document.querySelector element)
+    else
+      return document.querySelector element
+  pen.$$ = (element) -> document.querySelectorAll element
+  pen.crt = (element, parseIt) ->
     parseIt ?= false
     if parseIt is yes then pen(document.createElement element) else document.createElement element
 
@@ -144,6 +150,13 @@ pen = do ->
     @Class = vrs.detectAndReturn 'class', ev
     @Children = if @tag is 'template' then ev.content.children else ev.children
     @Parent = if ev.parentNode? then ev.parentNode else null
+    str = ev.outerHTML
+    attrs = pen.parseAttributes str
+    stys = pen.parseCss attrs?.style
+    for sty of stys
+      @style[sty] = stys[sty]
+    for attr of attrs
+      @attributes[attr] = attrs[attr]
     @inits()
     switch @tag
       when 'template'
@@ -302,7 +315,7 @@ pen = do ->
   pen::append = (elements...) ->
     for element in elements
       if vrs.type(element) is 'string'
-        element = pen.$(element)
+        element = pen.$ element
       @selfInstance element, (emt, it) ->
         emt.Parent = it.element
         return
@@ -315,7 +328,7 @@ pen = do ->
 
   pen::appendTo = (element) ->
     if vrs.type(element) is 'string'
-      element = pen.$(element)
+      element = pen.$ element
     pen(element).append(@element)
     return this
 
