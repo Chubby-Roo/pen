@@ -201,7 +201,7 @@ pen = (function() {
       ev = el;
     }
     this.element = this.el = ev;
-    this.tag = ev.tagName.toLowerCase();
+    this.tag = ev.tagName != null ? ev.tagName.toLowerCase() : 'ios-element';
     this.partialSetup(ev);
     return ev;
   };

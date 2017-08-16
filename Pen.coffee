@@ -141,7 +141,7 @@ pen = do ->
     else
       ev = el
     @element = @el = ev
-    @tag = ev.tagName.toLowerCase()
+    @tag = if ev.tagName? then ev.tagName.toLowerCase() else 'ios-element'
     @partialSetup ev
     return ev
 
