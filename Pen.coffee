@@ -176,9 +176,18 @@ pen = do ->
     it2 = this
     res1 = if it2.Id? then "##{it2.Id}" else ''
     res2 = if it2.Class? then ".#{Array::slice.call(it2.element.classList).join '.'}" else ''
-    str = "#{it2.tag}#{res1}#{res2}"
+    res3 = []
+    if Object.keys(@attributes).length is 0 and @attributes.constructor is Object
+      res3 = ""
+    else
+      for atr of @attributes
+        if /id|style|class/.test(atr) isnt true
+          res3.push "#{atr}=\"#{@attributes[atr]}\""
+      res3 = "[#{res3.join ' '}]"
+    str = "#{it2.tag}#{res1}#{res2}#{res3}"
     @localName = str
     return str
+    
   pen::initClases = () ->
     it2 = this
     res = Array::slice.call(it2.element.classList)

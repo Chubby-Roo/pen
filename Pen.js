@@ -237,11 +237,22 @@ pen = (function() {
   pen.parseAttributes = vrs.parser(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3);
   pen.parseCss = vrs.parser(/([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2);
   pen.prototype.initLocalName = function() {
-    var it2, res1, res2, str;
+    var atr, it2, res1, res2, res3, str;
     it2 = this;
     res1 = it2.Id != null ? `#${it2.Id}` : '';
     res2 = it2.Class != null ? `.${Array.prototype.slice.call(it2.element.classList).join('.')}` : '';
-    str = `${it2.tag}${res1}${res2}`;
+    res3 = [];
+    if (Object.keys(this.attributes).length === 0 && this.attributes.constructor === Object) {
+      res3 = "";
+    } else {
+      for (atr in this.attributes) {
+        if (/id|style|class/.test(atr) !== true) {
+          res3.push(`${atr}=\"${this.attributes[atr]}\"`);
+        }
+      }
+      res3 = `[${res3.join(' ')}]`;
+    }
+    str = `${it2.tag}${res1}${res2}${res3}`;
     this.localName = str;
     return str;
   };
