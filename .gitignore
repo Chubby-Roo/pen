@@ -1,7 +1,4 @@
-*.coffee
 *.sass-cache
 *.css.map
 *.sassc
-*.lib.js
-*.lib.coffee
 test
