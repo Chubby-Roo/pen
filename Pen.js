@@ -1,7 +1,7 @@
 var pen;
 
 pen = (function() {
-  var atrib, dir, error, evp, funcoso, i, j, len, len1, log, ref, ref1, vrs;
+  var atrib, atribs, dir, error, evp, evps, funcoso, i, j, len, len1, log, vrs;
   vrs = {};
   vrs.type = (function() {
     var class2Type, i, len, name, ref;
@@ -504,9 +504,10 @@ pen = (function() {
     }
     return this;
   };
-  ref = 'id class href src contentEditable charset title rows cols'.split(/\s+/);
-  for (i = 0, len = ref.length; i < len; i++) {
-    atrib = ref[i];
+  atribs = 'id class href src contentEditable charset title rows cols'.split(/\s+/);
+  evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split(/\s+/);
+  for (i = 0, len = atribs.length; i < len; i++) {
+    atrib = atribs[i];
     pen.prototype[atrib] = function(str) {
       if (str != null) {
         return this.attr(atrib, str);
@@ -515,9 +516,8 @@ pen = (function() {
       }
     };
   }
-  ref1 = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split(/\s+/);
-  for (j = 0, len1 = ref1.length; j < len1; j++) {
-    evp = ref1[j];
+  for (j = 0, len1 = evps.length; j < len1; j++) {
+    evp = evps[j];
     pen.prototype[evp] = function(cb, cp) {
       if (this.events[evp] == null) {
         return this.on(evp, cb, cp);

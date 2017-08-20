@@ -381,9 +381,11 @@ pen = do ->
       @element.classList.toggle classs
     return this
 
-  for atrib in 'id class href src contentEditable charset title rows cols'.split /\s+/
+  atribs = 'id class href src contentEditable charset title rows cols'.split /\s+/
+  evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split /\s+/
+  for atrib in atribs
     pen::[atrib] = (str) -> if str? then @attr atrib, str else @attr atrib
-  for evp in 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split /\s+/
+  for evp in evps
     pen::[evp] = (cb, cp) -> if not @events[evp]? then @on(evp, cb, cp) else @off(evp, cb, cp)
 
   pen::hide = () ->
