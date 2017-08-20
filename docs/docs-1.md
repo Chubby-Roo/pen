@@ -1,34 +1,35 @@
-# Docs part 1
+# Documentation part 1
 
-So **pen** is a small library to enable quick ease to edit the document.
+So *pen* is a small library/API to enable quick ease to manipulate element/document's.
 
-Pen does not have full functionality. It does allow for the ease of creating elements on the fly without
-editing the html file itself.
+Pen is a lot more in depth than before a few months ago.
 
-So first let's create a normal _p_ element with html:
+So first let's create normal *p* element with html
+
 ```html
 <p id="para">some paragraph</p>
 ```
+
 See how easy that is?
 
-Now let's try to create it in JavaScript without pen:
-```js
-para = document.createElement('p')
-para.setAttribute('id', 'para')
-para.innerText = "some paragraph"
-document.body.appendChild(para)
-```
-
-Will do the same thing. But it's a longer process, let's try with a **pen**.
+Now let's try to create the same thing in JS without any API's
 
 ```js
-para = pen("<p id='para'>").html("some text") // if you want to edit it as well
+var para, body;
+body = document.body
+para = document.createElement('p');
+para.setAttribute('id', 'para');
+para.innerText = "some paragraph";
+body.appendChild(para);
 ```
 
-See how much easier that is, it takes less code to do something so simple.
+Rather complicated, easy to understand but a lot of steps **just** to create an element.
 
-## Warning!
-This is a small documentation of it, for this project or library or whatever you may want to call it.
+Now lets try it with *this* API.
 
-Further information will be provided by, uploaded by, made by, 1 person.
-So make sure to keep a **pen** or **pen**cil by your side
+```js
+var para;
+para = pen("<p id='para'>").html("some text").appendTo(document.body);
+```
+
+It's a lot quicker to just do those simple stuff

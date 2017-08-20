@@ -388,6 +388,8 @@ pen = do ->
   for evp in evps
     pen::[evp] = (cb, cp) -> if not @events[evp]? then @on(evp, cb, cp) else @off(evp, cb, cp)
 
+  pen.vrs = vrs
+
   pen::hide = () ->
     if @hidden isnt true
       @hidden = true

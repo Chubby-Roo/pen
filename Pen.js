@@ -526,6 +526,7 @@ pen = (function() {
       }
     };
   }
+  pen.vrs = vrs;
   pen.prototype.hide = function() {
     if (this.hidden !== true) {
       this.hidden = true;
