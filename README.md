@@ -1,4 +1,4 @@
-![pen](pen.logo.png)
+![pen](logo.png)
 
 # Pen
 
