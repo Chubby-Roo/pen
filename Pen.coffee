@@ -89,6 +89,8 @@ pen = do ->
         it = this
         it.on 'DOMContentLoaded', cb, cp
         return it
+    else if element instanceof Window
+      @document = element.document
     else if element instanceof pen
       for prop of element
         @[prop] = element[prop]
@@ -307,6 +309,8 @@ pen = do ->
 
   pen::on = (evtp, cb, cp) ->
     cp ?= false
+    if not @events?
+      @events = {}
     @events[evtp] = {}
     @events[evtp].capture = cp
     typeEvent = if @el.addEventListener? then 'addEventListener' else if @el.attachEvent? then 'attachEvent' else "on#{evtp}"
@@ -386,7 +390,14 @@ pen = do ->
       @element.classList.toggle classs
     return this
 
-  atribs = 'id class href src contentEditable charset title rows cols'.split /\s+/
+  pen::hasClass = (cls) ->
+    @initClases()
+    for clss in @Classes
+      if clss is cls
+        return true
+    return false
+
+  atribs = 'id class href src contentEditable charset title rows cols style'.split /\s+/
   evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split /\s+/
   for atrib in atribs
     pen::[atrib] = (str) -> if str? then @attr atrib, str else @attr atrib

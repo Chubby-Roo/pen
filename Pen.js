@@ -127,6 +127,8 @@ pen = (function() {
         it.on('DOMContentLoaded', cb, cp);
         return it;
       };
+    } else if (element instanceof Window) {
+      this.document = element.document;
     } else if (element instanceof pen) {
       for (prop in element) {
         this[prop] = element[prop];
@@ -403,6 +405,9 @@ pen = (function() {
     if (cp == null) {
       cp = false;
     }
+    if (this.events == null) {
+      this.events = {};
+    }
     this.events[evtp] = {};
     this.events[evtp].capture = cp;
     typeEvent = this.el.addEventListener != null ? 'addEventListener' : this.el.attachEvent != null ? 'attachEvent' : `on${evtp}`;
@@ -511,7 +516,19 @@ pen = (function() {
     }
     return this;
   };
-  atribs = 'id class href src contentEditable charset title rows cols'.split(/\s+/);
+  pen.prototype.hasClass = function(cls) {
+    var clss, i, len, ref;
+    this.initClases();
+    ref = this.Classes;
+    for (i = 0, len = ref.length; i < len; i++) {
+      clss = ref[i];
+      if (clss === cls) {
+        return true;
+      }
+    }
+    return false;
+  };
+  atribs = 'id class href src contentEditable charset title rows cols style'.split(/\s+/);
   evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split(/\s+/);
   for (i = 0, len = atribs.length; i < len; i++) {
     atrib = atribs[i];
