@@ -103,10 +103,6 @@ pen = (function() {
     if (!(this instanceof pen)) {
       return new pen(element, options);
     }
-    this.events = {};
-    this.hidden = false;
-    this.attributes = {};
-    this.style = {};
     this.options = {
       autoAttach: false,
       autoAttachTo: window['body'],
@@ -181,6 +177,10 @@ pen = (function() {
   };
   pen.prototype.setup = function(el) {
     var attribute, ev, prop, reu, soc, tag;
+    this.events = {};
+    this.hidden = false;
+    this.attributes = {};
+    this.style = {};
     this.text = null;
     tag = /<([^\n]*?)>/gi;
     attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
@@ -256,7 +256,7 @@ pen = (function() {
       }
       res3 = `[${res3.join(' ')}]`;
     }
-    str = `${it2.tag}${res1}${res2}${res3}`;
+    str = `${it2.tag}${res1}${res2}${(res3.length === 0 && (res3[0] == null) ? "" : res3)}`;
     this.localName = str;
     return str;
   };
@@ -352,8 +352,8 @@ pen = (function() {
         this.attributes[attribute] = value;
         this.inits();
         return this;
-      } else if (vrs.type(attribute) === 'string') {
-        attrs = this.parseAttributes(attribute);
+      } else if (vrs.type(attribute) === 'string' && (value == null)) {
+        attrs = pen.parseAttributes(attribute);
         for (attr in attrs) {
           this[res] = (attrs[attr] != null) && attr === ('id' || 'class') ? attrs[attr] : void 0;
           this.element.setAttribute(attr, attrs[attr]);
@@ -377,13 +377,20 @@ pen = (function() {
         case 'object':
           return func(rule);
         case 'string':
-          styles = this.parseCss(rule);
-          for (style in styles) {
-            st = styles[style];
-            this.style[style] = st;
-            this.element.style[style] = st;
+          if (rules != null) {
+            this.style[rule] = rules;
+            this.element.style[rule] = rules;
+            return this;
+          } else {
+            styles = pen.parseCss(rule);
+            for (style in styles) {
+              st = styles[style];
+              this.style[style] = st;
+              this.element.style[style] = st;
+            }
+            return this;
           }
-          return this;
+          break;
         default:
           return this.element.style[rule];
       }

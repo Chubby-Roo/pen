@@ -71,10 +71,6 @@ pen = do ->
   pen = (element, options) ->
     if not (this instanceof pen)
       return new pen element, options
-    @events = {}
-    @hidden = false
-    @attributes = {}
-    @style = {}
     @options =
       autoAttach: no
       autoAttachTo: window['body']
@@ -124,6 +120,10 @@ pen = do ->
     if parseIt is yes then pen(document.createElement element) else document.createElement element
 
   pen::setup = (el) ->
+    @events = {}
+    @hidden = false
+    @attributes = {}
+    @style = {}
     @text = null
     tag = /<([^\n]*?)>/gi
     attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi
@@ -187,7 +187,7 @@ pen = do ->
         if /id|style|class/.test(atr) isnt true
           res3.push "#{atr}=\"#{@attributes[atr]}\""
       res3 = "[#{res3.join ' '}]"
-    str = "#{it2.tag}#{res1}#{res2}#{res3}"
+    str = "#{it2.tag}#{res1}#{res2}#{if res3.length is 0 and not res3[0]? then "" else res3}"
     @localName = str
     return str
 
@@ -269,8 +269,8 @@ pen = do ->
         @attributes[attribute] = value
         @inits()
         return this
-      else if vrs.type(attribute) is 'string'
-        attrs = @parseAttributes attribute
+      else if vrs.type(attribute) is 'string' and not value?
+        attrs = pen.parseAttributes attribute
         for attr of attrs
           @[res] = if (attrs[attr]?) and attr is ('id' or 'class') then attrs[attr] else undefined
           @element.setAttribute attr, attrs[attr]
@@ -289,16 +289,21 @@ pen = do ->
       switch vrs.type(rule)
         when 'object' then return func(rule)
         when 'string'
-          styles = @parseCss rule
-          for style of styles
-            st = styles[style]
-            @style[style] = st
-            @element.style[style] = st
-          return this
+          if rules?
+            @style[rule] = rules
+            @element.style[rule] = rules
+            return this
+          else
+            styles = pen.parseCss rule
+            for style of styles
+              st = styles[style]
+              @style[style] = st
+              @element.style[style] = st
+            return this
         else
-          return this.element.style[rule]
+          return @element.style[rule]
     else
-      return this.style
+      return @style
 
   pen::on = (evtp, cb, cp) ->
     cp ?= false
