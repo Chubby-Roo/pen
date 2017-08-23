@@ -129,10 +129,16 @@ pen = do ->
     @text = null
     tag = /<([^\n]*?)>/gi
     attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi
+    innerText = />([\S\s]*?)</gi
     if vrs.type(el) is 'string'
       if tag.test(el) is true
-        el = el.replace /<|>/gi, ''
+        txt = innerText.test el
+        if txt is yes
+          tut = el.replace /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi, '$2'
+          el = el.replace /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi, '$1'
+        el = el.replace tag, '$1'
         soc = attribute.test el
+        el = el.replace /\//gi, ''
         if soc is yes
           reu = pen.parseAttributes el
           el = el.replace attribute, ''
@@ -143,9 +149,11 @@ pen = do ->
     else
       ev = el
     @element = @el = ev
-    if soc is true
+    if soc is yes
       for prop of reu
         @attr prop, reu[prop]
+    if txt is yes and tut?
+      @html tut, parse:yes
     @tag = if ev.tagName? then ev.tagName.toLowerCase() else 'ios-element'
     @partialSetup ev
     return ev
@@ -174,6 +182,8 @@ pen = do ->
     return
 
   pen.parseAttributes = vrs.parser /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3
+
+  pen.parseElement = vrs.parser /<([^\n\ ]*?)>([\S\s]*?)<\/([^\n\ ]*?)>/gi, 1, 2
 
   pen.parseCss = vrs.parser /([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2
 

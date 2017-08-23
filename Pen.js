@@ -178,7 +178,7 @@ pen = (function() {
     }
   };
   pen.prototype.setup = function(el) {
-    var attribute, ev, prop, reu, soc, tag;
+    var attribute, ev, innerText, prop, reu, soc, tag, tut, txt;
     this.events = {};
     this.hidden = false;
     this.attributes = {};
@@ -186,10 +186,17 @@ pen = (function() {
     this.text = null;
     tag = /<([^\n]*?)>/gi;
     attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
+    innerText = />([\S\s]*?)</gi;
     if (vrs.type(el) === 'string') {
       if (tag.test(el) === true) {
-        el = el.replace(/<|>/gi, '');
+        txt = innerText.test(el);
+        if (txt === true) {
+          tut = el.replace(/<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi, '$2');
+          el = el.replace(/<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi, '$1');
+        }
+        el = el.replace(tag, '$1');
         soc = attribute.test(el);
+        el = el.replace(/\//gi, '');
         if (soc === true) {
           reu = pen.parseAttributes(el);
           el = el.replace(attribute, '').trim();
@@ -206,6 +213,11 @@ pen = (function() {
       for (prop in reu) {
         this.attr(prop, reu[prop]);
       }
+    }
+    if (txt === true && (tut != null)) {
+      this.html(tut, {
+        parse: true
+      });
     }
     this.tag = ev.tagName != null ? ev.tagName.toLowerCase() : 'ios-element';
     this.partialSetup(ev);
@@ -241,6 +253,7 @@ pen = (function() {
     }
   };
   pen.parseAttributes = vrs.parser(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3);
+  pen.parseElement = vrs.parser(/<([^\n\ ]*?)>([\S\s]*?)<\/([^\n\ ]*?)>/gi, 1, 2);
   pen.parseCss = vrs.parser(/([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2);
   pen.prototype.initLocalName = function() {
     var atr, it2, res1, res2, res3, str;
