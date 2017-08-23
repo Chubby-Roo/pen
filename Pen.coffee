@@ -302,6 +302,7 @@ pen = do ->
         when 'object' then return func(rule)
         when 'string'
           if rules?
+            rule = rule.replace /-(\w{1})/g, (whole, dash) => dash.toUpperCase()
             @style[rule] = rules
             @element.style[rule] = rules
             return this
@@ -406,6 +407,33 @@ pen = do ->
       if clss is cls
         return true
     return false
+
+  pen.add = (typ, func, name) ->
+    switch typ
+      when 'addon'
+        func(pen)
+      when 'function', 'func', 'def', 'funco'
+        if vrs.type(func) is 'object'
+          for funcName of func
+            pen::[funcName] = func[funcName]
+        else
+          ret = func(pen)
+          if vrs.type(ret) isnt 'function'
+            vrs.log("Pen-Add: argument2 must return a function and must be a function. Type of return is #{type ret}")
+          else if vrs.type(ret) is 'function'
+            if not func.name?
+              if name?
+                pen::[name] = ret
+              else
+                throw new Error "Function cannot be anonymous"
+                .name = "Pen-add arg2"
+            else
+              pen::[func.name] = ret
+          else if vrs.type(ret) is 'object'
+            for funcName of ret
+              pen::[funcName] = ret[funcName]
+            # pen::[func?.name] = ret
+    return
 
   atribs = 'id class href src contentEditable charset title rows cols style'.split /\s+/
   evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split /\s+/

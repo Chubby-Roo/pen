@@ -393,6 +393,9 @@ pen = (function() {
           return func(rule);
         case 'string':
           if (rules != null) {
+            rule = rule.replace(/-(\w{1})/g, (whole, dash) => {
+              return dash.toUpperCase();
+            });
             this.style[rule] = rules;
             this.element.style[rule] = rules;
             return this;
@@ -540,6 +543,42 @@ pen = (function() {
       }
     }
     return false;
+  };
+  pen.add = function(typ, func, name) {
+    var funcName, ret;
+    switch (typ) {
+      case 'addon':
+        func(pen);
+        break;
+      case 'function':
+      case 'func':
+      case 'def':
+      case 'funco':
+        if (vrs.type(func) === 'object') {
+          for (funcName in func) {
+            pen.prototype[funcName] = func[funcName];
+          }
+        } else {
+          ret = func(pen);
+          if (vrs.type(ret) !== 'function') {
+            vrs.log(`Pen-Add: argument2 must return a function and must be a function. Type of return is ${type(ret)}`);
+          } else if (vrs.type(ret) === 'function') {
+            if (func.name == null) {
+              if (name != null) {
+                pen.prototype[name] = ret;
+              } else {
+                throw new (Error("Function cannot be anonymous").name = "Pen-add arg2");
+              }
+            } else {
+              pen.prototype[func.name] = ret;
+            }
+          } else if (vrs.type(ret) === 'object') {
+            for (funcName in ret) {
+              pen.prototype[funcName] = ret[funcName];
+            }
+          }
+        }
+    }
   };
   atribs = 'id class href src contentEditable charset title rows cols style'.split(/\s+/);
   evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split(/\s+/);
