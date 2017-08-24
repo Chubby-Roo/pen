@@ -213,7 +213,7 @@ pen = do ->
 
   pen.parseAttributes = vrs.parser /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3
 
-  pen.parseCss = vrs.parser /([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2
+  pen.parseCss = vrs.parser /([^\n;: ]+):([^\n]+);/gi, 1, 2
 
   pen::initLocalName = () ->
     it2 = this

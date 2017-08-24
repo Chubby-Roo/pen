@@ -285,7 +285,7 @@ pen = (function() {
     }
   };
   pen.parseAttributes = vrs.parser(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3);
-  pen.parseCss = vrs.parser(/([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2);
+  pen.parseCss = vrs.parser(/([^\n;: ]+):([^\n]+);/gi, 1, 2);
   pen.prototype.initLocalName = function() {
     var atr, it2, res1, res2, res3, str;
     it2 = this;
