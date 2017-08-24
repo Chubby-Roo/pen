@@ -98,12 +98,117 @@ pen = (function() {
       return it.element[prop];
     }
   };
+  funcoso = function(it, typeso, typesi) {
+    var chk1, funcso;
+    if (typesi == null) {
+      typesi = typeso;
+    }
+    chk1 = function(whl, propz, prop) {
+      if (vrs.type(it.element[typesi]) === 'function') {
+        it.element[typesi](whl, propz[prop]);
+      } else {
+        it.element[typesi][whl] = propz[prop];
+      }
+    };
+    funcso = function(propz, nm) {
+      var prop;
+      for (prop in propz) {
+        if (vrs.type(propz[prop]) === 'object') {
+          funcso(propz[prop], prop);
+        } else {
+          if (nm != null) {
+            it[typeso][`${nm}-${prop}`] = propz[prop];
+            chk1(`${nm}-${prop}`, propz, prop);
+          } else {
+            it[typeso][prop] = propz[prop];
+            chk1(prop, propz, prop);
+          }
+        }
+      }
+      return it;
+    };
+    return funcso;
+  };
   pen = function(element, options) {
-    var prop;
     if (!(this instanceof pen)) {
       return new pen(element, options);
     }
-    this.setupOptions(options);
+    this.start(element, options);
+  };
+  pen.ink = pen.prototype = {};
+  pen.$ = function(element, parseIt) {
+    if (parseIt == null) {
+      parseIt = false;
+    }
+    if (parseIt === true) {
+      return pen(document.querySelector(element));
+    } else {
+      return document.querySelector(element);
+    }
+  };
+  pen.$$ = function(element) {
+    return document.querySelectorAll(element);
+  };
+  pen.crt = function(element, parseIt) {
+    if (parseIt == null) {
+      parseIt = false;
+    }
+    if (parseIt === true) {
+      return pen(document.createElement(element));
+    } else {
+      return document.createElement(element);
+    }
+  };
+  pen.parseAttributes = vrs.parser(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3);
+  pen.parseCss = vrs.parser(/([^\n;: ]+):([^\n]+);/gi, 1, 2);
+  pen.add = function(typ, func, name) {
+    var funcName, ret;
+    switch (typ) {
+      case 'addon':
+        func(pen);
+        break;
+      case 'function':
+      case 'func':
+      case 'def':
+      case 'funco':
+        if (vrs.type(func) === 'object') {
+          for (funcName in func) {
+            pen.prototype[funcName] = func[funcName];
+          }
+        } else {
+          ret = func(pen);
+          if (vrs.type(ret) !== 'function') {
+            vrs.log(`Pen-Add: argument2 must return a function and must be a function. Type of return is ${type(ret)}`);
+          } else if (vrs.type(ret) === 'function') {
+            if (func.name == null) {
+              if (name != null) {
+                pen.prototype[name] = ret;
+              } else {
+                throw new (Error("Function cannot be anonymous").name = "Pen-add arg2");
+              }
+            } else {
+              pen.prototype[func.name] = ret;
+            }
+          } else if (vrs.type(ret) === 'object') {
+            for (funcName in ret) {
+              pen.prototype[funcName] = ret[funcName];
+            }
+          }
+        }
+    }
+  };
+  pen.prototype.start = function(element, options) {
+    var el, prop;
+    if (vrs.type(options) === 'string') {
+      el = pen.$(options, true);
+      if (element.includes(".") || element.includes('#')) {
+        element = el.$(element);
+      } else {
+        element = el.create(element);
+      }
+    } else {
+      this.setupOptions(options);
+    }
     this.element = this.el = element;
     if (element instanceof Document) {
       this.body = element.body;
@@ -129,9 +234,9 @@ pen = (function() {
     }
     if (this.options.autoAttach === true) {
       this.options.autoAttachTo.append(element);
+      return this;
     }
   };
-  pen.ink = pen.prototype = {};
   pen.prototype.setupOptions = function(options) {
     var ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7;
     this.options = {};
@@ -185,29 +290,6 @@ pen = (function() {
       }
     }
     return void 0;
-  };
-  pen.$ = function(element, parseIt) {
-    if (parseIt == null) {
-      parseIt = false;
-    }
-    if (parseIt === true) {
-      return pen(document.querySelector(element));
-    } else {
-      return document.querySelector(element);
-    }
-  };
-  pen.$$ = function(element) {
-    return document.querySelectorAll(element);
-  };
-  pen.crt = function(element, parseIt) {
-    if (parseIt == null) {
-      parseIt = false;
-    }
-    if (parseIt === true) {
-      return pen(document.createElement(element));
-    } else {
-      return document.createElement(element);
-    }
   };
   pen.prototype.setup = function(el) {
     var attribute, ev, innerText, prop, reu, soc, tag, tut, txt;
@@ -284,8 +366,6 @@ pen = (function() {
         this.ctx = this.context = this.element.getContext('2d');
     }
   };
-  pen.parseAttributes = vrs.parser(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3);
-  pen.parseCss = vrs.parser(/([^\n;: ]+):([^\n]+);/gi, 1, 2);
   pen.prototype.initLocalName = function() {
     var atr, it2, res1, res2, res3, str;
     it2 = this;
@@ -346,37 +426,6 @@ pen = (function() {
       default:
         return vrs.def((parse === true ? 'innerHTML' : 'innerText'), str, this, ops);
     }
-  };
-  funcoso = function(it, typeso, typesi) {
-    var chk1, funcso;
-    if (typesi == null) {
-      typesi = typeso;
-    }
-    chk1 = function(whl, propz, prop) {
-      if (vrs.type(it.element[typesi]) === 'function') {
-        it.element[typesi](whl, propz[prop]);
-      } else {
-        it.element[typesi][whl] = propz[prop];
-      }
-    };
-    funcso = function(propz, nm) {
-      var prop;
-      for (prop in propz) {
-        if (vrs.type(propz[prop]) === 'object') {
-          funcso(propz[prop], prop);
-        } else {
-          if (nm != null) {
-            it[typeso][`${nm}-${prop}`] = propz[prop];
-            chk1(`${nm}-${prop}`, propz, prop);
-          } else {
-            it[typeso][prop] = propz[prop];
-            chk1(prop, propz, prop);
-          }
-        }
-      }
-      return it;
-    };
-    return funcso;
   };
   pen.prototype.attr = function(attribute, value) {
     var attr, attrs, func, res, rescls, resid, vl;
@@ -575,40 +624,13 @@ pen = (function() {
     }
     return false;
   };
-  pen.add = function(typ, func, name) {
-    var funcName, ret;
-    switch (typ) {
-      case 'addon':
-        func(pen);
-        break;
-      case 'function':
-      case 'func':
-      case 'def':
-      case 'funco':
-        if (vrs.type(func) === 'object') {
-          for (funcName in func) {
-            pen.prototype[funcName] = func[funcName];
-          }
-        } else {
-          ret = func(pen);
-          if (vrs.type(ret) !== 'function') {
-            vrs.log(`Pen-Add: argument2 must return a function and must be a function. Type of return is ${type(ret)}`);
-          } else if (vrs.type(ret) === 'function') {
-            if (func.name == null) {
-              if (name != null) {
-                pen.prototype[name] = ret;
-              } else {
-                throw new (Error("Function cannot be anonymous").name = "Pen-add arg2");
-              }
-            } else {
-              pen.prototype[func.name] = ret;
-            }
-          } else if (vrs.type(ret) === 'object') {
-            for (funcName in ret) {
-              pen.prototype[funcName] = ret[funcName];
-            }
-          }
-        }
+  pen.prototype.hide = function() {
+    if (this.hidden !== true) {
+      this.hidden = true;
+      this.css('display', 'none');
+    } else {
+      this.hidden = false;
+      this.css('display', '');
     }
   };
   atribs = 'id class href src contentEditable charset title rows cols style'.split(/\s+/);
@@ -634,14 +656,5 @@ pen = (function() {
     };
   }
   pen.vrs = vrs;
-  pen.prototype.hide = function() {
-    if (this.hidden !== true) {
-      this.hidden = true;
-      this.css('display', 'none');
-    } else {
-      this.hidden = false;
-      this.css('display', '');
-    }
-  };
   return pen;
 })();

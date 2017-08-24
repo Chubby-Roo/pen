@@ -6,7 +6,7 @@ pen(document).ready(() ->
 
   pen(head).append title, sty
 
-  window['wrpr'] = pen "<div id='wrapper' class='wrapper main'>"
+  wrapper = pen "<div id='wrpr' class='wrapper main'>"
   .appendTo body
   .css({
     background: "rgba(200,100,100,.5)"

@@ -3,11 +3,11 @@ var dir, error, log;
 ({log, error, dir} = console);
 
 pen(document).ready(function() {
-  var si, size, sty, title;
+  var si, size, sty, title, wrapper;
   title = pen("<title id='ttl'>").html("Wrk");
   sty = pen("<link rel='stylesheet' href='style.css' id='sty'>");
   pen(head).append(title, sty);
-  window['wrpr'] = pen("<div id='wrapper' class='wrapper main'>").appendTo(body).css({
+  wrapper = pen("<div id='wrpr' class='wrapper main'>").appendTo(body).css({
     background: "rgba(200,100,100,.5)",
     height: `${window.innerHeight}px`,
     width: "100%px"
