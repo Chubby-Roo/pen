@@ -71,16 +71,7 @@ pen = do ->
   pen = (element, options) ->
     if not (this instanceof pen)
       return new pen element, options
-    @options =
-      autoAttach: no
-      autoAttachTo: window['body']
-      global:
-        parseIt: no
-        create:
-          retneh: 'return child'
-        html:
-          app: no
-          parse: no
+    @setupOptions options
     @element = @el = element
     if element instanceof Document
       @body = element.body
@@ -94,21 +85,60 @@ pen = do ->
     else if element instanceof pen
       for prop of element
         @[prop] = element[prop]
-    else
-      @setup element
+    else if vrs.type(element) is 'string'
+      if element.startsWith("define") is yes
+        return @define element
+      else
+        @setup element
 
     if @options.autoAttach is yes
       @options.autoAttachTo.append element
     return
 
   pen.ink = pen:: = {}
-  pen::toString = () => @el.outerHTML
-  pen.define = (toDefs...) ->
-    cps = {'type', 'parser', 'empty', 'log', 'error', 'dir'}
-    for toDef in toDefs
-      if cps[toDef] is toDef
-        window[toDef] = vrs[toDef]
+  pen::setupOptions = (options) ->
+    @options = {}
+    @options.global = {}
+    @options.global.create = {}
+    @options.global.html = {}
+    if options?
+      @options.autoAttach = (if options?.autoAttach? then options.autoAttach else no)
+      @options.autoAttachTo = (if options?.autoAttachTo? then options.autoAttachTo else window['body'])
+      if options?.global?
+        @options.global.parseIt = (if options?.global?.parseIt? then options.global.parseIt else no)
+        if options?.global?.create
+          @options.global.create.retneh = (if options?.global?.create?.retneh? then options.global.create.retneh else 'return child')
+        if options?.global?.html?
+          @options.global.html.app = (if options?.global?.html?.app then options.global.html.app else no)
+          @options.global.html.parse = (if options?.global.html?.parse then options.global.html.parse else no)
+      else
+        @options.global.parseIt = no
+        @options.global.create.retneh = 'return child'
+        @options.global.html.app = no
+        @options.global.html.parse = no
+    else
+      @options.autoAttach = no
+      @options.autoAttachTo = window['body']
+      @options.global.parseIt = no
+      @options.global.create.retneh = 'return child'
+      @options.global.html.app = no
+      @options.global.html.parse = no
     return
+
+  pen::toString = () => @el.outerHTML
+  pen::define = (toDef) ->
+    gr = /define\s*([^\n\ ]+)\s*as\s*([^\n\ ,]+)(\s*(?:global|local)ly)?/i
+    if gr.test(toDef) is true
+      [func, oname, t] = gr.exec(toDef)[1..3]
+      if t?
+        t = t.trim()
+        if t is 'locally'
+          return vrs[func]
+        else
+          window[oname] = vrs[func]
+      else
+        window[oname] = vrs[func]
+    return undefined
 
   pen.$ = (element, parseIt) ->
     parseIt ?= false
@@ -337,7 +367,7 @@ pen = do ->
     switch typeEvent
       when 'removeEventListener' then @el[typeEvent](evtp, cb)
       when 'detachEvent' then @el[typeEvent](evtp, cb)
-      else @el[typeEvent] = cb
+      else @el[typeEvent] = null
 
     delete @events[evtp]
     return this
@@ -385,6 +415,7 @@ pen = do ->
     result.querySelectorAll(element)
 
   pen::create = pen::createElement = (element, ret) ->
+
     element = pen("<#{element}>")
     @append(element)
     if /child|parent/gi.test(ret) is true
@@ -436,7 +467,7 @@ pen = do ->
     return
 
   atribs = 'id class href src contentEditable charset title rows cols style'.split /\s+/
-  evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split /\s+/
+  evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick drag dragover drop dropend'.split /\s+/
   for atrib in atribs
     pen::[atrib] = (str) -> if str? then @attr atrib, str else @attr atrib
   for evp in evps
@@ -450,6 +481,7 @@ pen = do ->
       @css 'display', 'none'
     else
       @hidden = false
-      @css 'display', null
+      @css 'display', ''
+    return
 
   return pen

@@ -103,20 +103,7 @@ pen = (function() {
     if (!(this instanceof pen)) {
       return new pen(element, options);
     }
-    this.options = {
-      autoAttach: false,
-      autoAttachTo: window['body'],
-      global: {
-        parseIt: false,
-        create: {
-          retneh: 'return child'
-        },
-        html: {
-          app: false,
-          parse: false
-        }
-      }
-    };
+    this.setupOptions(options);
     this.element = this.el = element;
     if (element instanceof Document) {
       this.body = element.body;
@@ -133,26 +120,71 @@ pen = (function() {
       for (prop in element) {
         this[prop] = element[prop];
       }
-    } else {
-      this.setup(element);
+    } else if (vrs.type(element) === 'string') {
+      if (element.startsWith("define") === true) {
+        return this.define(element);
+      } else {
+        this.setup(element);
+      }
     }
     if (this.options.autoAttach === true) {
       this.options.autoAttachTo.append(element);
     }
   };
   pen.ink = pen.prototype = {};
+  pen.prototype.setupOptions = function(options) {
+    var ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7;
+    this.options = {};
+    this.options.global = {};
+    this.options.global.create = {};
+    this.options.global.html = {};
+    if (options != null) {
+      this.options.autoAttach = ((options != null ? options.autoAttach : void 0) != null ? options.autoAttach : false);
+      this.options.autoAttachTo = ((options != null ? options.autoAttachTo : void 0) != null ? options.autoAttachTo : window['body']);
+      if ((options != null ? options.global : void 0) != null) {
+        this.options.global.parseIt = ((options != null ? (ref = options.global) != null ? ref.parseIt : void 0 : void 0) != null ? options.global.parseIt : false);
+        if (options != null ? (ref1 = options.global) != null ? ref1.create : void 0 : void 0) {
+          this.options.global.create.retneh = ((options != null ? (ref2 = options.global) != null ? (ref3 = ref2.create) != null ? ref3.retneh : void 0 : void 0 : void 0) != null ? options.global.create.retneh : 'return child');
+        }
+        if ((options != null ? (ref4 = options.global) != null ? ref4.html : void 0 : void 0) != null) {
+          this.options.global.html.app = ((options != null ? (ref5 = options.global) != null ? (ref6 = ref5.html) != null ? ref6.app : void 0 : void 0 : void 0) ? options.global.html.app : false);
+          this.options.global.html.parse = ((options != null ? (ref7 = options.global.html) != null ? ref7.parse : void 0 : void 0) ? options.global.html.parse : false);
+        }
+      } else {
+        this.options.global.parseIt = false;
+        this.options.global.create.retneh = 'return child';
+        this.options.global.html.app = false;
+        this.options.global.html.parse = false;
+      }
+    } else {
+      this.options.autoAttach = false;
+      this.options.autoAttachTo = window['body'];
+      this.options.global.parseIt = false;
+      this.options.global.create.retneh = 'return child';
+      this.options.global.html.app = false;
+      this.options.global.html.parse = false;
+    }
+  };
   pen.prototype.toString = () => {
     return this.el.outerHTML;
   };
-  pen.define = function(...toDefs) {
-    var cps, i, len, toDef;
-    cps = {'type': 'type', 'parser': 'parser', 'empty': 'empty', 'log': 'log', 'error': 'error', 'dir': 'dir'};
-    for (i = 0, len = toDefs.length; i < len; i++) {
-      toDef = toDefs[i];
-      if (cps[toDef] === toDef) {
-        window[toDef] = vrs[toDef];
+  pen.prototype.define = function(toDef) {
+    var func, gr, oname, t;
+    gr = /define\s*([^\n\ ]+)\s*as\s*([^\n\ ,]+)(\s*(?:global|local)ly)?/i;
+    if (gr.test(toDef) === true) {
+      [func, oname, t] = gr.exec(toDef).slice(1, 4);
+      if (t != null) {
+        t = t.trim();
+        if (t === 'locally') {
+          return vrs[func];
+        } else {
+          window[oname] = vrs[func];
+        }
+      } else {
+        window[oname] = vrs[func];
       }
     }
+    return void 0;
   };
   pen.$ = function(element, parseIt) {
     if (parseIt == null) {
@@ -450,7 +482,7 @@ pen = (function() {
         this.el[typeEvent](evtp, cb);
         break;
       default:
-        this.el[typeEvent] = cb;
+        this.el[typeEvent] = null;
     }
     delete this.events[evtp];
     return this;
@@ -581,7 +613,7 @@ pen = (function() {
     }
   };
   atribs = 'id class href src contentEditable charset title rows cols style'.split(/\s+/);
-  evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick'.split(/\s+/);
+  evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick drag dragover drop dropend'.split(/\s+/);
   for (i = 0, len = atribs.length; i < len; i++) {
     atrib = atribs[i];
     pen.prototype[atrib] = function(str) {
@@ -606,10 +638,10 @@ pen = (function() {
   pen.prototype.hide = function() {
     if (this.hidden !== true) {
       this.hidden = true;
-      return this.css('display', 'none');
+      this.css('display', 'none');
     } else {
       this.hidden = false;
-      return this.css('display', null);
+      this.css('display', '');
     }
   };
   return pen;
