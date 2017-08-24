@@ -156,7 +156,7 @@ pen = do ->
     @hidden = false
     @attributes = {}
     @style = {}
-    @text = null
+    @text = if @el.innerText isnt "" then @el.innerText else null
     tag = /<([^\n]*?)>/gi
     attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi
     innerText = />([\S\s]*?)</gi
@@ -212,8 +212,6 @@ pen = do ->
     return
 
   pen.parseAttributes = vrs.parser /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3
-
-  pen.parseElement = vrs.parser /<([^\n\ ]*?)>([\S\s]*?)<\/([^\n\ ]*?)>/gi, 1, 2
 
   pen.parseCss = vrs.parser /([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2
 

@@ -215,7 +215,7 @@ pen = (function() {
     this.hidden = false;
     this.attributes = {};
     this.style = {};
-    this.text = null;
+    this.text = this.el.innerText !== "" ? this.el.innerText : null;
     tag = /<([^\n]*?)>/gi;
     attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
     innerText = />([\S\s]*?)</gi;
@@ -285,7 +285,6 @@ pen = (function() {
     }
   };
   pen.parseAttributes = vrs.parser(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3);
-  pen.parseElement = vrs.parser(/<([^\n\ ]*?)>([\S\s]*?)<\/([^\n\ ]*?)>/gi, 1, 2);
   pen.parseCss = vrs.parser(/([^\n\ ;:]*?):([^\n]*?);/gi, 1, 2);
   pen.prototype.initLocalName = function() {
     var atr, it2, res1, res2, res3, str;
