@@ -18,6 +18,16 @@ pen(document).ready () ->
   wrapper.append selector, relbut
   wrapper.appendTo body
 
+  selr = (content, el) ->
+    container = pen "<div id='selectionDiv' class='selection#{i}' align='center'>"
+    header = pen "<h4 class='header'>"
+    .html content
+    grabText = pen "<button id='grabber' class='grabber-btn btn'>grab text</button>"
+    grabText.click (e) ->
+      grabText.el.outerHTML = "<p id='grabbed'>\"#{el.html()}\"</p>"
+    container.append header, grabText
+    return container
+
   selectorBtn.click (e) ->
     i++
     e.preventDefault()
@@ -26,8 +36,7 @@ pen(document).ready () ->
     el = pen.$ val, true
     el.initLocalName()
     el.toggle 'selected'
-    p = pen "<p class='selection#{i}'>"
-    p.html el.localName
+    p = new selr el.localName, el
 
     wrapper.append p
     selec = () ->

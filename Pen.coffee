@@ -237,6 +237,7 @@ pen = do ->
           document.importNode [args...]
       when 'canvas'
         @ctx = @context = @el.getContext '2d'
+        @size = {width: @el.width, height: @el.height}
     return
 
   pen::initTag = () ->

@@ -3,7 +3,7 @@ var dir, error, log;
 ({log, error, dir} = console);
 
 pen(document).ready(function() {
-  var br, freeEl, freeEls, i, j, len, relbut, results, selector, selectorBtn, selectorInput, sideMsg, styz, title, wrapper;
+  var br, freeEl, freeEls, i, j, len, relbut, results, selector, selectorBtn, selectorInput, selr, sideMsg, styz, title, wrapper;
   i = 0;
   styz = pen("<link rel='stylesheet' href='style.css' id='sty'>");
   wrapper = pen("<div id='wrpr' class='wrapper main'>");
@@ -19,6 +19,17 @@ pen(document).ready(function() {
   selector.append(selectorInput, selectorBtn, br, sideMsg);
   wrapper.append(selector, relbut);
   wrapper.appendTo(body);
+  selr = function(content, el) {
+    var container, grabText, header;
+    container = pen(`<div id='selectionDiv' class='selection${i}' align='center'>`);
+    header = pen("<h4 class='header'>").html(content);
+    grabText = pen("<button id='grabber' class='grabber-btn btn'>grab text</button>");
+    grabText.click(function(e) {
+      return grabText.el.outerHTML = `<p id='grabbed'>\"${el.html()}\"</p>`;
+    });
+    container.append(header, grabText);
+    return container;
+  };
   selectorBtn.click(function(e) {
     var el, p, selec, val;
     i++;
@@ -28,8 +39,7 @@ pen(document).ready(function() {
     el = pen.$(val, true);
     el.initLocalName();
     el.toggle('selected');
-    p = pen(`<p class='selection${i}'>`);
-    p.html(el.localName);
+    p = new selr(el.localName, el);
     wrapper.append(p);
     selec = function() {
       return el.toggle('selected');

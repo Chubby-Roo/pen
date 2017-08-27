@@ -336,6 +336,10 @@ pen = (function() {
         break;
       case 'canvas':
         this.ctx = this.context = this.el.getContext('2d');
+        this.size = {
+          width: this.el.width,
+          height: this.el.height
+        };
     }
   };
   pen.prototype.initTag = function() {
