@@ -1,5 +1,12 @@
 pen = do ->
   vrs = {}
+  vrs.regs =
+    attribute: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi
+    css: /([^\n;: ]+):([^\n]+);/gi
+    define: /define\s*([^\n\ ]+)\s*as\s*([^\n\ ,]+)(\s*(?:global|local)ly)?/i
+    tag: /<([^\n]*?)>/gi
+    eleme: /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi
+    innerText: />([\S\s]*?)</gi
   vrs.type = do ->
     class2Type = {}
     for name in 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split /\s+/gi
@@ -34,11 +41,11 @@ pen = do ->
           return null
       else
         return null
-  vrs.empty = (obj) => if not obj? then true else false
   {log, error, dir} = console
   vrs.log = log
   vrs.error = error
   vrs.dir = dir
+  vrs.slice = (vr) => Array::slice.call vr
   document.addEventListener "DOMContentLoaded", (ev) ->
     window['body'] = document.body
     window['head'] = document.head
@@ -50,18 +57,18 @@ pen = do ->
       app = if ops.app? then ops.app else false
       parse = if ops.parse? then ops.parse else false
     else
-      app = if it.options.global.html.app? then it.options.global.html.app else false
-      parse = if it.options.global.html.parse? then it.options.global.html.parse else false
+      app = if it.ops.global.html.app? then it.ops.global.html.app else false
+      parse = if it.ops.global.html.parse? then it.ops.global.html.parse else false
 
     it.text = str
     if str?
       if app is true
-        it.element[prop] += str
+        it.el[prop] += str
       else
-        it.element[prop] = str
+        it.el[prop] = str
       return it
     else
-      return it.element[prop]
+      return it.el[prop]
   funcoso = (it, typeso, typesi) ->
     typesi ?= typeso
     chk1 = (whl, propz, prop) ->
@@ -87,6 +94,10 @@ pen = do ->
   pen = (element, options) ->
     if not (this instanceof pen)
       return new pen element, options
+    @events = {}
+    @hidden = false
+    @attributes = {}
+    @style = {}
     @start element, options
     return
 
@@ -101,8 +112,8 @@ pen = do ->
   pen.crt = (element, parseIt) ->
     parseIt ?= false
     if parseIt is yes then pen(document.createElement element) else document.createElement element
-  pen.parseAttributes = vrs.parser /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3
-  pen.parseCss = vrs.parser /([^\n;: ]+):([^\n]+);/gi, 1, 2
+  pen.parseAttributes = vrs.parser vrs.regs.attribute, 1, 3
+  pen.parseCss = vrs.parser vrs.regs.css, 1, 2
   pen.add = (typ, func, name) ->
     switch typ
       when 'addon'
@@ -139,14 +150,13 @@ pen = do ->
         element = el.create(element)
     else
       @setupOptions options
-    @element = @el = element
+    @el = element
     if element instanceof Document
       @body = element.body
       @head = element.head
       pen::ready = (cb, cp) ->
-        it = this
-        it.on 'DOMContentLoaded', cb, cp
-        return it
+        @on 'DOMContentLoaded', cb, cp
+        return @
     else if element instanceof Window
       @document = element.document
     else if element instanceof pen
@@ -157,42 +167,24 @@ pen = do ->
         return @define element
       else
         @setup element
-    if @options.autoAttach is yes
-      @options.autoAttachTo.append element
+    if @ops.autoAttach is yes
+      @ops.autoAttachTo.append element
       return this
-  pen::setupOptions = (options) ->
-    @options = {}
-    @options.global = {}
-    @options.global.create = {}
-    @options.global.html = {}
-    if options?
-      @options.autoAttach = (if options?.autoAttach? then options.autoAttach else no)
-      @options.autoAttachTo = (if options?.autoAttachTo? then options.autoAttachTo else window['body'])
-      if options?.global?
-        @options.global.parseIt = (if options?.global?.parseIt? then options.global.parseIt else no)
-        if options?.global?.create
-          @options.global.create.retneh = (if options?.global?.create?.retneh? then options.global.create.retneh else 'return child')
-        if options?.global?.html?
-          @options.global.html.app = (if options?.global?.html?.app then options.global.html.app else no)
-          @options.global.html.parse = (if options?.global.html?.parse then options.global.html.parse else no)
-      else
-        @options.global.parseIt = no
-        @options.global.create.retneh = 'return child'
-        @options.global.html.app = no
-        @options.global.html.parse = no
-    else
-      @options.autoAttach = no
-      @options.autoAttachTo = window['body']
-      @options.global.parseIt = no
-      @options.global.create.retneh = 'return child'
-      @options.global.html.app = no
-      @options.global.html.parse = no
+  pen::setupOptions = (ops) ->
+    @ops =
+      autoAttach: (if ops? and ops.autoAttach? then ops.autoAttach else no)
+      autoAttachTo: (if ops? and ops.autoAttachTo? then ops.autoAttachTo else window['body'])
+      global:
+        parseIt: (if ops? and ops.global? and ops.global.parseIt? then ops.global.parseIt else no)
+        create: (if ops? and ops.global? and ops.global.create? then ops.global.create else 'return child')
+        html:
+          app: (if ops? and ops.global? and ops.global.html? and ops.global.html.app? then ops.global.html.app else no)
+          parse: (if ops? and ops.global? and ops.global.html? and ops.global.html.parse? then ops.global.html.parse else no)
     return
   pen::toString = () => @el.outerHTML
   pen::define = (toDef) ->
-    gr = /define\s*([^\n\ ]+)\s*as\s*([^\n\ ,]+)(\s*(?:global|local)ly)?/i
-    if gr.test(toDef) is true
-      [func, oname, t] = gr.exec(toDef)[1..3]
+    if vrs.regs.define.test(toDef) is true
+      [func, oname, t] = vrs.regs.define.exec(toDef)[1..3]
       if t?
         t = t.trim()
         if t is 'locally'
@@ -203,98 +195,99 @@ pen = do ->
         window[oname] = vrs[func]
     return undefined
   pen::setup = (el) ->
-    @events = {}
-    @hidden = false
-    @attributes = {}
-    @style = {}
-    @text = if @el.innerText isnt "" then @el.innerText else null
-    tag = /<([^\n]*?)>/gi
-    attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi
-    innerText = />([\S\s]*?)</gi
     if vrs.type(el) is 'string'
-      if tag.test(el) is true
-        txt = innerText.test el
+      if vrs.regs.tag.test(el) is true
+        txt = vrs.regs.innerText.test el
         if txt is yes
-          tut = el.replace /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi, '$2'
-          el = el.replace /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi, '$1'
-        el = el.replace tag, '$1'
-        soc = attribute.test el
+          tut = el.replace vrs.regs.eleme, '$2'
+          el = el.replace vrs.regs.eleme, '$1'
+        el = el.replace vrs.regs.tag, '$1'
+        soc = vrs.regs.attribute.test el
         el = el.replace /\//gi, ''
         if soc is yes
           reu = pen.parseAttributes el
-          el = el.replace attribute, ''
+          el = el.replace vrs.regs.attribute, ''
           .trim()
         ev = pen.crt el
       else
         ev = pen.$ el
     else
       ev = el
-    @element = @el = ev
+    @el = @el = ev
     if soc is yes
       for prop of reu
         @attr prop, reu[prop]
     if txt is yes and tut?
       @html tut, parse:yes
-    @tag = if ev.tagName? then ev.tagName.toLowerCase() else 'ios-element'
+    @inits()
     @partialSetup ev
     return ev
   pen::partialSetup = (ev) ->
-    @Id = vrs.detectAndReturn 'id', ev
-    @Class = vrs.detectAndReturn 'class', ev
-    @Children = if @tag is 'template' then ev.content.children else ev.children
-    @Parent = if ev.parentNode? then ev.parentNode else null
-    str = ev.outerHTML
-    attrs = pen.parseAttributes str
-    stys = pen.parseCss attrs?.style
-    for sty of stys
-      @style[sty] = stys[sty]
-    for attr of attrs
-      @attributes[attr] = attrs[attr]
+    @attributes.id = vrs.detectAndReturn 'id', ev
+    @attributes.class = vrs.detectAndReturn 'class', ev
+    szlp = @el.getBoundingClientRect()
+    @size =
+      width: szlp.width, height: szlp.height
     @inits()
     switch @tag
       when 'template'
         @content = ev.content
         pen::clone = () ->
-          args = Array::slice.call arguments
+          args = vrs.slice arguments
           document.importNode [args...]
       when 'canvas'
-        @ctx = @context = @element.getContext '2d'
+        @ctx = @context = @el.getContext '2d'
     return
+
+  pen::initTag = () ->
+    tag = @tag = if @el.tagName? then @el.tagName.toLowerCase() else 'ios-element'
+    return tag
+  pen::initText = () ->
+    text = @text = if @el.innerText isnt "" then @el.innerText else null
+    return text
+  pen::initChildren = () ->
+    children = @Children = if @tag is 'template' then @el.content.children else @el.children
+    return children
+  pen::initParent = () ->
+    parent = @Parent = if @el.parentNode? then @el.parentNode else null
+    return parent
   pen::initLocalName = () ->
-    it2 = this
-    res1 = if it2.Id? then "##{it2.Id}" else ''
-    res2 = if it2.Class? then ".#{Array::slice.call(it2.element.classList).join '.'}" else ''
-    res3 = []
-    if Object.keys(@attributes).length is 0 and @attributes.constructor is Object
-      res3 = ""
-    else
-      for atr of @attributes
-        if /id|style|class/.test(atr) isnt true
-          res3.push "#{atr}=\"#{@attributes[atr]}\""
-      res3 = "[#{res3.join ' '}]"
-    str = "#{it2.tag}#{res1}#{res2}#{if res3.length is 0 and not res3[0]? then "" else res3}"
+    @initAttributes()
+    @initTag()
+    res1 = if @attributes.id? then "##{@attributes.id}" else ''
+    res2 = if @attributes.class? then ".#{vrs.slice(@el.classList).join '.'}" else ''
+    str = "#{@tag}#{res1}#{res2}"
     @localName = str
     return str
   pen::initClases = () ->
-    it2 = this
-    res = Array::slice.call(it2.element.classList)
+    res = vrs.slice(@el.classList)
     @Classes = res
     return res
+  pen::initAttributes = () ->
+    ret = []
+    res = vrs.slice @el.attributes
+    for attr in res
+      @attributes[attr.name] = attr.value
+      ret.push("#{attr.name}='#{attr.value}'")
+    return ret
   pen::inits = () ->
-    @initLocalName()
-    @initClases()
-    return this
-  pen::selfInstance = (obj, cb) ->
-    if obj instanceof pen
-      cb obj, this
-    return this
+    ret = {}
+    ret.tag = @initTag()
+    ret.text = @initText()
+    ret.children = @initChildren()
+    ret.parent = @initParent()
+    ret.attributes = @initAttributes()
+    ret.classes = @initClases()
+    ret.localName = @initLocalName()
+    return ret
+
   pen::html = (str, ops) ->
     if ops?
       app = if ops.app? then ops.app else false
       parse = if ops.parse? then ops.parse else false
     else
-      app = if @options.global.html.app? then @options.global.html.app else false
-      parse = if @options.global.html.parse? then @options.global.html.parse else false
+      app = if @ops.global.html.app? then @ops.global.html.app else false
+      parse = if @ops.global.html.parse? then @ops.global.html.parse else false
 
     switch @tag
       when 'input', 'textarea'
@@ -310,34 +303,26 @@ pen = do ->
     return
   pen::attr = (attribute, value) ->
     func = funcoso this, 'attributes', 'setAttribute'
-    res = if attribute is 'id' then 'id' else if attribute is 'class' then 'class' else undefined
-    vl = if value? and attribute is ('id' or 'class') then value else undefined
     if attribute?
       if vrs.type(attribute) is 'object'
-        resid = attribute?.id
-        rescls = attribute?.class
-        @Id = resid
-        @Class = rescls
-        @attributes['class'] = rescls
-        @attributes['id'] = resid
+        @attributes['class'] = attribute?.id
+        @attributes['id'] = attribute?.class
         return func(attribute)
       else if value?
-        @[res] = vl
-        @element.setAttribute attribute, value
+        @el.setAttribute attribute, value
         @attributes[attribute] = value
         @inits()
         return this
       else if vrs.type(attribute) is 'string' and not value?
         attrs = pen.parseAttributes attribute
         for attr of attrs
-          @[res] = if (attrs[attr]?) and attr is ('id' or 'class') then attrs[attr] else undefined
-          @element.setAttribute attr, attrs[attr]
+          @el.setAttribute attr, attrs[attr]
           @attributes[attr] = attrs[attr]
         @inits()
         return this
       else
         @inits()
-        return @element.getAttribute attribute
+        return @el.getAttribute attribute
     else
       return @attributes
   pen::css = (rule, rules) ->
@@ -349,17 +334,17 @@ pen = do ->
           if rules?
             rule = rule.replace /-(\w{1})/g, (whole, dash) => dash.toUpperCase()
             @style[rule] = rules
-            @element.style[rule] = rules
+            @el.style[rule] = rules
             return this
           else
             styles = pen.parseCss rule
             for style of styles
               st = styles[style]
               @style[style] = st
-              @element.style[style] = st
+              @el.style[style] = st
             return this
         else
-          return @element.style[rule]
+          return @el.style[rule]
     else
       return @style
   pen::on = (evtp, cb, cp) ->
@@ -368,6 +353,7 @@ pen = do ->
       @events = {}
     @events[evtp] = {}
     @events[evtp].capture = cp
+    @events[evtp][if cb.name isnt '' then cb.name else 'func'] = cb
     typeEvent = if @el.addEventListener? then 'addEventListener' else if @el.attachEvent? then 'attachEvent' else "on#{evtp}"
     switch typeEvent
       when 'addEventListener' then @el[typeEvent](evtp, cb, cp)
@@ -389,40 +375,38 @@ pen = do ->
     for element in elements
       if vrs.type(element) is 'string'
         element = pen.$ element
-      @selfInstance element, (emt, it) ->
-        emt.Parent = it.element
-        return
+      else if element instanceof pen
+        element.Parent = @el
       elu = (if element instanceof pen then element.el else element)
       if @tag is 'template'
-        @element.content.appendChild elu
+        @el.content.appendChild elu
       else
-        @element.appendChild elu
+        @el.appendChild elu
     return this
   pen::appendTo = (element) ->
     if vrs.type(element) is 'string'
       element = pen.$ element
-    pen(element).append(@element)
+    pen(element).append(@el)
     return this
   pen::remove = ->
-    check = if @Parent? then 'Parent' else if @element.parentNode? then 'parentNode' else null
+    check = if @Parent? then 'Parent' else if @el.parentNode? then 'parentNode' else null
     if check?
-      @[check].removeChild(@element)
+      @[check].removeChild(@el)
       @Parent = null
     else
       log "Pen-remove-error: There's no parent to remove child: #{@localName} from"
     return this
   pen::$ = (element, parseIt) ->
-    result = if @tag is 'template' then @element.content else @element
-    if @options.global.parseIt is true or parseIt is true
+    result = if @tag is 'template' then @el.content else @el
+    if @ops.global.parseIt is true or parseIt is true
       return pen result.querySelector(element)
     else
       return result.querySelector(element)
   pen::$$ = (element) ->
-    result = if @tag is 'template' then @element.content else @element
+    result = if @tag is 'template' then @el.content else @el
     result.querySelectorAll(element)
   pen::create = pen::createElement = (element, ret) ->
-
-    element = pen("<#{element}>")
+    element = pen(element)
     @append(element)
     if /child|parent/gi.test(ret) is true
       result = "return #{ret}"
@@ -434,7 +418,7 @@ pen = do ->
       return
   pen::toggle = (classes...) ->
     for classs in classes
-      @element.classList.toggle classs
+      @el.classList.toggle classs
     return this
   pen::hasClass = (cls) ->
     @initClases()
@@ -450,11 +434,16 @@ pen = do ->
       @hidden = false
       @css 'display', ''
     return
-  atribs = 'id class href src contentEditable charset title rows cols style'.split /\s+/
-  evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick drag dragover drop dropend'.split /\s+/
-  for atrib in atribs
-    pen::[atrib] = (str) -> if str? then @attr atrib, str else @attr atrib
-  for evp in evps
-    pen::[evp] = (cb, cp) -> if not @events[evp]? then @on(evp, cb, cp) else @off(evp, cb, cp)
+  pen::getSize = () -> {width: @el.getBoundingClientRect().width, height: @el.getBoundingClientRect().height}
+  atribs = ['id', 'class', 'href', 'src', 'contentEditable', 'charset', 'title', 'rows', 'cols', 'style']
+  evps = ['click', 'keyup' ,'keypress','keydown' ,'mouse', 'mouseup', 'error', 'load', 'mouseover', 'mousedown' ,'mouseout', 'contextmenu', 'dblclick' ,'drag', 'dragover', 'drop', 'dropend']
+  atribs.forEach (atrib, ind) ->
+    pen::[atrib] = (str) ->
+      if str? then @attr atrib, str else @attr atrib
+      return
+  evps.forEach (evp, inds) ->
+    pen::[evp] = (cb, cp) ->
+      if not @events[evp]? then @on(evp, cb, cp) else @off(evp, cb, cp)
+      return
   pen.vrs = vrs
   return pen

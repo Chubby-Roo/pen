@@ -1,8 +1,16 @@
 var pen;
 
 pen = (function() {
-  var atrib, atribs, dir, error, evp, evps, funcoso, i, j, len, len1, log, vrs;
+  var atribs, dir, error, evps, funcoso, log, vrs;
   vrs = {};
+  vrs.regs = {
+    attribute: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi,
+    css: /([^\n;: ]+):([^\n]+);/gi,
+    define: /define\s*([^\n\ ]+)\s*as\s*([^\n\ ,]+)(\s*(?:global|local)ly)?/i,
+    tag: /<([^\n]*?)>/gi,
+    eleme: /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi,
+    innerText: />([\S\s]*?)</gi
+  };
   vrs.type = (function() {
     var class2Type, i, len, name, ref;
     class2Type = {};
@@ -57,17 +65,13 @@ pen = (function() {
       }
     };
   };
-  vrs.empty = (obj) => {
-    if (obj == null) {
-      return true;
-    } else {
-      return false;
-    }
-  };
   ({log, error, dir} = console);
   vrs.log = log;
   vrs.error = error;
   vrs.dir = dir;
+  vrs.slice = (vr) => {
+    return Array.prototype.slice.call(vr);
+  };
   document.addEventListener("DOMContentLoaded", function(ev) {
     window['body'] = document.body;
     return window['head'] = document.head;
@@ -83,19 +87,19 @@ pen = (function() {
       app = ops.app != null ? ops.app : false;
       parse = ops.parse != null ? ops.parse : false;
     } else {
-      app = it.options.global.html.app != null ? it.options.global.html.app : false;
-      parse = it.options.global.html.parse != null ? it.options.global.html.parse : false;
+      app = it.ops.global.html.app != null ? it.ops.global.html.app : false;
+      parse = it.ops.global.html.parse != null ? it.ops.global.html.parse : false;
     }
     it.text = str;
     if (str != null) {
       if (app === true) {
-        it.element[prop] += str;
+        it.el[prop] += str;
       } else {
-        it.element[prop] = str;
+        it.el[prop] = str;
       }
       return it;
     } else {
-      return it.element[prop];
+      return it.el[prop];
     }
   };
   funcoso = function(it, typeso, typesi) {
@@ -133,6 +137,10 @@ pen = (function() {
     if (!(this instanceof pen)) {
       return new pen(element, options);
     }
+    this.events = {};
+    this.hidden = false;
+    this.attributes = {};
+    this.style = {};
     this.start(element, options);
   };
   pen.ink = pen.prototype = {};
@@ -159,8 +167,8 @@ pen = (function() {
       return document.createElement(element);
     }
   };
-  pen.parseAttributes = vrs.parser(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi, 1, 3);
-  pen.parseCss = vrs.parser(/([^\n;: ]+):([^\n]+);/gi, 1, 2);
+  pen.parseAttributes = vrs.parser(vrs.regs.attribute, 1, 3);
+  pen.parseCss = vrs.parser(vrs.regs.css, 1, 2);
   pen.add = function(typ, func, name) {
     var funcName, ret;
     switch (typ) {
@@ -209,15 +217,13 @@ pen = (function() {
     } else {
       this.setupOptions(options);
     }
-    this.element = this.el = element;
+    this.el = element;
     if (element instanceof Document) {
       this.body = element.body;
       this.head = element.head;
       pen.prototype.ready = function(cb, cp) {
-        var it;
-        it = this;
-        it.on('DOMContentLoaded', cb, cp);
-        return it;
+        this.on('DOMContentLoaded', cb, cp);
+        return this;
       };
     } else if (element instanceof Window) {
       this.document = element.document;
@@ -232,52 +238,32 @@ pen = (function() {
         this.setup(element);
       }
     }
-    if (this.options.autoAttach === true) {
-      this.options.autoAttachTo.append(element);
+    if (this.ops.autoAttach === true) {
+      this.ops.autoAttachTo.append(element);
       return this;
     }
   };
-  pen.prototype.setupOptions = function(options) {
-    var ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7;
-    this.options = {};
-    this.options.global = {};
-    this.options.global.create = {};
-    this.options.global.html = {};
-    if (options != null) {
-      this.options.autoAttach = ((options != null ? options.autoAttach : void 0) != null ? options.autoAttach : false);
-      this.options.autoAttachTo = ((options != null ? options.autoAttachTo : void 0) != null ? options.autoAttachTo : window['body']);
-      if ((options != null ? options.global : void 0) != null) {
-        this.options.global.parseIt = ((options != null ? (ref = options.global) != null ? ref.parseIt : void 0 : void 0) != null ? options.global.parseIt : false);
-        if (options != null ? (ref1 = options.global) != null ? ref1.create : void 0 : void 0) {
-          this.options.global.create.retneh = ((options != null ? (ref2 = options.global) != null ? (ref3 = ref2.create) != null ? ref3.retneh : void 0 : void 0 : void 0) != null ? options.global.create.retneh : 'return child');
+  pen.prototype.setupOptions = function(ops) {
+    this.ops = {
+      autoAttach: ((ops != null) && (ops.autoAttach != null) ? ops.autoAttach : false),
+      autoAttachTo: ((ops != null) && (ops.autoAttachTo != null) ? ops.autoAttachTo : window['body']),
+      global: {
+        parseIt: ((ops != null) && (ops.global != null) && (ops.global.parseIt != null) ? ops.global.parseIt : false),
+        create: ((ops != null) && (ops.global != null) && (ops.global.create != null) ? ops.global.create : 'return child'),
+        html: {
+          app: ((ops != null) && (ops.global != null) && (ops.global.html != null) && (ops.global.html.app != null) ? ops.global.html.app : false),
+          parse: ((ops != null) && (ops.global != null) && (ops.global.html != null) && (ops.global.html.parse != null) ? ops.global.html.parse : false)
         }
-        if ((options != null ? (ref4 = options.global) != null ? ref4.html : void 0 : void 0) != null) {
-          this.options.global.html.app = ((options != null ? (ref5 = options.global) != null ? (ref6 = ref5.html) != null ? ref6.app : void 0 : void 0 : void 0) ? options.global.html.app : false);
-          this.options.global.html.parse = ((options != null ? (ref7 = options.global.html) != null ? ref7.parse : void 0 : void 0) ? options.global.html.parse : false);
-        }
-      } else {
-        this.options.global.parseIt = false;
-        this.options.global.create.retneh = 'return child';
-        this.options.global.html.app = false;
-        this.options.global.html.parse = false;
       }
-    } else {
-      this.options.autoAttach = false;
-      this.options.autoAttachTo = window['body'];
-      this.options.global.parseIt = false;
-      this.options.global.create.retneh = 'return child';
-      this.options.global.html.app = false;
-      this.options.global.html.parse = false;
-    }
+    };
   };
   pen.prototype.toString = () => {
     return this.el.outerHTML;
   };
   pen.prototype.define = function(toDef) {
-    var func, gr, oname, t;
-    gr = /define\s*([^\n\ ]+)\s*as\s*([^\n\ ,]+)(\s*(?:global|local)ly)?/i;
-    if (gr.test(toDef) === true) {
-      [func, oname, t] = gr.exec(toDef).slice(1, 4);
+    var func, oname, t;
+    if (vrs.regs.define.test(toDef) === true) {
+      [func, oname, t] = vrs.regs.define.exec(toDef).slice(1, 4);
       if (t != null) {
         t = t.trim();
         if (t === 'locally') {
@@ -292,28 +278,20 @@ pen = (function() {
     return void 0;
   };
   pen.prototype.setup = function(el) {
-    var attribute, ev, innerText, prop, reu, soc, tag, tut, txt;
-    this.events = {};
-    this.hidden = false;
-    this.attributes = {};
-    this.style = {};
-    this.text = this.el.innerText !== "" ? this.el.innerText : null;
-    tag = /<([^\n]*?)>/gi;
-    attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
-    innerText = />([\S\s]*?)</gi;
+    var ev, prop, reu, soc, tut, txt;
     if (vrs.type(el) === 'string') {
-      if (tag.test(el) === true) {
-        txt = innerText.test(el);
+      if (vrs.regs.tag.test(el) === true) {
+        txt = vrs.regs.innerText.test(el);
         if (txt === true) {
-          tut = el.replace(/<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi, '$2');
-          el = el.replace(/<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi, '$1');
+          tut = el.replace(vrs.regs.eleme, '$2');
+          el = el.replace(vrs.regs.eleme, '$1');
         }
-        el = el.replace(tag, '$1');
-        soc = attribute.test(el);
+        el = el.replace(vrs.regs.tag, '$1');
+        soc = vrs.regs.attribute.test(el);
         el = el.replace(/\//gi, '');
         if (soc === true) {
           reu = pen.parseAttributes(el);
-          el = el.replace(attribute, '').trim();
+          el = el.replace(vrs.regs.attribute, '').trim();
         }
         ev = pen.crt(el);
       } else {
@@ -322,7 +300,7 @@ pen = (function() {
     } else {
       ev = el;
     }
-    this.element = this.el = ev;
+    this.el = this.el = ev;
     if (soc === true) {
       for (prop in reu) {
         this.attr(prop, reu[prop]);
@@ -333,76 +311,91 @@ pen = (function() {
         parse: true
       });
     }
-    this.tag = ev.tagName != null ? ev.tagName.toLowerCase() : 'ios-element';
+    this.inits();
     this.partialSetup(ev);
     return ev;
   };
   pen.prototype.partialSetup = function(ev) {
-    var attr, attrs, str, sty, stys;
-    this.Id = vrs.detectAndReturn('id', ev);
-    this.Class = vrs.detectAndReturn('class', ev);
-    this.Children = this.tag === 'template' ? ev.content.children : ev.children;
-    this.Parent = ev.parentNode != null ? ev.parentNode : null;
-    str = ev.outerHTML;
-    attrs = pen.parseAttributes(str);
-    stys = pen.parseCss(attrs != null ? attrs.style : void 0);
-    for (sty in stys) {
-      this.style[sty] = stys[sty];
-    }
-    for (attr in attrs) {
-      this.attributes[attr] = attrs[attr];
-    }
+    var szlp;
+    this.attributes.id = vrs.detectAndReturn('id', ev);
+    this.attributes.class = vrs.detectAndReturn('class', ev);
+    szlp = this.el.getBoundingClientRect();
+    this.size = {
+      width: szlp.width,
+      height: szlp.height
+    };
     this.inits();
     switch (this.tag) {
       case 'template':
         this.content = ev.content;
         pen.prototype.clone = function() {
           var args;
-          args = Array.prototype.slice.call(arguments);
+          args = vrs.slice(arguments);
           return document.importNode([...args]);
         };
         break;
       case 'canvas':
-        this.ctx = this.context = this.element.getContext('2d');
+        this.ctx = this.context = this.el.getContext('2d');
     }
   };
+  pen.prototype.initTag = function() {
+    var tag;
+    tag = this.tag = this.el.tagName != null ? this.el.tagName.toLowerCase() : 'ios-element';
+    return tag;
+  };
+  pen.prototype.initText = function() {
+    var text;
+    text = this.text = this.el.innerText !== "" ? this.el.innerText : null;
+    return text;
+  };
+  pen.prototype.initChildren = function() {
+    var children;
+    children = this.Children = this.tag === 'template' ? this.el.content.children : this.el.children;
+    return children;
+  };
+  pen.prototype.initParent = function() {
+    var parent;
+    parent = this.Parent = this.el.parentNode != null ? this.el.parentNode : null;
+    return parent;
+  };
   pen.prototype.initLocalName = function() {
-    var atr, it2, res1, res2, res3, str;
-    it2 = this;
-    res1 = it2.Id != null ? `#${it2.Id}` : '';
-    res2 = it2.Class != null ? `.${Array.prototype.slice.call(it2.element.classList).join('.')}` : '';
-    res3 = [];
-    if (Object.keys(this.attributes).length === 0 && this.attributes.constructor === Object) {
-      res3 = "";
-    } else {
-      for (atr in this.attributes) {
-        if (/id|style|class/.test(atr) !== true) {
-          res3.push(`${atr}=\"${this.attributes[atr]}\"`);
-        }
-      }
-      res3 = `[${res3.join(' ')}]`;
-    }
-    str = `${it2.tag}${res1}${res2}${(res3.length === 0 && (res3[0] == null) ? "" : res3)}`;
+    var res1, res2, str;
+    this.initAttributes();
+    this.initTag();
+    res1 = this.attributes.id != null ? `#${this.attributes.id}` : '';
+    res2 = this.attributes.class != null ? `.${vrs.slice(this.el.classList).join('.')}` : '';
+    str = `${this.tag}${res1}${res2}`;
     this.localName = str;
     return str;
   };
   pen.prototype.initClases = function() {
-    var it2, res;
-    it2 = this;
-    res = Array.prototype.slice.call(it2.element.classList);
+    var res;
+    res = vrs.slice(this.el.classList);
     this.Classes = res;
     return res;
   };
-  pen.prototype.inits = function() {
-    this.initLocalName();
-    this.initClases();
-    return this;
-  };
-  pen.prototype.selfInstance = function(obj, cb) {
-    if (obj instanceof pen) {
-      cb(obj, this);
+  pen.prototype.initAttributes = function() {
+    var attr, i, len, res, ret;
+    ret = [];
+    res = vrs.slice(this.el.attributes);
+    for (i = 0, len = res.length; i < len; i++) {
+      attr = res[i];
+      this.attributes[attr.name] = attr.value;
+      ret.push(`${attr.name}='${attr.value}'`);
     }
-    return this;
+    return ret;
+  };
+  pen.prototype.inits = function() {
+    var ret;
+    ret = {};
+    ret.tag = this.initTag();
+    ret.text = this.initText();
+    ret.children = this.initChildren();
+    ret.parent = this.initParent();
+    ret.attributes = this.initAttributes();
+    ret.classes = this.initClases();
+    ret.localName = this.initLocalName();
+    return ret;
   };
   pen.prototype.html = function(str, ops) {
     var app, parse;
@@ -410,8 +403,8 @@ pen = (function() {
       app = ops.app != null ? ops.app : false;
       parse = ops.parse != null ? ops.parse : false;
     } else {
-      app = this.options.global.html.app != null ? this.options.global.html.app : false;
-      parse = this.options.global.html.parse != null ? this.options.global.html.parse : false;
+      app = this.ops.global.html.app != null ? this.ops.global.html.app : false;
+      parse = this.ops.global.html.parse != null ? this.ops.global.html.parse : false;
     }
     switch (this.tag) {
       case 'input':
@@ -428,37 +421,29 @@ pen = (function() {
     }
   };
   pen.prototype.attr = function(attribute, value) {
-    var attr, attrs, func, res, rescls, resid, vl;
+    var attr, attrs, func;
     func = funcoso(this, 'attributes', 'setAttribute');
-    res = attribute === 'id' ? 'id' : attribute === 'class' ? 'class' : void 0;
-    vl = (value != null) && attribute === ('id' || 'class') ? value : void 0;
     if (attribute != null) {
       if (vrs.type(attribute) === 'object') {
-        resid = attribute != null ? attribute.id : void 0;
-        rescls = attribute != null ? attribute.class : void 0;
-        this.Id = resid;
-        this.Class = rescls;
-        this.attributes['class'] = rescls;
-        this.attributes['id'] = resid;
+        this.attributes['class'] = attribute != null ? attribute.id : void 0;
+        this.attributes['id'] = attribute != null ? attribute.class : void 0;
         return func(attribute);
       } else if (value != null) {
-        this[res] = vl;
-        this.element.setAttribute(attribute, value);
+        this.el.setAttribute(attribute, value);
         this.attributes[attribute] = value;
         this.inits();
         return this;
       } else if (vrs.type(attribute) === 'string' && (value == null)) {
         attrs = pen.parseAttributes(attribute);
         for (attr in attrs) {
-          this[res] = (attrs[attr] != null) && attr === ('id' || 'class') ? attrs[attr] : void 0;
-          this.element.setAttribute(attr, attrs[attr]);
+          this.el.setAttribute(attr, attrs[attr]);
           this.attributes[attr] = attrs[attr];
         }
         this.inits();
         return this;
       } else {
         this.inits();
-        return this.element.getAttribute(attribute);
+        return this.el.getAttribute(attribute);
       }
     } else {
       return this.attributes;
@@ -477,20 +462,20 @@ pen = (function() {
               return dash.toUpperCase();
             });
             this.style[rule] = rules;
-            this.element.style[rule] = rules;
+            this.el.style[rule] = rules;
             return this;
           } else {
             styles = pen.parseCss(rule);
             for (style in styles) {
               st = styles[style];
               this.style[style] = st;
-              this.element.style[style] = st;
+              this.el.style[style] = st;
             }
             return this;
           }
           break;
         default:
-          return this.element.style[rule];
+          return this.el.style[rule];
       }
     } else {
       return this.style;
@@ -506,6 +491,7 @@ pen = (function() {
     }
     this.events[evtp] = {};
     this.events[evtp].capture = cp;
+    this.events[evtp][cb.name !== '' ? cb.name : 'func'] = cb;
     typeEvent = this.el.addEventListener != null ? 'addEventListener' : this.el.attachEvent != null ? 'attachEvent' : `on${evtp}`;
     switch (typeEvent) {
       case 'addEventListener':
@@ -544,15 +530,14 @@ pen = (function() {
       element = elements[i];
       if (vrs.type(element) === 'string') {
         element = pen.$(element);
+      } else if (element instanceof pen) {
+        element.Parent = this.el;
       }
-      this.selfInstance(element, function(emt, it) {
-        emt.Parent = it.element;
-      });
       elu = (element instanceof pen ? element.el : element);
       if (this.tag === 'template') {
-        this.element.content.appendChild(elu);
+        this.el.content.appendChild(elu);
       } else {
-        this.element.appendChild(elu);
+        this.el.appendChild(elu);
       }
     }
     return this;
@@ -561,14 +546,14 @@ pen = (function() {
     if (vrs.type(element) === 'string') {
       element = pen.$(element);
     }
-    pen(element).append(this.element);
+    pen(element).append(this.el);
     return this;
   };
   pen.prototype.remove = function() {
     var check;
-    check = this.Parent != null ? 'Parent' : this.element.parentNode != null ? 'parentNode' : null;
+    check = this.Parent != null ? 'Parent' : this.el.parentNode != null ? 'parentNode' : null;
     if (check != null) {
-      this[check].removeChild(this.element);
+      this[check].removeChild(this.el);
       this.Parent = null;
     } else {
       log(`Pen-remove-error: There's no parent to remove child: ${this.localName} from`);
@@ -577,8 +562,8 @@ pen = (function() {
   };
   pen.prototype.$ = function(element, parseIt) {
     var result;
-    result = this.tag === 'template' ? this.element.content : this.element;
-    if (this.options.global.parseIt === true || parseIt === true) {
+    result = this.tag === 'template' ? this.el.content : this.el;
+    if (this.ops.global.parseIt === true || parseIt === true) {
       return pen(result.querySelector(element));
     } else {
       return result.querySelector(element);
@@ -586,12 +571,12 @@ pen = (function() {
   };
   pen.prototype.$$ = function(element) {
     var result;
-    result = this.tag === 'template' ? this.element.content : this.element;
+    result = this.tag === 'template' ? this.el.content : this.el;
     return result.querySelectorAll(element);
   };
   pen.prototype.create = pen.prototype.createElement = function(element, ret) {
     var result;
-    element = pen(`<${element}>`);
+    element = pen(element);
     this.append(element);
     if (/child|parent/gi.test(ret) === true) {
       result = `return ${ret}`;
@@ -608,7 +593,7 @@ pen = (function() {
     var classs, i, len;
     for (i = 0, len = classes.length; i < len; i++) {
       classs = classes[i];
-      this.element.classList.toggle(classs);
+      this.el.classList.toggle(classs);
     }
     return this;
   };
@@ -633,28 +618,32 @@ pen = (function() {
       this.css('display', '');
     }
   };
-  atribs = 'id class href src contentEditable charset title rows cols style'.split(/\s+/);
-  evps = 'click keyup keypress keydown mouse mouseup mouseover mousedown mouseout contextmenu dblclick drag dragover drop dropend'.split(/\s+/);
-  for (i = 0, len = atribs.length; i < len; i++) {
-    atrib = atribs[i];
-    pen.prototype[atrib] = function(str) {
+  pen.prototype.getSize = function() {
+    return {
+      width: this.el.getBoundingClientRect().width,
+      height: this.el.getBoundingClientRect().height
+    };
+  };
+  atribs = ['id', 'class', 'href', 'src', 'contentEditable', 'charset', 'title', 'rows', 'cols', 'style'];
+  evps = ['click', 'keyup', 'keypress', 'keydown', 'mouse', 'mouseup', 'error', 'load', 'mouseover', 'mousedown', 'mouseout', 'contextmenu', 'dblclick', 'drag', 'dragover', 'drop', 'dropend'];
+  atribs.forEach(function(atrib, ind) {
+    return pen.prototype[atrib] = function(str) {
       if (str != null) {
-        return this.attr(atrib, str);
+        this.attr(atrib, str);
       } else {
-        return this.attr(atrib);
+        this.attr(atrib);
       }
     };
-  }
-  for (j = 0, len1 = evps.length; j < len1; j++) {
-    evp = evps[j];
-    pen.prototype[evp] = function(cb, cp) {
+  });
+  evps.forEach(function(evp, inds) {
+    return pen.prototype[evp] = function(cb, cp) {
       if (this.events[evp] == null) {
-        return this.on(evp, cb, cp);
+        this.on(evp, cb, cp);
       } else {
-        return this.off(evp, cb, cp);
+        this.off(evp, cb, cp);
       }
     };
-  }
+  });
   pen.vrs = vrs;
   return pen;
 })();
