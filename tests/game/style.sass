@@ -13,7 +13,7 @@ $tran: all 0.2s ease
 
 body
 
-  .wrapper.main
+  .wrapper
     background: darken($main-color, 25%)
     width: 100vw
     height: 100vh
@@ -36,24 +36,6 @@ body
       color: white
       padding: 5px 0
 
-    [class^='selection']
-      width: 100vw
-      padding: 10px 0
-      margin: 5px 0
-      background: $main-color
-      text-align: center
-      color: white
-
-    .element-selector
-      top: 0
-      width: 100vw
-      background: lighten($main-color, 30%)
-      padding-bottom: 2px
-      &-input
-        width: 50vw
-      .side-message
-        color: white
-
 .top-right
   right: 0
   top: 0
@@ -69,6 +51,3 @@ body
 .bottom-left
   left: 0
   bottom: 0
-
-.selected
-  border: dashed 3px red
