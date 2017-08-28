@@ -76,7 +76,9 @@ It will be available in the near future if not then oh well
 
 # Documentation and examples
 [Docs](docs)
-[Examples](examples)
+[Tests](tests)
+
+There's a selector and a simple game in the works.
 
 # Contribution
 

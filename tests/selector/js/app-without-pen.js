@@ -114,3 +114,4 @@ document.addEventListener("DOMContentLoaded", function () {
     freeEl = freeEls[j];
     freeEl.style['position'] = 'fixed';
   }
+});

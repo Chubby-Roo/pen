@@ -1,4 +1,6 @@
 pen = do ->
+  doc = document
+  win = window
   vrs = {}
   vrs.regs =
     attribute: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi
@@ -41,17 +43,15 @@ pen = do ->
           return null
       else
         return null
-  {log, error, dir} = console
-  vrs.log = log
-  vrs.error = error
-  vrs.dir = dir
+  vrs.log = console.log
+  vrs.error = console.error
+  vrs.dir = console.dir
   vrs.slice = (vr) => Array::slice.call vr
-  document.addEventListener "DOMContentLoaded", (ev) ->
-    window['body'] = document.body
-    window['head'] = document.head
-  vrs.detectAndReturn = (ting, ev) ->
-    if ev.hasAttribute(ting) is true
-      ev.getAttribute ting
+  ldr = (ev) ->
+    window['body'] = doc.body; window['pBody'] = pen body; window['head'] = doc.head; window['pHead'] = pen head
+    return
+  document.addEventListener "DOMContentLoaded", ldr, {once:true}
+  vrs.detectAndReturn = (ting, ev) => if ev.hasAttribute(ting) is true then ev.getAttribute ting else null
   vrs.def = (prop, str, it, ops) =>
     if ops?
       app = if ops.app? then ops.app else false
@@ -69,7 +69,7 @@ pen = do ->
       return it
     else
       return it.el[prop]
-  funcoso = (it, typeso, typesi) ->
+  vrs.funcoso = (it, typeso, typesi) ->
     typesi ?= typeso
     chk1 = (whl, propz, prop) ->
       if vrs.type(it.element[typesi]) is 'function'
@@ -90,7 +90,10 @@ pen = do ->
             chk1 prop, propz, prop
       return it
     return funcso
-
+  vrs.penError = (name, msg) =>
+    er = new Error msg
+    er.name = name
+    throw er
   pen = (element, options) ->
     if not (this instanceof pen)
       return new pen element, options
@@ -102,75 +105,80 @@ pen = do ->
     return
 
   pen.ink = pen:: = {}
-  pen.$ = (element, parseIt) ->
-    parseIt ?= false
+  pen.$ = (el, parseIt = false) ->
+    vrs.log this.caller
     if parseIt is yes
-      return pen(document.querySelector element)
-    else
-      return document.querySelector element
-  pen.$$ = (element) -> document.querySelectorAll element
-  pen.crt = (element, parseIt) ->
-    parseIt ?= false
-    if parseIt is yes then pen(document.createElement element) else document.createElement element
-  pen.parseAttributes = vrs.parser vrs.regs.attribute, 1, 3
-  pen.parseCss = vrs.parser vrs.regs.css, 1, 2
-  pen.add = (typ, func, name) ->
-    switch typ
-      when 'addon'
-        func(pen)
-      when 'function', 'func', 'def', 'funco'
-        if vrs.type(func) is 'object'
-          for funcName of func
-            pen::[funcName] = func[funcName]
+      pen doc.querySelector(el)
+    else doc.querySelector el
+  pen.$$ = (el) => document.querySelectorAll el
+  pen.create = pen.createElement = (el, parseIt = false) => if parseIt is yes then pen(doc.createElement el) else doc.createElement el
+  pen.addedFunctions = {}
+  pen.parse =
+    attributes: vrs.parser vrs.regs.attribute, 1, 3
+    css: vrs.parser vrs.regs.css, 1, 2
+    element: (str) ->
+      s = str.search('<')
+      e = str.search('>')+1
+      stTag = str.slice(s, e)
+      s = stTag.search(' ')+1
+      e = stTag.search('>')
+      attribs = stTag.slice(s, e)
+      s = stTag.search('<')+1
+      e = stTag.search(' ')
+      tag = stTag.slice(s, e)
+      s = str.search('>')+1
+      e = str.search('</')
+      text = str.slice(s, e)
+      return [str, stTag, attribs, tag, (if text is '' then null else text)]
+  pen.add = (func, name) ->
+    t = vrs.type func
+    if t is 'object'
+      for fname of func
+        pen.addedFunctions[fname] = func[fname]
+        pen::[fname] = func[fname]
+    else if t is 'function'
+      if not func.name?
+        if name?
+          pen.addedFunctions[name] = func
+          pen::[name] = func
         else
-          ret = func(pen)
-          if vrs.type(ret) isnt 'function'
-            vrs.log("Pen-Add: argument2 must return a function and must be a function. Type of return is #{type ret}")
-          else if vrs.type(ret) is 'function'
-            if not func.name?
-              if name?
-                pen::[name] = ret
-              else
-                throw new Error "Function cannot be anonymous"
-                .name = "Pen-add arg2"
-            else
-              pen::[func.name] = ret
-          else if vrs.type(ret) is 'object'
-            for funcName of ret
-              pen::[funcName] = ret[funcName]
-            # pen::[func?.name] = ret
-    return
-
-  pen::start = (element, options) ->
-    if vrs.type(options) is 'string'
-      el = pen.$(options, true)
-      if element.includes(".") or element.includes('#')
-        element = el.$(element)
+          vrs.penError "Pen-add 'no-name'", "function, must have a name. Cannot be anonymous"
       else
-        element = el.create(element)
+        pen.addedFunctions[func.name] = func
+        pen::[func.name] = func
+  pen::start = (ele, ops) ->
+    t = vrs.type ops
+    if t is 'string'
+      el = pen.$ ops, yes
+      if /\.|#|\[\]/gi.test ele
+        ele = el.$ ele
+      else
+        ele = el.create ele
     else
-      @setupOptions options
-    @el = element
-    if element instanceof Document
-      @body = element.body
-      @head = element.head
-      pen::ready = (cb, cp) ->
-        @on 'DOMContentLoaded', cb, cp
+      @initOptions ops
+    @el = ele
+    t1 = vrs.type @el
+    if @el instanceof Document
+      @body = window['pBody']
+      @head = window['pHead']
+      pen::ready = (cb) ->
+        @on 'DOMContentLoaded', cb
         return @
-    else if element instanceof Window
-      @document = element.document
-    else if element instanceof pen
+    else if @el instanceof Window
+      @doc = @el.document
+    else if @el instanceof pen
       for prop of element
         @[prop] = element[prop]
-    else if vrs.type(element) is 'string'
-      if element.startsWith("define") is yes
-        return @define element
+    else if t1 is 'string'
+      if @el.startsWith('define') is true
+        return @define @el
       else
-        @setup element
+        return @setup @el
+
     if @ops.autoAttach is yes
       @ops.autoAttachTo.append element
-      return this
-  pen::setupOptions = (ops) ->
+    return @
+  pen::initOptions = (ops) ->
     @ops =
       autoAttach: (if ops? and ops.autoAttach? then ops.autoAttach else no)
       autoAttachTo: (if ops? and ops.autoAttachTo? then ops.autoAttachTo else window['body'])
@@ -180,71 +188,56 @@ pen = do ->
         html:
           app: (if ops? and ops.global? and ops.global.html? and ops.global.html.app? then ops.global.html.app else no)
           parse: (if ops? and ops.global? and ops.global.html? and ops.global.html.parse? then ops.global.html.parse else no)
-    return
+    return @ops
   pen::toString = () => @el.outerHTML
   pen::define = (toDef) ->
     if vrs.regs.define.test(toDef) is true
       [func, oname, t] = vrs.regs.define.exec(toDef)[1..3]
       if t?
         t = t.trim()
-        if t is 'locally'
-          return vrs[func]
-        else
-          window[oname] = vrs[func]
-      else
-        window[oname] = vrs[func]
-    return undefined
+        if t is 'locally' then vrs[func] else window[oname] = vrs[func]
+      else window[onmae] = vrs[func]
+    return
   pen::setup = (el) ->
-    if vrs.type(el) is 'string'
-      if vrs.regs.tag.test(el) is true
-        txt = vrs.regs.innerText.test el
-        if txt is yes
-          tut = el.replace vrs.regs.eleme, '$2'
-          el = el.replace vrs.regs.eleme, '$1'
-        el = el.replace vrs.regs.tag, '$1'
-        soc = vrs.regs.attribute.test el
-        el = el.replace /\//gi, ''
-        if soc is yes
-          reu = pen.parseAttributes el
-          el = el.replace vrs.regs.attribute, ''
-          .trim()
-        ev = pen.crt el
+    t = vrs.type el
+    if t is 'string'
+      if el.startsWith('<')
+        [whole, startTag, attributes, tag, text] = pen.parse.element el
+        log tag
+        attribs = pen.parse.attributes attributes
+        @el = pen.create tag
       else
-        ev = pen.$ el
+        @el = pen.$ el
     else
-      ev = el
-    @el = @el = ev
-    if soc is yes
-      for prop of reu
-        @attr prop, reu[prop]
-    if txt is yes and tut?
-      @html tut, parse:yes
+      @el = el
+    for prop of attribs
+      @attr prop, attribs[prop]
+    if text?
+      @html text, parse: yes
     @inits()
-    @partialSetup ev
-    return ev
+    @partialSetup()
+    return
   pen::partialSetup = (ev) ->
-    @attributes.id = vrs.detectAndReturn 'id', ev
-    @attributes.class = vrs.detectAndReturn 'class', ev
+    @attributes.id = vrs.detectAndReturn 'id', @el
+    @attributes.class = vrs.detectAndReturn 'class', @el
     szlp = @el.getBoundingClientRect()
     @size =
       width: szlp.width, height: szlp.height
     @inits()
     switch @tag
       when 'template'
-        @content = ev.content
+        @content = @el.content
         pen::clone = () ->
           args = vrs.slice arguments
           document.importNode [args...]
       when 'canvas'
         @ctx = @context = @el.getContext '2d'
-        @size = {width: @el.width, height: @el.height}
-    return
-
+    return @
   pen::initTag = () ->
     tag = @tag = if @el.tagName? then @el.tagName.toLowerCase() else 'ios-element'
     return tag
   pen::initText = () ->
-    text = @text = if @el.innerText isnt "" then @el.innerText else null
+    text = @text = @html
     return text
   pen::initChildren = () ->
     children = @Children = if @tag is 'template' then @el.content.children else @el.children
@@ -260,7 +253,7 @@ pen = do ->
     str = "#{@tag}#{res1}#{res2}"
     @localName = str
     return str
-  pen::initClases = () ->
+  pen::initClasses = () ->
     res = vrs.slice(@el.classList)
     @Classes = res
     return res
@@ -278,10 +271,9 @@ pen = do ->
     ret.children = @initChildren()
     ret.parent = @initParent()
     ret.attributes = @initAttributes()
-    ret.classes = @initClases()
+    ret.classes = @initClasses()
     ret.localName = @initLocalName()
     return ret
-
   pen::html = (str, ops) ->
     if ops?
       app = if ops.app? then ops.app else false
@@ -294,16 +286,13 @@ pen = do ->
       when 'input', 'textarea'
         return vrs.def 'value', str, this, ops
       when 'option'
-        def 'value', str, this, ops
+        vrs.def 'value', str, this, ops
         return vrs.def 'innerText', str, this, ops
-      when 'template'
-        log "Please use pen.append"
-        return
       else
         return vrs.def((if parse is true then 'innerHTML' else 'innerText'), str, this, ops)
     return
   pen::attr = (attribute, value) ->
-    func = funcoso this, 'attributes', 'setAttribute'
+    func = vrs.funcoso this, 'attributes', 'setAttribute'
     if attribute?
       if vrs.type(attribute) is 'object'
         @attributes['class'] = attribute?.id
@@ -313,21 +302,21 @@ pen = do ->
         @el.setAttribute attribute, value
         @attributes[attribute] = value
         @inits()
-        return this
+        return @
       else if vrs.type(attribute) is 'string' and not value?
         attrs = pen.parseAttributes attribute
         for attr of attrs
           @el.setAttribute attr, attrs[attr]
           @attributes[attr] = attrs[attr]
         @inits()
-        return this
+        return @
       else
         @inits()
         return @el.getAttribute attribute
     else
       return @attributes
   pen::css = (rule, rules) ->
-    func = funcoso this, 'style'
+    func = vrs.funcoso this, 'style'
     if rule?
       switch vrs.type(rule)
         when 'object' then return func(rule)
@@ -336,14 +325,14 @@ pen = do ->
             rule = rule.replace /-(\w{1})/g, (whole, dash) => dash.toUpperCase()
             @style[rule] = rules
             @el.style[rule] = rules
-            return this
+            return @
           else
             styles = pen.parseCss rule
             for style of styles
               st = styles[style]
               @style[style] = st
               @el.style[style] = st
-            return this
+            return @
         else
           return @el.style[rule]
     else
@@ -361,7 +350,7 @@ pen = do ->
       when 'attachEvent' then @el[typeEvent](evtp, cb)
       else @el[typeEvent] = cb
 
-    return this
+    return @
   pen::off = (evtp, cb) ->
     typeEvent = if @el.addEventListener? then 'removeEventListener' else if @el.attachEvent? then 'detachEvent' else "on#{evtp}"
     switch typeEvent
@@ -370,7 +359,7 @@ pen = do ->
       else @el[typeEvent] = null
 
     delete @events[evtp]
-    return this
+    return @
   pen::is = (tag) => @tag is tag
   pen::append = (elements...) ->
     for element in elements
@@ -383,12 +372,12 @@ pen = do ->
         @el.content.appendChild elu
       else
         @el.appendChild elu
-    return this
+    return @
   pen::appendTo = (element) ->
     if vrs.type(element) is 'string'
       element = pen.$ element
     pen(element).append(@el)
-    return this
+    return @
   pen::remove = ->
     check = if @Parent? then 'Parent' else if @el.parentNode? then 'parentNode' else null
     if check?
@@ -396,7 +385,7 @@ pen = do ->
       @Parent = null
     else
       log "Pen-remove-error: There's no parent to remove child: #{@localName} from"
-    return this
+    return @
   pen::$ = (element, parseIt) ->
     result = if @tag is 'template' then @el.content else @el
     if @ops.global.parseIt is true or parseIt is true
@@ -412,7 +401,7 @@ pen = do ->
     if /child|parent/gi.test(ret) is true
       result = "return #{ret}"
       if result.endsWith("parent") is true
-        return this
+        return @
       else
         return element
     else
@@ -420,9 +409,9 @@ pen = do ->
   pen::toggle = (classes...) ->
     for classs in classes
       @el.classList.toggle classs
-    return this
+    return @
   pen::hasClass = (cls) ->
-    @initClases()
+    @initClasses()
     for clss in @Classes
       if clss is cls
         return true
@@ -447,4 +436,7 @@ pen = do ->
       if not @events[evp]? then @on(evp, cb, cp) else @off(evp, cb, cp)
       return
   pen.vrs = vrs
+
+
   return pen
+#   return pen

@@ -1,3 +1,10 @@
+@keyframes breath {
+  0% {
+    width: 50vw; }
+  50% {
+    width: 75vw; }
+  100% {
+    width: 50vw; } }
 * {
   padding: 0;
   margin: 0;
@@ -7,42 +14,43 @@
   -webkit-appearance: none;
   font-family: Arial; }
 
-body .wrapper.main {
+body .wrapper {
   background: #191526;
   width: 100vw;
   height: 100vh; }
-  body .wrapper.main .btn {
+  body .wrapper .btn {
     transition: all 0.2s ease;
     padding: 10px 15px;
     color: white;
     background: #504378;
     margin-left: 5px;
     margin-right: 5px; }
-    body .wrapper.main .btn:hover {
+    body .wrapper .btn:hover {
       padding: 10px 20px;
       background: #8171b0;
       color: white; }
-  body .wrapper.main .input {
+  body .wrapper .input {
     background: #241e37;
     text-align: center;
     color: white;
     padding: 5px 0; }
-  body .wrapper.main [class^='selection'] {
+  body .wrapper .element-selector {
     width: 100vw;
-    padding: 10px 0;
-    margin: 5px 0;
     background: #504378;
-    text-align: center;
     color: white; }
-  body .wrapper.main .element-selector {
-    top: 0;
-    width: 100vw;
-    background: #9e92c2;
-    padding-bottom: 2px; }
-    body .wrapper.main .element-selector-input {
+    body .wrapper .element-selector .element-selector-input {
       width: 50vw; }
-    body .wrapper.main .element-selector .side-message {
-      color: white; }
+  body .wrapper [class^=selection] {
+    padding: 10px;
+    color: white;
+    width: 50vw;
+    background: #504378;
+    margin: auto;
+    margin-top: 10px; }
+    body .wrapper [class^=selection] * {
+      display: block;
+      margin-top: 5px;
+      margin-bottom: 5px; }
 
 .top-right {
   right: 0;

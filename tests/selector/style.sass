@@ -1,6 +1,14 @@
 $main-color: rgb(80,67,120)
 $tran: all 0.2s ease
 
+@keyframes breath
+  0%
+    width: 50vw
+  50%
+    width: 75vw
+  100%
+    width: 50vw
+
 *
   padding: 0
   margin: 0
@@ -30,7 +38,35 @@ body
         padding: 10px 20px
         background: lighten($main-color, 20%)
         color: white
+    .input
+      background: darken($main-color, 20%)
+      text-align: center
+      color: white
+      padding: 5px 0
+    .element-selector
+      width: 100vw
+      background: $main-color
+      color: white
+      .element-selector-input
+        width: 50vw
+    [class^=selection]
+      padding: 10px
+      color: white
+      width: 50vw
+      background: $main-color
+      margin: auto
+      margin-top: 10px
+      // animation:
+      //   name: breath
+      //   duration: 5s
+      //   fill-mode: forwards
+      //   iteration-count: infinite
 
+
+      *
+        display: block
+        margin-top: 5px
+        margin-bottom: 5px
 .top-right
   right: 0
   top: 0

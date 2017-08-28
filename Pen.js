@@ -1,7 +1,9 @@
 var pen;
 
 pen = (function() {
-  var atribs, dir, error, evps, funcoso, log, vrs;
+  var atribs, doc, evps, ldr, vrs, win;
+  doc = document;
+  win = window;
   vrs = {};
   vrs.regs = {
     attribute: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi,
@@ -65,20 +67,26 @@ pen = (function() {
       }
     };
   };
-  ({log, error, dir} = console);
-  vrs.log = log;
-  vrs.error = error;
-  vrs.dir = dir;
+  vrs.log = console.log;
+  vrs.error = console.error;
+  vrs.dir = console.dir;
   vrs.slice = (vr) => {
     return Array.prototype.slice.call(vr);
   };
-  document.addEventListener("DOMContentLoaded", function(ev) {
-    window['body'] = document.body;
-    return window['head'] = document.head;
+  ldr = function(ev) {
+    window['body'] = doc.body;
+    window['pBody'] = pen(body);
+    window['head'] = doc.head;
+    window['pHead'] = pen(head);
+  };
+  document.addEventListener("DOMContentLoaded", ldr, {
+    once: true
   });
-  vrs.detectAndReturn = function(ting, ev) {
+  vrs.detectAndReturn = (ting, ev) => {
     if (ev.hasAttribute(ting) === true) {
       return ev.getAttribute(ting);
+    } else {
+      return null;
     }
   };
   vrs.def = (prop, str, it, ops) => {
@@ -102,7 +110,7 @@ pen = (function() {
       return it.el[prop];
     }
   };
-  funcoso = function(it, typeso, typesi) {
+  vrs.funcoso = function(it, typeso, typesi) {
     var chk1, funcso;
     if (typesi == null) {
       typesi = typeso;
@@ -133,6 +141,12 @@ pen = (function() {
     };
     return funcso;
   };
+  vrs.penError = (name, msg) => {
+    var er;
+    er = new Error(msg);
+    er.name = name;
+    throw er;
+  };
   pen = function(element, options) {
     if (!(this instanceof pen)) {
       return new pen(element, options);
@@ -144,106 +158,110 @@ pen = (function() {
     this.start(element, options);
   };
   pen.ink = pen.prototype = {};
-  pen.$ = function(element, parseIt) {
-    if (parseIt == null) {
-      parseIt = false;
-    }
+  pen.$ = function(el, parseIt = false) {
+    vrs.log(this.caller);
     if (parseIt === true) {
-      return pen(document.querySelector(element));
+      return pen(doc.querySelector(el));
     } else {
-      return document.querySelector(element);
+      return doc.querySelector(el);
     }
   };
-  pen.$$ = function(element) {
-    return document.querySelectorAll(element);
+  pen.$$ = (el) => {
+    return document.querySelectorAll(el);
   };
-  pen.crt = function(element, parseIt) {
-    if (parseIt == null) {
-      parseIt = false;
-    }
+  pen.create = pen.createElement = (el, parseIt = false) => {
     if (parseIt === true) {
-      return pen(document.createElement(element));
+      return pen(doc.createElement(el));
     } else {
-      return document.createElement(element);
+      return doc.createElement(el);
     }
   };
-  pen.parseAttributes = vrs.parser(vrs.regs.attribute, 1, 3);
-  pen.parseCss = vrs.parser(vrs.regs.css, 1, 2);
-  pen.add = function(typ, func, name) {
-    var funcName, ret;
-    switch (typ) {
-      case 'addon':
-        func(pen);
-        break;
-      case 'function':
-      case 'func':
-      case 'def':
-      case 'funco':
-        if (vrs.type(func) === 'object') {
-          for (funcName in func) {
-            pen.prototype[funcName] = func[funcName];
-          }
+  pen.addedFunctions = {};
+  pen.parse = {
+    attributes: vrs.parser(vrs.regs.attribute, 1, 3),
+    css: vrs.parser(vrs.regs.css, 1, 2),
+    element: function(str) {
+      var attribs, e, s, stTag, tag, text;
+      s = str.search('<');
+      e = str.search('>') + 1;
+      stTag = str.slice(s, e);
+      s = stTag.search(' ') + 1;
+      e = stTag.search('>');
+      attribs = stTag.slice(s, e);
+      s = stTag.search('<') + 1;
+      e = stTag.search(' ');
+      tag = stTag.slice(s, e);
+      s = str.search('>') + 1;
+      e = str.search('</');
+      text = str.slice(s, e);
+      return [str, stTag, attribs, tag, (text === '' ? null : text)];
+    }
+  };
+  pen.add = function(func, name) {
+    var fname, results, t;
+    t = vrs.type(func);
+    if (t === 'object') {
+      results = [];
+      for (fname in func) {
+        pen.addedFunctions[fname] = func[fname];
+        results.push(pen.prototype[fname] = func[fname]);
+      }
+      return results;
+    } else if (t === 'function') {
+      if (func.name == null) {
+        if (name != null) {
+          pen.addedFunctions[name] = func;
+          return pen.prototype[name] = func;
         } else {
-          ret = func(pen);
-          if (vrs.type(ret) !== 'function') {
-            vrs.log(`Pen-Add: argument2 must return a function and must be a function. Type of return is ${type(ret)}`);
-          } else if (vrs.type(ret) === 'function') {
-            if (func.name == null) {
-              if (name != null) {
-                pen.prototype[name] = ret;
-              } else {
-                throw new (Error("Function cannot be anonymous").name = "Pen-add arg2");
-              }
-            } else {
-              pen.prototype[func.name] = ret;
-            }
-          } else if (vrs.type(ret) === 'object') {
-            for (funcName in ret) {
-              pen.prototype[funcName] = ret[funcName];
-            }
-          }
+          return vrs.penError("Pen-add 'no-name'", "function, must have a name. Cannot be anonymous");
         }
+      } else {
+        pen.addedFunctions[func.name] = func;
+        return pen.prototype[func.name] = func;
+      }
     }
   };
-  pen.prototype.start = function(element, options) {
-    var el, prop;
-    if (vrs.type(options) === 'string') {
-      el = pen.$(options, true);
-      if (element.includes(".") || element.includes('#')) {
-        element = el.$(element);
+  pen.prototype.start = function(ele, ops) {
+    var el, prop, t, t1;
+    t = vrs.type(ops);
+    if (t === 'string') {
+      el = pen.$(ops, true);
+      if (/\.|#|\[\]/gi.test(ele)) {
+        ele = el.$(ele);
       } else {
-        element = el.create(element);
+        ele = el.create(ele);
       }
     } else {
-      this.setupOptions(options);
+      this.initOptions(ops);
     }
-    this.el = element;
-    if (element instanceof Document) {
-      this.body = element.body;
-      this.head = element.head;
-      pen.prototype.ready = function(cb, cp) {
-        this.on('DOMContentLoaded', cb, cp);
+    this.el = ele;
+    t1 = vrs.type(this.el);
+    if (this.el instanceof Document) {
+      this.body = window['pBody'];
+      this.head = window['pHead'];
+      pen.prototype.ready = function(cb) {
+        this.on('DOMContentLoaded', cb);
         return this;
       };
-    } else if (element instanceof Window) {
-      this.document = element.document;
-    } else if (element instanceof pen) {
+    } else if (this.el instanceof Window) {
+      this.doc = this.el.document;
+    } else if (this.el instanceof pen) {
       for (prop in element) {
         this[prop] = element[prop];
       }
-    } else if (vrs.type(element) === 'string') {
-      if (element.startsWith("define") === true) {
-        return this.define(element);
+    } else if (t1 === 'string') {
+      if (this.el.startsWith('define') === true) {
+        return this.define(this.el);
       } else {
-        this.setup(element);
+        return this.setup(this.el);
       }
     }
     if (this.ops.autoAttach === true) {
       this.ops.autoAttachTo.append(element);
-      return this;
     }
+    return this;
   };
-  pen.prototype.setupOptions = function(ops) {
+  pen.prototype.initOptions = function(ops) {
     this.ops = {
       autoAttach: ((ops != null) && (ops.autoAttach != null) ? ops.autoAttach : false),
       autoAttachTo: ((ops != null) && (ops.autoAttachTo != null) ? ops.autoAttachTo : window['body']),
@@ -256,6 +274,7 @@ pen = (function() {
         }
       }
     };
+    return this.ops;
   };
   pen.prototype.toString = () => {
     return this.el.outerHTML;
@@ -267,58 +286,45 @@ pen = (function() {
       if (t != null) {
         t = t.trim();
         if (t === 'locally') {
-          return vrs[func];
+          vrs[func];
         } else {
           window[oname] = vrs[func];
         }
       } else {
-        window[oname] = vrs[func];
+        window[onmae] = vrs[func];
       }
     }
-    return void 0;
   };
   pen.prototype.setup = function(el) {
-    var ev, prop, reu, soc, tut, txt;
-    if (vrs.type(el) === 'string') {
-      if (vrs.regs.tag.test(el) === true) {
-        txt = vrs.regs.innerText.test(el);
-        if (txt === true) {
-          tut = el.replace(vrs.regs.eleme, '$2');
-          el = el.replace(vrs.regs.eleme, '$1');
-        }
-        el = el.replace(vrs.regs.tag, '$1');
-        soc = vrs.regs.attribute.test(el);
-        el = el.replace(/\//gi, '');
-        if (soc === true) {
-          reu = pen.parseAttributes(el);
-          el = el.replace(vrs.regs.attribute, '').trim();
-        }
-        ev = pen.crt(el);
+    var attribs, attributes, prop, startTag, t, tag, text, whole;
+    t = vrs.type(el);
+    if (t === 'string') {
+      if (el.startsWith('<')) {
+        [whole, startTag, attributes, tag, text] = pen.parse.element(el);
+        log(tag);
+        attribs = pen.parse.attributes(attributes);
+        this.el = pen.create(tag);
       } else {
-        ev = pen.$(el);
+        this.el = pen.$(el);
       }
     } else {
-      ev = el;
+      this.el = el;
     }
-    this.el = this.el = ev;
-    if (soc === true) {
-      for (prop in reu) {
-        this.attr(prop, reu[prop]);
-      }
+    for (prop in attribs) {
+      this.attr(prop, attribs[prop]);
     }
-    if (txt === true && (tut != null)) {
-      this.html(tut, {
+    if (text != null) {
+      this.html(text, {
         parse: true
       });
     }
     this.inits();
-    this.partialSetup(ev);
-    return ev;
+    this.partialSetup();
   };
   pen.prototype.partialSetup = function(ev) {
     var szlp;
-    this.attributes.id = vrs.detectAndReturn('id', ev);
-    this.attributes.class = vrs.detectAndReturn('class', ev);
+    this.attributes.id = vrs.detectAndReturn('id', this.el);
+    this.attributes.class = vrs.detectAndReturn('class', this.el);
     szlp = this.el.getBoundingClientRect();
     this.size = {
       width: szlp.width,
@@ -327,7 +333,7 @@ pen = (function() {
     this.inits();
     switch (this.tag) {
       case 'template':
-        this.content = ev.content;
+        this.content = this.el.content;
         pen.prototype.clone = function() {
           var args;
           args = vrs.slice(arguments);
@@ -336,11 +342,8 @@ pen = (function() {
         break;
       case 'canvas':
         this.ctx = this.context = this.el.getContext('2d');
-        this.size = {
-          width: this.el.width,
-          height: this.el.height
-        };
     }
+    return this;
   };
   pen.prototype.initTag = function() {
     var tag;
@@ -349,7 +352,7 @@ pen = (function() {
   };
   pen.prototype.initText = function() {
     var text;
-    text = this.text = this.el.innerText !== "" ? this.el.innerText : null;
+    text = this.text = this.html;
     return text;
   };
   pen.prototype.initChildren = function() {
@@ -372,7 +375,7 @@ pen = (function() {
     this.localName = str;
     return str;
   };
-  pen.prototype.initClases = function() {
+  pen.prototype.initClasses = function() {
     var res;
     res = vrs.slice(this.el.classList);
     this.Classes = res;
@@ -397,7 +400,7 @@ pen = (function() {
     ret.children = this.initChildren();
     ret.parent = this.initParent();
     ret.attributes = this.initAttributes();
-    ret.classes = this.initClases();
+    ret.classes = this.initClasses();
     ret.localName = this.initLocalName();
     return ret;
   };
@@ -415,18 +418,15 @@ pen = (function() {
       case 'textarea':
         return vrs.def('value', str, this, ops);
       case 'option':
-        def('value', str, this, ops);
+        vrs.def('value', str, this, ops);
         return vrs.def('innerText', str, this, ops);
-      case 'template':
-        log("Please use pen.append");
-        return;
       default:
         return vrs.def((parse === true ? 'innerHTML' : 'innerText'), str, this, ops);
     }
   };
   pen.prototype.attr = function(attribute, value) {
     var attr, attrs, func;
-    func = funcoso(this, 'attributes', 'setAttribute');
+    func = vrs.funcoso(this, 'attributes', 'setAttribute');
     if (attribute != null) {
       if (vrs.type(attribute) === 'object') {
         this.attributes['class'] = attribute != null ? attribute.id : void 0;
@@ -455,7 +455,7 @@ pen = (function() {
   };
   pen.prototype.css = function(rule, rules) {
     var func, st, style, styles;
-    func = funcoso(this, 'style');
+    func = vrs.funcoso(this, 'style');
     if (rule != null) {
       switch (vrs.type(rule)) {
         case 'object':
@@ -603,7 +603,7 @@ pen = (function() {
   };
   pen.prototype.hasClass = function(cls) {
     var clss, i, len, ref;
-    this.initClases();
+    this.initClasses();
     ref = this.Classes;
     for (i = 0, len = ref.length; i < len; i++) {
       clss = ref[i];
