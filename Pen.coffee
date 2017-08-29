@@ -106,7 +106,6 @@ pen = do ->
 
   pen.ink = pen:: = {}
   pen.$ = (el, parseIt = false) ->
-    vrs.log this.caller
     if parseIt is yes
       pen doc.querySelector(el)
     else doc.querySelector el

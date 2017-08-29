@@ -159,7 +159,6 @@ pen = (function() {
   };
   pen.ink = pen.prototype = {};
   pen.$ = function(el, parseIt = false) {
-    vrs.log(this.caller);
     if (parseIt === true) {
       return pen(doc.querySelector(el));
     } else {
