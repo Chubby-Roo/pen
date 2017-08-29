@@ -221,6 +221,22 @@ pen = (function() {
       }
     }
   };
+  pen.findInObj = function(obj, key, defin) {
+    var kname;
+    if (vrs.type(key) === 'string') {
+      key = new RegExp(key, 'i');
+    }
+    for (kname in obj) {
+      if (/autoAttachTo|el/i.test(kname) === false) {
+        if (key.test(kname) === true) {
+          return obj[kname];
+        } else if (vrs.type(obj[kname]) === 'object') {
+          return pen.findInObj(obj[kname], key, defin);
+        }
+      }
+    }
+    return defin;
+  };
   pen.prototype.start = function(ele, ops) {
     var el, prop, t, t1;
     t = vrs.type(ops);
@@ -301,7 +317,6 @@ pen = (function() {
     if (t === 'string') {
       if (el.startsWith('<')) {
         [whole, startTag, attributes, tag, text] = pen.parse.element(el);
-        log(tag);
         attribs = pen.parse.attributes(attributes);
         this.el = pen.create(tag);
       } else {

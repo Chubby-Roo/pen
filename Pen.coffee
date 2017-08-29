@@ -146,6 +146,17 @@ pen = do ->
       else
         pen.addedFunctions[func.name] = func
         pen::[func.name] = func
+  pen.findInObj = (obj, key, defin) ->
+    if vrs.type(key) is 'string'
+      key = new RegExp key, 'i'
+    for kname of obj
+      if /autoAttachTo|el/i.test(kname) is false
+        if key.test(kname) is true
+          return obj[kname]
+        else if vrs.type(obj[kname]) is 'object'
+          return pen.findInObj obj[kname], key, defin
+    return defin
+
   pen::start = (ele, ops) ->
     t = vrs.type ops
     if t is 'string'
@@ -203,7 +214,6 @@ pen = do ->
     if t is 'string'
       if el.startsWith('<')
         [whole, startTag, attributes, tag, text] = pen.parse.element el
-        log tag
         attribs = pen.parse.attributes attributes
         @el = pen.create tag
       else

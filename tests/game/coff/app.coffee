@@ -18,10 +18,39 @@ pen(document).ready () ->
   pen body
   .append wrapper
 
-  wrapper.append relbut
+  wrapper.append inWrap, relbut
+  inWrap.append cvs
 
   pen head
   .append title, styz
+
+
+  start = () ->
+    cvs.el.width = 1000
+    cvs.el.height = 700
+    return
+
+  update = () ->
+    return
+
+  interval = setInterval(update, 20)
+
+  component = (@w, @h, @c, @x, @y, @ty, @txt) ->
+    @gravity = 0
+    @speed = 0
+    @ctx = cvs.ctx
+    @update = () =>
+      @ctx.fillStyle = color
+      switch @ty
+        when 'text'
+          @ctx.font = "#{@w} #{@h}"
+          @ctx.fillText @txt, @x,@y
+        else
+          @ctx.fillRect @x, @y, @w, @h
+    @pos = () ->
+      @speed += @gravity
+      @x += @speedX
+      @y += @speedY
 
   freeEls = pen.$$ ".free"
   for freeEl in freeEls
