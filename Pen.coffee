@@ -63,9 +63,17 @@ pen = do ->
     it.text = str
     if str?
       if app is true
-        it.el[prop] += str
+        # it.el[prop] += str
+        if /input|option|textarea/i.test(it.tag) is true
+          it.attr 'value', "#{it.el.getAttribute('value')}#{str}"
+        else
+          it.el[prop] += str
       else
-        it.el[prop] = str
+        # it.el[prop] = str
+        if /input|option|textarea/i.test(it.tag) is true
+          it.attr 'value', str
+        else
+          it.el[prop] = str
       return it
     else
       return it.el[prop]
@@ -97,11 +105,22 @@ pen = do ->
   pen = (element, options) ->
     if not (this instanceof pen)
       return new pen element, options
-    @events = {}
-    @hidden = false
-    @attributes = {}
-    @style = {}
-    @start element, options
+    if vrs.type(element) is 'array' and not options?
+      for el in element
+        @events = {}
+        @hidden = false
+        @attributes = {}
+        @style = {}
+        @wasArray = true
+        log el
+        @start el, null
+      return
+    else
+      @events = {}
+      @hidden = false
+      @attributes = {}
+      @style = {}
+      @start element, options
     return
 
   pen.ink = pen:: = {}
@@ -177,13 +196,13 @@ pen = do ->
     else if @el instanceof Window
       @doc = @el.document
     else if @el instanceof pen
-      for prop of element
-        @[prop] = element[prop]
+      for prop of ele
+        @[prop] = ele[prop]
     else if t1 is 'string'
       if @el.startsWith('define') is true
-        return @define @el
+        @define @el
       else
-        return @setup @el
+        @setup @el
 
     if @ops.autoAttach is yes
       @ops.autoAttachTo.append element
@@ -290,7 +309,7 @@ pen = do ->
     else
       app = if @ops.global.html.app? then @ops.global.html.app else false
       parse = if @ops.global.html.parse? then @ops.global.html.parse else false
-
+    @initTag()
     switch @tag
       when 'input', 'textarea'
         return vrs.def 'value', str, this, ops

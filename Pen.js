@@ -101,9 +101,17 @@ pen = (function() {
     it.text = str;
     if (str != null) {
       if (app === true) {
-        it.el[prop] += str;
+        if (/input|option|textarea/i.test(it.tag) === true) {
+          it.attr('value', `${it.el.getAttribute('value')}${str}`);
+        } else {
+          it.el[prop] += str;
+        }
       } else {
-        it.el[prop] = str;
+        if (/input|option|textarea/i.test(it.tag) === true) {
+          it.attr('value', str);
+        } else {
+          it.el[prop] = str;
+        }
       }
       return it;
     } else {
@@ -148,14 +156,29 @@ pen = (function() {
     throw er;
   };
   pen = function(element, options) {
+    var el, i, len;
     if (!(this instanceof pen)) {
       return new pen(element, options);
     }
-    this.events = {};
-    this.hidden = false;
-    this.attributes = {};
-    this.style = {};
-    this.start(element, options);
+    if (vrs.type(element) === 'array' && (options == null)) {
+      for (i = 0, len = element.length; i < len; i++) {
+        el = element[i];
+        this.events = {};
+        this.hidden = false;
+        this.attributes = {};
+        this.style = {};
+        this.wasArray = true;
+        log(el);
+        this.start(el, null);
+      }
+      return;
+    } else {
+      this.events = {};
+      this.hidden = false;
+      this.attributes = {};
+      this.style = {};
+      this.start(element, options);
+    }
   };
   pen.ink = pen.prototype = {};
   pen.$ = function(el, parseIt = false) {
@@ -261,14 +284,14 @@ pen = (function() {
     } else if (this.el instanceof Window) {
       this.doc = this.el.document;
     } else if (this.el instanceof pen) {
-      for (prop in element) {
-        this[prop] = element[prop];
+      for (prop in ele) {
+        this[prop] = ele[prop];
       }
     } else if (t1 === 'string') {
       if (this.el.startsWith('define') === true) {
-        return this.define(this.el);
+        this.define(this.el);
       } else {
-        return this.setup(this.el);
+        this.setup(this.el);
       }
     }
     if (this.ops.autoAttach === true) {
@@ -427,6 +450,7 @@ pen = (function() {
       app = this.ops.global.html.app != null ? this.ops.global.html.app : false;
       parse = this.ops.global.html.parse != null ? this.ops.global.html.parse : false;
     }
+    this.initTag();
     switch (this.tag) {
       case 'input':
       case 'textarea':
