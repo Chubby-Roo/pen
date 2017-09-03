@@ -11,8 +11,8 @@ pen = do ->
     innerText: />([\S\s]*?)</gi
   vrs.type = do ->
     class2Type = {}
-    for name in 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split /\s+/gi
-      class2Type["[object #{name}]"] = name.toLowerCase()
+    names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split /\s+/gi
+    names.forEach((name) => class2Type["[object #{name}]"] = name.toLowerCase())
     (obj) ->
       strType = Object::toString.call obj
       class2Type[strType] or 'object'
@@ -286,11 +286,10 @@ pen = do ->
     @Classes = res
     return res
   pen::initAttributes = () ->
-    ret = []
-    res = vrs.slice @el.attributes
-    for attr in res
-      @attributes[attr.name] = attr.value
-      ret.push("#{attr.name}='#{attr.value}'")
+    results = vrs.slice @el.attributes
+    ret = results.map (result) =>
+      @attributes[result.name] = result.value
+      return "#{result.name}='#{result.value}'"
     return ret
   pen::inits = () ->
     ret = {}
@@ -374,13 +373,12 @@ pen = do ->
     @events[evtp][if cb.name isnt '' then cb.name else 'func'] = cb
     typeEvent = if @el.addEventListener? then 'addEventListener' else if @el.attachEvent? then 'attachEvent' else "on#{evtp}"
     switch typeEvent
-      when 'addEventListener' then @el[typeEvent](evtp, cb, cp)
+      when 'addEventListener' then @el[typeEvent](arguments...)
       when 'attachEvent' then @el[typeEvent](evtp, cb)
       else @el[typeEvent] = cb
-
     return @
   pen::off = (evtp, cb) ->
-    typeEvent = if @el.addEventListener? then 'removeEventListener' else if @el.attachEvent? then 'detachEvent' else "on#{evtp}"
+    typeEvent = if @el.removeEventListener? then 'removeEventListener' else if @el.detachEvent? then 'detachEvent' else "on#{evtp}"
     switch typeEvent
       when 'removeEventListener' then @el[typeEvent](evtp, cb)
       when 'detachEvent' then @el[typeEvent](evtp, cb)
@@ -390,7 +388,7 @@ pen = do ->
     return @
   pen::is = (tag) => @tag is tag
   pen::append = (elements...) ->
-    for element in elements
+    elements.forEach (element) =>
       if vrs.type(element) is 'string'
         element = pen.$ element
       else if element instanceof pen
@@ -455,16 +453,15 @@ pen = do ->
   pen::getSize = () -> {width: @el.getBoundingClientRect().width, height: @el.getBoundingClientRect().height}
   atribs = ['id', 'class', 'href', 'src', 'contentEditable', 'charset', 'title', 'rows', 'cols', 'style']
   evps = ['click', 'keyup' ,'keypress','keydown' ,'mouse', 'mouseup', 'error', 'load', 'mouseover', 'mousedown' ,'mouseout', 'contextmenu', 'dblclick' ,'drag', 'dragover', 'drop', 'dropend']
-  atribs.forEach (atrib, ind) ->
-    pen::[atrib] = (str) ->
-      if str? then @attr atrib, str else @attr atrib
+  atribs.forEach (atrib) ->
+    pen::[atrib] = () ->
+      if str? then @attr atrib, arguments... else @attr atrib
       return
-  evps.forEach (evp, inds) ->
-    pen::[evp] = (cb, cp) ->
-      if not @events[evp]? then @on(evp, cb, cp) else @off(evp, cb, cp)
+  evps.forEach (evp) ->
+    pen::[evp] = () ->
+      if not @events[evp]? then @on(evp, arguments...) else @off(evp, arguments...)
       return
   pen.vrs = vrs
 
 
   return pen
-#   return pen
