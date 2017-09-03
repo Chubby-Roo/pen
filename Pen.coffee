@@ -1,24 +1,4 @@
 pen = do ->
-  Object::forEach = (cb) ->
-    it = @
-    for key of it
-      cb(key, it[key], it)
-    return
-  Object::filter = (cb) ->
-    it = @
-    obj = {}
-    for key of it
-      res = cb(key, it[key], it)
-      if res is true
-        obj[key] = it[key]
-    return obj
-  Object::map = (cb) ->
-    it = @
-    obj = {}
-    for key of it
-      res = cb(key, it[key], it)
-      obj[key] = res
-    return obj
   vrs = {}
   elCount = 0
   vrs.class2Type = {}
@@ -91,7 +71,6 @@ pen = do ->
     else
       app = it.ops.global.html.app or false
       parse = it.ops.global.html.parse or false
-    vrs.log str
     it.text = str
     if str?
       if app is true
