@@ -1,0 +1,56 @@
+.hljs
+  display: block
+  width: 70vw
+  overflow-x: auto
+  font-family: mono !important
+  padding: 0.5em
+  color: lighten($main-color, 50%)
+  text-align: left
+  background: darken($main-color, 30%)
+  border-radius: 15px
+  &-comment, &-quote
+    color: transparentize(lighten($main-color, 5%), 0.5)
+    font-style: italic
+
+  &-doctag, &-keyword, &-formula
+    color: lighten($main-color, 5%)
+    font-weight: bold
+    font-style: italic
+
+  &-section, &-name,
+  &-selector-tag, &-deletion,
+  &-subst
+    color: rgb(226,58,58)
+
+  &-literal, &-number
+    color: rgb(255,0,0)
+    font-weight: bold
+
+  &-string, &-regexp,
+  &-addition, &-attribute,
+  &-meta-string
+    color: rgba(109,120,222,1)
+
+  &-built_in,
+  &-class &-title
+    color: rgb(230,192,123)
+
+  &-attr, &-variable,
+  &-template-variable, &-type,
+  &-selector-class, &-selector-attr,
+  &-selector-pseudo
+    color: rgb(209,154,102)
+
+  &-symbol, &-bullet,
+  &-link, &-meta,
+  &-selector-id, &-title
+    color: #61aeee
+
+  &-emphasis
+    font-style: italic
+
+  &-strong
+    font-weight: bold
+
+  &-link
+    text-decoration: underline

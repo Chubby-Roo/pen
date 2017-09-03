@@ -5,7 +5,6 @@
   border: none;
   text-decoration: none;
   -webkit-appearance: none;
-  font-family: Arial;
   border-radius: 0; }
 
 ::-webkit-scrollbar {
@@ -16,6 +15,7 @@
     background: #316739; }
 
 body {
+  font-family: Arial;
   background: #295630; }
   body .header {
     width: 100vw;
@@ -26,15 +26,17 @@ body {
       font-size: 25px;
       font-weight: bold; }
   body .wrapper {
+    font-family: Arial;
     color: white; }
-    body .wrapper .btn {
+    body .wrapper .btn, body .wrapper a {
+      display: inline-block;
       transition: all 0.2s ease;
       padding: 10px 15px;
       color: white;
       background: #52ac60;
       margin-left: 5px;
       margin-right: 5px; }
-      body .wrapper .btn:hover {
+      body .wrapper .btn:hover, body .wrapper a:hover {
         padding: 10px 20px;
         background: #97cd9f;
         color: white; }
@@ -91,5 +93,42 @@ body {
 
 .selected {
   border: dashed 3px red; }
+
+.hljs {
+  display: block;
+  width: 70vw;
+  overflow-x: auto;
+  font-family: mono !important;
+  padding: 0.5em;
+  color: #fefffe;
+  text-align: left;
+  background: #214426;
+  border-radius: 15px; }
+  .hljs-comment, .hljs-quote {
+    color: rgba(99, 181, 112, 0.5);
+    font-style: italic; }
+  .hljs-doctag, .hljs-keyword, .hljs-formula {
+    color: #63b570;
+    font-weight: bold;
+    font-style: italic; }
+  .hljs-section, .hljs-name, .hljs-selector-tag, .hljs-deletion, .hljs-subst {
+    color: #e23a3a; }
+  .hljs-literal, .hljs-number {
+    color: red;
+    font-weight: bold; }
+  .hljs-string, .hljs-regexp, .hljs-addition, .hljs-attribute, .hljs-meta-string {
+    color: #6d78de; }
+  .hljs-built_in, .hljs-class .hljs-title {
+    color: #e6c07b; }
+  .hljs-attr, .hljs-variable, .hljs-template-variable, .hljs-type, .hljs-selector-class, .hljs-selector-attr, .hljs-selector-pseudo {
+    color: #d19a66; }
+  .hljs-symbol, .hljs-bullet, .hljs-link, .hljs-meta, .hljs-selector-id, .hljs-title {
+    color: #61aeee; }
+  .hljs-emphasis {
+    font-style: italic; }
+  .hljs-strong {
+    font-weight: bold; }
+  .hljs-link {
+    text-decoration: underline; }
 
 /*# sourceMappingURL=style.css.map */

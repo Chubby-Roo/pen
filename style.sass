@@ -8,13 +8,13 @@ $tran: all 0.2s ease
   border: none
   text-decoration: none
   -webkit-appearance: none
-  font-family: Arial
   border-radius: 0
 
 
 @import sass/scrollbar
 
 body
+  font-family: Arial
   background: darken($main-color, 25%)
 
   .header
@@ -28,8 +28,10 @@ body
         weight: bold
 
   .wrapper
+    font-family: Arial
     color: white
-    .btn
+    .btn, a
+      display: inline-block
       transition: $tran
       padding: 10px 15px
       color: white
@@ -101,3 +103,5 @@ body
 
 .selected
   border: dashed 3px red
+
+@import sass/pen-syntax
