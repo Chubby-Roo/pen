@@ -3,8 +3,8 @@ var dir, error, log;
 ({log, error, dir} = console);
 
 pen(document).ready(function() {
-  var component, cvs, freeEl, freeEls, i, inWrap, interval, len, relbut, results, start, styz, title, update, wrapper;
-  styz = pen("<link rel='stylesheet' href='style.css' id='sty'>");
+  var component, cvs, freeEls, inWrap, interval, relbut, start, styz, title, update, wrapper;
+  styz = pen("<link rel='stylesheet' href='../../style.css' id='sty'>");
   title = pen("<title id='ttl'>");
   wrapper = pen("<div id='wrpr' class='wrapper'>");
   inWrap = pen("<div id='inWrapper' class='inner-wrapper'>");
@@ -52,11 +52,8 @@ pen(document).ready(function() {
     };
   };
   freeEls = pen.$$(".free");
-  results = [];
-  for (i = 0, len = freeEls.length; i < len; i++) {
-    freeEl = freeEls[i];
+  return freeEls.forEach((freeEl) => {
     freeEl = pen(freeEl);
-    results.push(freeEl.css("position", "fixed"));
-  }
-  return results;
+    freeEl.css("position", "fixed");
+  });
 });

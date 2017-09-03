@@ -18,7 +18,7 @@ pen.add({
 pen(document).ready(function() {
   var br, freeEl, freeEls, i, j, len, relbut, results, selector, selectorBtn, selectorInput, selr, sideMsg, styz, title, wrapper;
   i = 0;
-  styz = pen("<link rel='stylesheet' href='style.css' id='sty'>");
+  styz = pen("<link rel='stylesheet' href='../../style.css' id='sty'>");
   wrapper = pen("<div id='wrpr' class='wrapper'>");
   title = pen("<title id='ttl'>");
   relbut = pen("<button id='relbutt' class='reload-btn btn bottom-right free'>Reload Style</button>");

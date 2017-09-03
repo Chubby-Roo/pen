@@ -11,7 +11,7 @@ pen.add
 
 pen(document).ready () ->
   i = 0
-  styz = pen "<link rel='stylesheet' href='style.css' id='sty'>"
+  styz = pen "<link rel='stylesheet' href='../../style.css' id='sty'>"
   wrapper = pen "<div id='wrpr' class='wrapper'>"
   title = pen "<title id='ttl'>"
   relbut = pen "<button id='relbutt' class='reload-btn btn bottom-right free'>Reload Style</button>"

@@ -131,11 +131,20 @@ pen = do ->
     @start args...
     return
   pen.ink = pen:: = {}
-  pen.$ = (el, parseIt = false) ->
-    if parseIt is yes
+  pen.selected = {}
+  pen.created = {}
+  pen.$ = (el, ps = false) ->
+    if ps is yes
       pen doc.querySelector(el)
     else doc.querySelector el
-  pen.$$ = (el) => document.querySelectorAll el
+  pen.$$ = (el, ps) =>
+    els = document.querySelectorAll el
+    els = vrs.slice els
+    if ps is yes
+      re = `els.map((el) => pen(el))`
+      return re
+    else
+      return els
   pen.create = pen.createElement = (el, parseIt = false) => if parseIt is yes then pen(doc.createElement el) else doc.createElement el
   pen.addedFunctions = {}
   pen.parse =

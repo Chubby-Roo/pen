@@ -1,6 +1,6 @@
 {log, error, dir} = console
 pen(document).ready () ->
-  styz = pen "<link rel='stylesheet' href='style.css' id='sty'>"
+  styz = pen "<link rel='stylesheet' href='../../style.css' id='sty'>"
   title = pen "<title id='ttl'>"
 
   wrapper = pen "<div id='wrpr' class='wrapper'>"
@@ -53,6 +53,7 @@ pen(document).ready () ->
       @y += @speedY
 
   freeEls = pen.$$ ".free"
-  for freeEl in freeEls
+  freeEls.forEach (freeEl) =>
     freeEl = pen(freeEl)
     freeEl.css("position", "fixed")
+    return

@@ -188,15 +188,25 @@ pen = (function() {
     this.start(...args);
   };
   pen.ink = pen.prototype = {};
-  pen.$ = function(el, parseIt = false) {
-    if (parseIt === true) {
+  pen.selected = {};
+  pen.created = {};
+  pen.$ = function(el, ps = false) {
+    if (ps === true) {
       return pen(doc.querySelector(el));
     } else {
       return doc.querySelector(el);
     }
   };
-  pen.$$ = (el) => {
-    return document.querySelectorAll(el);
+  pen.$$ = (el, ps) => {
+    var els, re;
+    els = document.querySelectorAll(el);
+    els = vrs.slice(els);
+    if (ps === true) {
+      re = els.map((el) => pen(el));
+      return re;
+    } else {
+      return els;
+    }
   };
   pen.create = pen.createElement = (el, parseIt = false) => {
     if (parseIt === true) {

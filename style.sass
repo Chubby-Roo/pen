@@ -1,1 +1,103 @@
-$main-color: rgb(69,214,114)
+$main-color: rgb(82,172,96)
+$tran: all 0.2s ease
+
+*
+  padding: 0
+  margin: 0
+  outline: none
+  border: none
+  text-decoration: none
+  -webkit-appearance: none
+  font-family: Arial
+  border-radius: 0
+
+
+@import sass/scrollbar
+
+body
+  background: darken($main-color, 25%)
+
+  .header
+    width: 100vw
+    color: white
+    padding: 5px
+    background: $main-color
+    .header-title
+      font:
+        size: 25px
+        weight: bold
+
+  .wrapper
+    color: white
+    .btn
+      transition: $tran
+      padding: 10px 15px
+      color: white
+      background: $main-color
+      margin:
+        left: 5px
+        right: 5px
+      &:hover
+        padding: 10px 20px
+        background: lighten($main-color, 20%)
+        color: white
+    .input
+      background: darken($main-color, 20%)
+      text-align: center
+      color: white
+      padding: 5px 0
+    .element-selector
+      width: 100vw
+      background: $main-color
+      color: white
+      .element-selector-input
+        width: 50vw
+    [class^=selection]
+      padding: 10px
+      color: white
+      width: 50vw
+      background: $main-color
+      margin: auto
+      margin-top: 10px
+      // animation:
+      //   name: breath
+      //   duration: 5s
+      //   fill-mode: forwards
+      //   iteration-count: infinite
+
+
+      *
+        display: block
+        margin-top: 5px
+        margin-bottom: 5px
+
+.top
+  top: 0
+
+.bottom
+  bottom: 0
+
+.left
+  left: 0
+
+.right
+  right: 0
+
+.top-right
+  right: 0
+  top: 0
+
+.top-left
+  left: 0
+  top: 0
+
+.bottom-right
+  right: 0
+  bottom: 0
+
+.bottom-left
+  left: 0
+  bottom: 0
+
+.selected
+  border: dashed 3px red
