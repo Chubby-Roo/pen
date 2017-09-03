@@ -1,11 +1,10 @@
 pen = do ->
   vrs = {}
   elCount = 0
-  vrs.class2Type = {}
+  win = window
+  doc = document
   vrs.proto = () ->
     arguments[0].prototype
-  for name in 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split /\s+/gi
-    vrs.class2Type["[object #{name}]"] = name.toLowerCase()
   vrs.arr = vrs.proto(Array)
   vrs.obj = vrs.proto(Object)
   `vrs.slice = (vr) => vrs.arr.slice.call(vr)`
@@ -17,6 +16,11 @@ pen = do ->
       res.push(vrs.ranDos(arr));
     }`
     return "i#{res.join ''}"
+  vrs.str = (regs, flags) =>
+    if vrs.type(regs) is 'string'
+      return new RegExp regs, flags
+    else
+      return regs
   vrs.regs =
     attribute: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi
     css: /([^\n;: ]+):([^\n]+);/gi
@@ -111,16 +115,6 @@ pen = do ->
     er = new Error msg
     er.name = name
     throw er
-  vrs.def = (it, el) =>
-    it.tag = null; it.text = null
-    it.Children = []
-    it.Parent = null; it.localName = null
-    it.Classes = []
-    it.events = {}
-    it.hidden = false
-    it.attributes = {}; it.style = {}
-    it.el = el
-    it
   vrs.resolve = (res) ->
     switch type res
       when 'string'
@@ -128,8 +122,13 @@ pen = do ->
       when 'array'
         pen res...
   pen = () ->
-    return new pen arguments... if !(@ instanceof pen)
-    vrs.def @, arguments[0]
+    args = arguments
+    return new pen args... if !(@ instanceof pen)
+    @events = {}
+    @hidden = false
+    @attributes = {}
+    @style = {}
+    @start args...
     return
   pen.ink = pen:: = {}
   pen.$ = (el, parseIt = false) ->
@@ -182,7 +181,6 @@ pen = do ->
         else if vrs.type(obj[kname]) is 'object'
           return pen.findInObj obj[kname], key, defin
     return defin
-
   pen::start = (ele, ops) ->
     t = vrs.type ops
     if t is 'string'
@@ -319,12 +317,12 @@ pen = do ->
     @initTag()
     switch @tag
       when 'input', 'textarea'
-        return vrs.def 'value', str, this, ops
+        return vrs.defo 'value', str, this, ops
       when 'option'
         vrs.def 'value', str, this, ops
-        return vrs.def 'innerText', str, this, ops
+        return vrs.defo 'innerText', str, this, ops
       else
-        return vrs.def((if parse is true then 'innerHTML' else 'innerText'), str, this, ops)
+        return vrs.defo((if parse is true then 'innerHTML' else 'innerText'), str, this, ops)
     return
   pen::attr = (attribute, value) ->
     func = vrs.funcoso this, 'attributes', 'setAttribute'
