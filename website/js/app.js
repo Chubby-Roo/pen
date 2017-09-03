@@ -32,6 +32,7 @@ pen(document).ready(function() {
   });
   pHead.append(title, styz);
   pBody.append(header, wrapper.append(relbut, txt));
+  ttl.html(document.title);
   fetch("https://raw.githubusercontent.com/Chubby-Roo/pen/master/README.md").then((resp) => {
     return resp.text();
   }).then((text) => {

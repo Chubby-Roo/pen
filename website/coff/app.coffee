@@ -25,6 +25,8 @@ pen(document).ready () ->
   pHead.append title, styz
   pBody.append header, wrapper.append(relbut, txt)
 
+  ttl.html(document.title)
+
   fetch "https://raw.githubusercontent.com/Chubby-Roo/pen/master/README.md"
   .then (resp) => resp.text()
   .then (text) =>
