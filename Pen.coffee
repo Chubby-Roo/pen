@@ -32,46 +32,31 @@ pen = do ->
   `names.forEach(name => {vrs.class2Type[\`[object ${name}]\`] = name.toLowerCase()})`
   `vrs.type = (obj) => (vrs.class2Type[vrs.toString(obj)] || 'object')`
   vrs.parser = (regs, num1 = 1, num2 = 2, flags) ->
-    resg = regs
     regs = vrs.str regs, (flags or 'gi')
     (str) =>
-      retsi = {}
       if str?
+        retsi = {}
         results = str.match regs
-        log results
         if results? and results.length isnt 0
           results.forEach (match) =>
             if match.includes "="
               [name, value] = match.split "="
-              value = value.replace /['"]([^\n]+)['"]/, '$1'
+              value = value.replace /^['"]([^\n]+)['"]$/m, '$1'
               retsi[name] = value
             return
           return retsi
-        else
-          return null
-      else
-        return null
+      return
   `vrs.log = console.log; vrs.error = console.error; vrs.dir = console.dir`
   `vrs.detectAndReturn = (ting, ev) => ev.hasAttribute(ting) === true ? ev.getAttribute(ting) : null`
   vrs.defo = (prop, str, it, ops) =>
-    if ops?
-      app = ops.app or false
-      parse = ops.parse or false
-    else
-      app = it.ops.global.html.app or false
-      parse = it.ops.global.html.parse or false
-    it.text = str
+    app = if ops? then (ops.app or false) else it.ops.global.html.app
+    `app === true ? it.text += str : it.text = str`
     if str?
-      if app is true
-        if /input|option|textarea/i.test(it.tag) is true
-          it.attr 'value', "#{it.el.getAttribute('value')}#{str}"
-        else
-          it.el[prop] += str
+      reg = /input|option|textarea/i
+      if reg.test(it.tag) is true
+        it.attr 'value', (if app is true then "#{it.el.getAttribute('value')}#{str}" else str)
       else
-        if /input|option|textarea/i.test(it.tag) is true
-          it.attr 'value', str
-        else
-          it.el[prop] = str
+        `app === true ? it.el[prop] += str : it.el[prop] = str`
       return it
     else
       return it.el[prop]
@@ -104,10 +89,6 @@ pen = do ->
       if /autoAttachTo|el/i.test(kname) is false
         return if key.test(kname) is true then obj[kname] else if vrs.type(obj[kname]) is 'object' then pen.findInObj obj[kname], key, defin
     return defin
-  vrs.$ = (el, ps = false) => `ps === true ? pen(doc.querySelector(el)) : doc.querySelector(el)`
-  vrs.$$ = (el, ps) =>
-    els = vrs.slice document.querySelectorAll el
-    return `ps === true ? els.map(el => pen(el)) : els`
   pen = () ->
     args = arguments
     return new pen args... if !(@ instanceof pen)
@@ -120,7 +101,11 @@ pen = do ->
   pen.ink = pen:: = {}
   pen.selected = {}
   pen.created = {}
-  pen.create = pen.createElement = (el, parseIt = false) => if parseIt is yes then pen(doc.createElement el) else doc.createElement el
+  vrs.$ = (el, ps = false) => `ps === true ? (pen.selected[\`element${elCount++}\`] = el, pen(doc.querySelector(el))) : (pen.selected[\`element${elCount++}\`] = el, doc.querySelector(el))`
+  vrs.$$ = (el, ps) =>
+    els = vrs.slice document.querySelectorAll el
+    return `ps === true ? els.map(el => {pen.selected[\`element${elCount++}\`] = el; return pen(el)}) : (els.forEach(el => {pen.selected[\`element${elCount++}\`] = el}), els)`
+  `pen.create = (el, parseIt = false) => parseIt === true ? pen(doc.createElement (el)) : doc.createElement(el)`
   pen.addedFunctions = {}
   pen.parse =
     attributes: vrs.parser vrs.regs.attribute, 1, 3
@@ -268,8 +253,7 @@ pen = do ->
     ret.localName = @initLocalName()
     return ret
   pen::html = (str, ops) ->
-    app = if ops? and ops.app? then ops.app else @ops.global.html.app
-    parse = if ops? and ops.app? then ops.app else @ops.global.html.app
+    parse = if ops? then (ops.parse or false) else @ops.global.html.parse
 
     @initTag()
 

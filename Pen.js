@@ -43,58 +43,38 @@ pen = (function() {
   names.forEach(name => {vrs.class2Type[`[object ${name}]`] = name.toLowerCase()});
   vrs.type = (obj) => (vrs.class2Type[vrs.toString(obj)] || 'object');
   vrs.parser = function(regs, num1 = 1, num2 = 2, flags) {
-    var resg;
-    resg = regs;
     regs = vrs.str(regs, flags || 'gi');
     return (str) => {
       var results, retsi;
-      retsi = {};
       if (str != null) {
+        retsi = {};
         results = str.match(regs);
-        log(results);
         if ((results != null) && results.length !== 0) {
           results.forEach((match) => {
             var name, value;
             if (match.includes("=")) {
               [name, value] = match.split("=");
-              value = value.replace(/['"]([^\n]+)['"]/, '$1');
+              value = value.replace(/^['"]([^\n]+)['"]$/m, '$1');
               retsi[name] = value;
             }
           });
           return retsi;
-        } else {
-          return null;
         }
-      } else {
-        return null;
       }
     };
   };
   vrs.log = console.log; vrs.error = console.error; vrs.dir = console.dir;
   vrs.detectAndReturn = (ting, ev) => ev.hasAttribute(ting) === true ? ev.getAttribute(ting) : null;
   vrs.defo = (prop, str, it, ops) => {
-    var app, parse;
-    if (ops != null) {
-      app = ops.app || false;
-      parse = ops.parse || false;
-    } else {
-      app = it.ops.global.html.app || false;
-      parse = it.ops.global.html.parse || false;
-    }
-    it.text = str;
+    var app, reg;
+    app = ops != null ? ops.app || false : it.ops.global.html.app;
+    app === true ? it.text += str : it.text = str;
     if (str != null) {
-      if (app === true) {
-        if (/input|option|textarea/i.test(it.tag) === true) {
-          it.attr('value', `${it.el.getAttribute('value')}${str}`);
-        } else {
-          it.el[prop] += str;
-        }
+      reg = /input|option|textarea/i;
+      if (reg.test(it.tag) === true) {
+        it.attr('value', (app === true ? `${it.el.getAttribute('value')}${str}` : str));
       } else {
-        if (/input|option|textarea/i.test(it.tag) === true) {
-          it.attr('value', str);
-        } else {
-          it.el[prop] = str;
-        }
+        app === true ? it.el[prop] += str : it.el[prop] = str;
       }
       return it;
     } else {
@@ -149,14 +129,6 @@ pen = (function() {
     }
     return defin;
   };
-  vrs.$ = (el, ps = false) => {
-    return ps === true ? pen(doc.querySelector(el)) : doc.querySelector(el);
-  };
-  vrs.$$ = (el, ps) => {
-    var els;
-    els = vrs.slice(document.querySelectorAll(el));
-    return ps === true ? els.map(el => pen(el)) : els;
-  };
   pen = function() {
     var args;
     args = arguments;
@@ -172,13 +144,15 @@ pen = (function() {
   pen.ink = pen.prototype = {};
   pen.selected = {};
   pen.created = {};
-  pen.create = pen.createElement = (el, parseIt = false) => {
-    if (parseIt === true) {
-      return pen(doc.createElement(el));
-    } else {
-      return doc.createElement(el);
-    }
+  vrs.$ = (el, ps = false) => {
+    return ps === true ? (pen.selected[`element${elCount++}`] = el, pen(doc.querySelector(el))) : (pen.selected[`element${elCount++}`] = el, doc.querySelector(el));
   };
+  vrs.$$ = (el, ps) => {
+    var els;
+    els = vrs.slice(document.querySelectorAll(el));
+    return ps === true ? els.map(el => {pen.selected[`element${elCount++}`] = el; return pen(el)}) : (els.forEach(el => {pen.selected[`element${elCount++}`] = el}), els);
+  };
+  pen.create = (el, parseIt = false) => parseIt === true ? pen(doc.createElement (el)) : doc.createElement(el);
   pen.addedFunctions = {};
   pen.parse = {
     attributes: vrs.parser(vrs.regs.attribute, 1, 3),
@@ -376,9 +350,8 @@ pen = (function() {
     return ret;
   };
   pen.prototype.html = function(str, ops) {
-    var app, parse;
-    app = (ops != null) && (ops.app != null) ? ops.app : this.ops.global.html.app;
-    parse = (ops != null) && (ops.app != null) ? ops.app : this.ops.global.html.app;
+    var parse;
+    parse = ops != null ? ops.parse || false : this.ops.global.html.parse;
     this.initTag();
     switch (this.tag) {
       case 'input':

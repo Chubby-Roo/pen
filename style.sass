@@ -1,4 +1,6 @@
 $main-color: rgb(82,172,96)
+$main-color-lightened: lighten($main-color, 25%)
+$main-color-darkened: darken($main-color, 25%)
 $tran: all 0.2s ease
 
 *
@@ -15,8 +17,7 @@ $tran: all 0.2s ease
 
 body
   font-family: Arial
-  background: darken($main-color, 25%)
-
+  background: $main-color-darkened
   .header
     width: 100vw
     color: white
@@ -24,27 +25,31 @@ body
     background: $main-color
     .header-title
       font:
-        size: 25px
+        size: 2vmax
         weight: bold
 
   .wrapper
     font-family: Arial
+    font-size: 2vmin
     color: white
+    overflow: auto
+    padding: 5vh
+    height: 90vh
     .btn, a
       display: inline-block
       transition: $tran
-      padding: 10px 15px
+      padding: 2vh 2vw
       color: white
       background: $main-color
       margin:
         left: 5px
         right: 5px
       &:hover
-        padding: 10px 20px
-        background: lighten($main-color, 20%)
+        padding: 2vh 4vw
+        background: $main-color-lightened
         color: white
     .input
-      background: darken($main-color, 20%)
+      background: $main-color-darkened
       text-align: center
       color: white
       padding: 5px 0
@@ -61,12 +66,6 @@ body
       background: $main-color
       margin: auto
       margin-top: 10px
-      // animation:
-      //   name: breath
-      //   duration: 5s
-      //   fill-mode: forwards
-      //   iteration-count: infinite
-
 
       *
         display: block

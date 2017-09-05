@@ -10,9 +10,9 @@
 ::-webkit-scrollbar {
   width: 5px; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(151, 205, 159, 0.5); }
+    background: rgba(168, 214, 175, 0.5); }
   ::-webkit-scrollbar-corner, ::-webkit-scrollbar-resizer {
-    background: #316739; }
+    background: #295630; }
 
 body {
   font-family: Arial;
@@ -23,25 +23,29 @@ body {
     padding: 5px;
     background: #52ac60; }
     body .header .header-title {
-      font-size: 25px;
+      font-size: 2vmax;
       font-weight: bold; }
   body .wrapper {
     font-family: Arial;
-    color: white; }
+    font-size: 2vmin;
+    color: white;
+    overflow: auto;
+    padding: 5vh;
+    height: 90vh; }
     body .wrapper .btn, body .wrapper a {
       display: inline-block;
       transition: all 0.2s ease;
-      padding: 10px 15px;
+      padding: 2vh 2vw;
       color: white;
       background: #52ac60;
       margin-left: 5px;
       margin-right: 5px; }
       body .wrapper .btn:hover, body .wrapper a:hover {
-        padding: 10px 20px;
-        background: #97cd9f;
+        padding: 2vh 4vw;
+        background: #a8d6af;
         color: white; }
     body .wrapper .input {
-      background: #316739;
+      background: #295630;
       text-align: center;
       color: white;
       padding: 5px 0; }
@@ -99,11 +103,11 @@ body {
   width: 70vw;
   overflow-x: auto;
   font-family: mono !important;
-  padding: 0.5em;
+  padding: 0.5vw;
   color: #fefffe;
   text-align: left;
   background: #214426;
-  border-radius: 15px; }
+  border-radius: 1vw; }
   .hljs-comment, .hljs-quote {
     color: rgba(99, 181, 112, 0.5);
     font-style: italic; }
