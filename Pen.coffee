@@ -1,12 +1,15 @@
 pen = do ->
+  ldr = (ev) =>
+    window['body'] = document.body; window['pBody'] = pen body; window['head'] = document.head; window['pHead'] = pen head
+    window['pDoc'] = pen document;
+    return
+  document.addEventListener "DOMContentLoaded", ldr, {once:true}
   vrs = {}
   elCount = 0
   win = window
   doc = document
-  vrs.proto = () ->
-    arguments[0].prototype
-  vrs.arr = vrs.proto(Array)
-  vrs.obj = vrs.proto(Object)
+  `vrs.proto = (pro) => pro.prototype`
+  `vrs.arr = vrs.proto(Array); vrs.obj = vrs.proto(Object)`
   `vrs.slice = (vr) => vrs.arr.slice.call(vr)`
   `vrs.toString = (vr) => vrs.obj.toString.call(vr)`
   `vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)]`
@@ -16,11 +19,7 @@ pen = do ->
       res.push(vrs.ranDos(arr));
     }`
     return "i#{res.join ''}"
-  vrs.str = (regs, flags) =>
-    if vrs.type(regs) is 'string'
-      return new RegExp regs, flags
-    else
-      return regs
+  `vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags) : regs`
   vrs.regs =
     attribute: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi
     css: /([^\n;: ]+):([^\n]+);/gi
@@ -28,46 +27,32 @@ pen = do ->
     tag: /<([^\n]*?)>/gi
     eleme: /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi
     innerText: />([\S\s]*?)</gi
-  vrs.type = do ->
-    class2Type = {}
-    names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split /\s+/gi
-    names.forEach((name) => class2Type["[object #{name}]"] = name.toLowerCase())
-    (obj) ->
-      strType = Object::toString.call obj
-      class2Type[strType] or 'object'
-  vrs.parser = (regs, flags, num1, num2) ->
-    flags = flags or 'gi'
-    num1 = num1 or 1
-    num2 = num2 or 2
+  vrs.class2Type = {}
+  names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split /\s+/gi
+  `names.forEach(name => {vrs.class2Type[\`[object ${name}]\`] = name.toLowerCase()})`
+  `vrs.type = (obj) => (vrs.class2Type[vrs.toString(obj)] || 'object')`
+  vrs.parser = (regs, num1 = 1, num2 = 2, flags) ->
     resg = regs
-    regs = vrs.str regs, flags
+    regs = vrs.str regs, (flags or 'gi')
     (str) =>
+      retsi = {}
       if str?
-        returns = str.match regs
-        if returns?
-          retsi = {}
-          for match in returns
-            match
-            .trim()
-            .replace regs, (args...) ->
-              if vrs.type(resg) is 'string'
-                retsi[args[num1]] = args[num2]
-              else
-                retsi[args[flags]] = args[num1]
-              return
+        results = str.match regs
+        log results
+        if results? and results.length isnt 0
+          results.forEach (match) =>
+            if match.includes "="
+              [name, value] = match.split "="
+              value = value.replace /['"]([^\n]+)['"]/, '$1'
+              retsi[name] = value
+            return
           return retsi
         else
           return null
       else
         return null
-  vrs.log = console.log
-  vrs.error = console.error
-  vrs.dir = console.dir
-  ldr = (ev) =>
-    window['body'] = document.body; window['pBody'] = pen body; window['head'] = document.head; window['pHead'] = pen head
-    return
-  document.addEventListener "DOMContentLoaded", ldr, {once:true}
-  vrs.detectAndReturn = (ting, ev) => if ev.hasAttribute(ting) is true then ev.getAttribute ting else null
+  `vrs.log = console.log; vrs.error = console.error; vrs.dir = console.dir`
+  `vrs.detectAndReturn = (ting, ev) => ev.hasAttribute(ting) === true ? ev.getAttribute(ting) : null`
   vrs.defo = (prop, str, it, ops) =>
     if ops?
       app = ops.app or false
@@ -92,12 +77,7 @@ pen = do ->
       return it.el[prop]
   vrs.funcoso = (it, typeso, typesi) ->
     typesi ?= typeso
-    chk1 = (whl, propz, prop) ->
-      if vrs.type(it.el[typesi]) is 'function'
-        it.el[typesi] whl, propz[prop]
-      else
-        it.el[typesi][whl] = propz[prop]
-      return
+    `chk1 = (whl, propz, prop) => vrs.type(it.el[typesi]) === 'function' ? it.el[typesi](whl, propz[prop]) : it.el[typesi][whl] = propz[prop]`
     funcso = (propz, nm) ->
       for prop of propz
         if vrs.type(propz[prop]) is 'object'
@@ -111,16 +91,23 @@ pen = do ->
             chk1 prop, propz, prop
       return it
     return funcso
-  vrs.penError = (name, msg) =>
-    er = new Error msg
-    er.name = name
-    throw er
+  `vrs.penError = (name, msg) => {er = new Error(msg); er.name = name; throw er;}`
   vrs.resolve = (res) ->
     switch type res
       when 'string'
         pen res
       when 'array'
         pen res...
+  vrs.findInObj = (obj, key, defin) ->
+    key = vrs.str key, 'i'
+    for kname of obj
+      if /autoAttachTo|el/i.test(kname) is false
+        return if key.test(kname) is true then obj[kname] else if vrs.type(obj[kname]) is 'object' then pen.findInObj obj[kname], key, defin
+    return defin
+  vrs.$ = (el, ps = false) => `ps === true ? pen(doc.querySelector(el)) : doc.querySelector(el)`
+  vrs.$$ = (el, ps) =>
+    els = vrs.slice document.querySelectorAll el
+    return `ps === true ? els.map(el => pen(el)) : els`
   pen = () ->
     args = arguments
     return new pen args... if !(@ instanceof pen)
@@ -133,23 +120,10 @@ pen = do ->
   pen.ink = pen:: = {}
   pen.selected = {}
   pen.created = {}
-  pen.$ = (el, ps = false) ->
-    if ps is yes
-      pen doc.querySelector(el)
-    else doc.querySelector el
-  pen.$$ = (el, ps) =>
-    els = document.querySelectorAll el
-    els = vrs.slice els
-    if ps is yes
-      re = `els.map((el) => pen(el))`
-      return re
-    else
-      return els
   pen.create = pen.createElement = (el, parseIt = false) => if parseIt is yes then pen(doc.createElement el) else doc.createElement el
   pen.addedFunctions = {}
   pen.parse =
     attributes: vrs.parser vrs.regs.attribute, 1, 3
-    css: vrs.parser vrs.regs.css, 1, 2
     element: (str) ->
       s = str.search('<')
       e = str.search('>')+1
@@ -180,16 +154,6 @@ pen = do ->
       else
         pen.addedFunctions[func.name] = func
         pen::[func.name] = func
-  pen.findInObj = (obj, key, defin) ->
-    if vrs.type(key) is 'string'
-      key = new RegExp key, 'i'
-    for kname of obj
-      if /autoAttachTo|el/i.test(kname) is false
-        if key.test(kname) is true
-          return obj[kname]
-        else if vrs.type(obj[kname]) is 'object'
-          return pen.findInObj obj[kname], key, defin
-    return defin
   pen::start = (ele, ops) ->
     t = vrs.type ops
     if t is 'string'
@@ -214,10 +178,7 @@ pen = do ->
       for prop of ele
         @[prop] = ele[prop]
     else if t1 is 'string'
-      if @el.startsWith('define') is true
-        @define @el
-      else
-        @setup @el
+      `this.el.startsWith('define') === true ? this.define(this.el) : this.setup(this.el)`
 
     if @ops.autoAttach is yes
       @ops.autoAttachTo.append element
@@ -233,13 +194,12 @@ pen = do ->
           app: (if ops? and ops.global? and ops.global.html? and ops.global.html.app? then ops.global.html.app else no)
           parse: (if ops? and ops.global? and ops.global.html? and ops.global.html.parse? then ops.global.html.parse else no)
     return @ops
-  pen::toString = () => @el.outerHTML
+  `pen.prototype.toString = function () {return this.el.outerHTML;}`
   pen::define = (toDef) ->
     if vrs.regs.define.test(toDef) is true
       [func, oname, t] = vrs.regs.define.exec(toDef)[1..3]
       if t?
-        t = t.trim()
-        if t is 'locally' then vrs[func] else window[oname] = vrs[func]
+        `t.trim() === 'locally' ? vrs[func] : window[oname] = vrs[func]`
       else window[onmae] = vrs[func]
     return
   pen::setup = (el) ->
@@ -264,45 +224,36 @@ pen = do ->
     @attributes.id = vrs.detectAndReturn 'id', @el
     @attributes.class = vrs.detectAndReturn 'class', @el
     szlp = @el.getBoundingClientRect()
-    @size =
-      width: szlp.width, height: szlp.height
+    @size = {width, height} = szlp
     @inits()
     switch @tag
       when 'template'
         @content = @el.content
         pen::clone = () ->
-          args = vrs.slice arguments
-          document.importNode [args...]
+          args = arguments
+          document.importNode args...
       when 'canvas'
         @ctx = @context = @el.getContext '2d'
     return @
   pen::initTag = () ->
-    tag = @tag = if @el.tagName? then @el.tagName.toLowerCase() else 'ios-element'
-    return tag
+    @tag = if @el.tagName? then @el.tagName.toLowerCase() else 'ios-element'
   pen::initText = () ->
-    text = @text = @html
-    return text
+    @text = @html()
   pen::initChildren = () ->
-    children = @Children = if @tag is 'template' then @el.content.children else @el.children
-    return children
+    @Children = if @tag is 'template' then @el.content.children else @el.children
   pen::initParent = () ->
-    parent = @Parent = if @el.parentNode? then @el.parentNode else null
-    return parent
+    @Parent = if @el.parentNode? then @el.parentNode else null
   pen::initLocalName = () ->
     @initAttributes()
     @initTag()
     res1 = if @attributes.id? then "##{@attributes.id}" else ''
     res2 = if @attributes.class? then ".#{vrs.slice(@el.classList).join '.'}" else ''
-    str = "#{@tag}#{res1}#{res2}"
-    @localName = str
-    return str
+    @localName = "#{@tag}#{res1}#{res2}"
   pen::initClasses = () ->
-    res = vrs.slice(@el.classList)
-    @Classes = res
-    return res
+    @Classes = vrs.slice @el.classList
   pen::initAttributes = () ->
-    results = vrs.slice @el.attributes
-    ret = results.map (result) =>
+    ret = vrs.slice @el.attributes
+     .map (result) =>
       @attributes[result.name] = result.value
       return "#{result.name}='#{result.value}'"
     return ret
@@ -317,21 +268,19 @@ pen = do ->
     ret.localName = @initLocalName()
     return ret
   pen::html = (str, ops) ->
-    if ops?
-      app = if ops.app? then ops.app else false
-      parse = if ops.parse? then ops.parse else false
-    else
-      app = if @ops.global.html.app? then @ops.global.html.app else false
-      parse = if @ops.global.html.parse? then @ops.global.html.parse else false
+    app = if ops? and ops.app? then ops.app else @ops.global.html.app
+    parse = if ops? and ops.app? then ops.app else @ops.global.html.app
+
     @initTag()
+
     switch @tag
       when 'input', 'textarea'
-        return vrs.defo 'value', str, this, ops
+        vrs.defo 'value', str, @, ops
       when 'option'
-        vrs.def 'value', str, this, ops
-        return vrs.defo 'innerText', str, this, ops
+        vrs.def 'value', str, @, ops
+        return vrs.defo 'innerText', str, @, ops
       else
-        return vrs.defo((if parse is true then 'innerHTML' else 'innerText'), str, this, ops)
+        vrs.defo((if parse then 'innerHTML' else 'innerText'), str, @, ops)
     return
   pen::attr = (attribute, value) ->
     func = vrs.funcoso this, 'attributes', 'setAttribute'
@@ -380,9 +329,8 @@ pen = do ->
     else
       return @style
   pen::on = (evtp, cb, cp) ->
-    cp ?= false
-    if not @events?
-      @events = {}
+    cp = cp or false
+    @events = @events or {}
     @events[evtp] = {}
     @events[evtp].capture = cp
     @events[evtp][if cb.name isnt '' then cb.name else 'func'] = cb
@@ -398,41 +346,29 @@ pen = do ->
       when 'removeEventListener' then @el[typeEvent](evtp, cb)
       when 'detachEvent' then @el[typeEvent](evtp, cb)
       else @el[typeEvent] = null
-
     delete @events[evtp]
     return @
-  pen::is = (tag) => @tag is tag
+  pen::is = (tag) -> @tag is tag
   pen::append = (elements...) ->
     elements.forEach (element) =>
       if vrs.type(element) is 'string'
-        element = pen.$ element
+        element = vrs.$ element
       else if element instanceof pen
         element.Parent = @el
       elu = (if element instanceof pen then element.el else element)
-      if @tag is 'template'
-        @el.content.appendChild elu
-      else
-        @el.appendChild elu
+      `this.tag === 'template' ? this.el.content.appendChild(elu) : this.el.appendChild(elu)`
     return @
   pen::appendTo = (element) ->
-    if vrs.type(element) is 'string'
-      element = pen.$ element
     pen(element).append(@el)
     return @
   pen::remove = ->
-    check = if @Parent? then 'Parent' else if @el.parentNode? then 'parentNode' else null
-    if check?
-      @[check].removeChild(@el)
-      @Parent = null
-    else
-      log "Pen-remove-error: There's no parent to remove child: #{@localName} from"
+    @Parent.removeChild(@el)
+    @Parent = null
     return @
-  pen::$ = (element, parseIt) ->
+  pen::$ = (element, parseIt = false) ->
     result = if @tag is 'template' then @el.content else @el
-    if @ops.global.parseIt is true or parseIt is true
-      return pen result.querySelector(element)
-    else
-      return result.querySelector(element)
+    result = if @ops.global.parseIt is true then pen(result.querySelector(element)) else if parseIt is true then pen(result.querySelector(element)) else result.querySelector(element)
+    return result
   pen::$$ = (element) ->
     result = if @tag is 'template' then @el.content else @el
     result.querySelectorAll(element)
@@ -441,14 +377,11 @@ pen = do ->
     @append(element)
     if /child|parent/gi.test(ret) is true
       result = "return #{ret}"
-      if result.endsWith("parent") is true
-        return @
-      else
-        return element
+      return `result.endsWith("parent") === true ? this : element`
     else
       return
   pen::toggle = (classes...) ->
-    for classs in classes
+    classes.forEach (classs) =>
       @el.classList.toggle classs
     return @
   pen::hasClass = (cls) ->
@@ -466,15 +399,14 @@ pen = do ->
       @css 'display', ''
     return
   pen::getSize = () -> {width: @el.getBoundingClientRect().width, height: @el.getBoundingClientRect().height}
-  atribs = ['id', 'class', 'href', 'src', 'contentEditable', 'charset', 'title', 'rows', 'cols', 'style']
-  evps = ['click', 'keyup' ,'keypress','keydown' ,'mouse', 'mouseup', 'error', 'load', 'mouseover', 'mousedown' ,'mouseout', 'contextmenu', 'dblclick' ,'drag', 'dragover', 'drop', 'dropend']
+  atribs = "id class href src contentEditable charset title rows cols style".split /\s+/g
+  evps = "click keyup keypress keydown mouse mouseup error load mouseover mousedown mouseout contextmenu dblclick drag dragover drop dropend".split /\s+/g
   atribs.forEach (atrib) ->
     pen::[atrib] = () ->
-      if str? then @attr atrib, arguments... else @attr atrib
-      return
+      `str != null ? this.attr(atrib, ...arguments) : this.attr(atrib)`
   evps.forEach (evp) ->
     pen::[evp] = () ->
-      if not @events[evp]? then @on(evp, arguments...) else @off(evp, arguments...)
-      return
-  pen.vrs = vrs
+      `this.events[evp] == null ? this.on(evp, ...arguments) : this.off(evp, ...arguments)`
+  for prop of vrs
+    pen[prop] = vrs[prop]
   return pen

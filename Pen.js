@@ -1,16 +1,23 @@
 var pen;
 
 pen = (function() {
-  var atribs, doc, elCount, evps, ldr, vrs, win;
+  var atribs, doc, elCount, evps, ldr, names, prop, vrs, win;
+  ldr = (ev) => {
+    window['body'] = document.body;
+    window['pBody'] = pen(body);
+    window['head'] = document.head;
+    window['pHead'] = pen(head);
+    window['pDoc'] = pen(document);
+  };
+  document.addEventListener("DOMContentLoaded", ldr, {
+    once: true
+  });
   vrs = {};
   elCount = 0;
   win = window;
   doc = document;
-  vrs.proto = function() {
-    return arguments[0].prototype;
-  };
-  vrs.arr = vrs.proto(Array);
-  vrs.obj = vrs.proto(Object);
+  vrs.proto = (pro) => pro.prototype;
+  vrs.arr = vrs.proto(Array); vrs.obj = vrs.proto(Object);
   vrs.slice = (vr) => vrs.arr.slice.call(vr);
   vrs.toString = (vr) => vrs.obj.toString.call(vr);
   vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -22,13 +29,7 @@ pen = (function() {
     };
     return `i${res.join('')}`;
   };
-  vrs.str = (regs, flags) => {
-    if (vrs.type(regs) === 'string') {
-      return new RegExp(regs, flags);
-    } else {
-      return regs;
-    }
-  };
+  vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags) : regs;
   vrs.regs = {
     attribute: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi,
     css: /([^\n;: ]+):([^\n]+);/gi,
@@ -37,42 +38,29 @@ pen = (function() {
     eleme: /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi,
     innerText: />([\S\s]*?)</gi
   };
-  vrs.type = (function() {
-    var class2Type, names;
-    class2Type = {};
-    names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
-    names.forEach((name) => {
-      return class2Type[`[object ${name}]`] = name.toLowerCase();
-    });
-    return function(obj) {
-      var strType;
-      strType = Object.prototype.toString.call(obj);
-      return class2Type[strType] || 'object';
-    };
-  })();
-  vrs.parser = function(regs, flags, num1, num2) {
+  vrs.class2Type = {};
+  names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
+  names.forEach(name => {vrs.class2Type[`[object ${name}]`] = name.toLowerCase()});
+  vrs.type = (obj) => (vrs.class2Type[vrs.toString(obj)] || 'object');
+  vrs.parser = function(regs, num1 = 1, num2 = 2, flags) {
     var resg;
-    flags = flags || 'gi';
-    num1 = num1 || 1;
-    num2 = num2 || 2;
     resg = regs;
-    regs = vrs.str(regs, flags);
+    regs = vrs.str(regs, flags || 'gi');
     return (str) => {
-      var i, len, match, retsi, returns;
+      var results, retsi;
+      retsi = {};
       if (str != null) {
-        returns = str.match(regs);
-        if (returns != null) {
-          retsi = {};
-          for (i = 0, len = returns.length; i < len; i++) {
-            match = returns[i];
-            match.trim().replace(regs, function(...args) {
-              if (vrs.type(resg) === 'string') {
-                retsi[args[num1]] = args[num2];
-              } else {
-                retsi[args[flags]] = args[num1];
-              }
-            });
-          }
+        results = str.match(regs);
+        log(results);
+        if ((results != null) && results.length !== 0) {
+          results.forEach((match) => {
+            var name, value;
+            if (match.includes("=")) {
+              [name, value] = match.split("=");
+              value = value.replace(/['"]([^\n]+)['"]/, '$1');
+              retsi[name] = value;
+            }
+          });
           return retsi;
         } else {
           return null;
@@ -82,25 +70,8 @@ pen = (function() {
       }
     };
   };
-  vrs.log = console.log;
-  vrs.error = console.error;
-  vrs.dir = console.dir;
-  ldr = (ev) => {
-    window['body'] = document.body;
-    window['pBody'] = pen(body);
-    window['head'] = document.head;
-    window['pHead'] = pen(head);
-  };
-  document.addEventListener("DOMContentLoaded", ldr, {
-    once: true
-  });
-  vrs.detectAndReturn = (ting, ev) => {
-    if (ev.hasAttribute(ting) === true) {
-      return ev.getAttribute(ting);
-    } else {
-      return null;
-    }
-  };
+  vrs.log = console.log; vrs.error = console.error; vrs.dir = console.dir;
+  vrs.detectAndReturn = (ting, ev) => ev.hasAttribute(ting) === true ? ev.getAttribute(ting) : null;
   vrs.defo = (prop, str, it, ops) => {
     var app, parse;
     if (ops != null) {
@@ -131,17 +102,11 @@ pen = (function() {
     }
   };
   vrs.funcoso = function(it, typeso, typesi) {
-    var chk1, funcso;
+    var funcso;
     if (typesi == null) {
       typesi = typeso;
     }
-    chk1 = function(whl, propz, prop) {
-      if (vrs.type(it.el[typesi]) === 'function') {
-        it.el[typesi](whl, propz[prop]);
-      } else {
-        it.el[typesi][whl] = propz[prop];
-      }
-    };
+    chk1 = (whl, propz, prop) => vrs.type(it.el[typesi]) === 'function' ? it.el[typesi](whl, propz[prop]) : it.el[typesi][whl] = propz[prop];
     funcso = function(propz, nm) {
       var prop;
       for (prop in propz) {
@@ -161,12 +126,7 @@ pen = (function() {
     };
     return funcso;
   };
-  vrs.penError = (name, msg) => {
-    var er;
-    er = new Error(msg);
-    er.name = name;
-    throw er;
-  };
+  vrs.penError = (name, msg) => {er = new Error(msg); er.name = name; throw er;};
   vrs.resolve = function(res) {
     switch (type(res)) {
       case 'string':
@@ -174,6 +134,28 @@ pen = (function() {
       case 'array':
         return pen(...res);
     }
+  };
+  vrs.findInObj = function(obj, key, defin) {
+    var kname;
+    key = vrs.str(key, 'i');
+    for (kname in obj) {
+      if (/autoAttachTo|el/i.test(kname) === false) {
+        if (key.test(kname) === true) {
+          return obj[kname];
+        } else if (vrs.type(obj[kname]) === 'object') {
+          return pen.findInObj(obj[kname], key, defin);
+        }
+      }
+    }
+    return defin;
+  };
+  vrs.$ = (el, ps = false) => {
+    return ps === true ? pen(doc.querySelector(el)) : doc.querySelector(el);
+  };
+  vrs.$$ = (el, ps) => {
+    var els;
+    els = vrs.slice(document.querySelectorAll(el));
+    return ps === true ? els.map(el => pen(el)) : els;
   };
   pen = function() {
     var args;
@@ -190,24 +172,6 @@ pen = (function() {
   pen.ink = pen.prototype = {};
   pen.selected = {};
   pen.created = {};
-  pen.$ = function(el, ps = false) {
-    if (ps === true) {
-      return pen(doc.querySelector(el));
-    } else {
-      return doc.querySelector(el);
-    }
-  };
-  pen.$$ = (el, ps) => {
-    var els, re;
-    els = document.querySelectorAll(el);
-    els = vrs.slice(els);
-    if (ps === true) {
-      re = els.map((el) => pen(el));
-      return re;
-    } else {
-      return els;
-    }
-  };
   pen.create = pen.createElement = (el, parseIt = false) => {
     if (parseIt === true) {
       return pen(doc.createElement(el));
@@ -218,7 +182,6 @@ pen = (function() {
   pen.addedFunctions = {};
   pen.parse = {
     attributes: vrs.parser(vrs.regs.attribute, 1, 3),
-    css: vrs.parser(vrs.regs.css, 1, 2),
     element: function(str) {
       var attribs, e, s, stTag, tag, text;
       s = str.search('<');
@@ -260,22 +223,6 @@ pen = (function() {
       }
     }
   };
-  pen.findInObj = function(obj, key, defin) {
-    var kname;
-    if (vrs.type(key) === 'string') {
-      key = new RegExp(key, 'i');
-    }
-    for (kname in obj) {
-      if (/autoAttachTo|el/i.test(kname) === false) {
-        if (key.test(kname) === true) {
-          return obj[kname];
-        } else if (vrs.type(obj[kname]) === 'object') {
-          return pen.findInObj(obj[kname], key, defin);
-        }
-      }
-    }
-    return defin;
-  };
   pen.prototype.start = function(ele, ops) {
     var el, prop, t, t1;
     t = vrs.type(ops);
@@ -305,11 +252,7 @@ pen = (function() {
         this[prop] = ele[prop];
       }
     } else if (t1 === 'string') {
-      if (this.el.startsWith('define') === true) {
-        this.define(this.el);
-      } else {
-        this.setup(this.el);
-      }
+      this.el.startsWith('define') === true ? this.define(this.el) : this.setup(this.el);
     }
     if (this.ops.autoAttach === true) {
       this.ops.autoAttachTo.append(element);
@@ -331,20 +274,13 @@ pen = (function() {
     };
     return this.ops;
   };
-  pen.prototype.toString = () => {
-    return this.el.outerHTML;
-  };
+  pen.prototype.toString = function () {return this.el.outerHTML;};
   pen.prototype.define = function(toDef) {
     var func, oname, t;
     if (vrs.regs.define.test(toDef) === true) {
       [func, oname, t] = vrs.regs.define.exec(toDef).slice(1, 4);
       if (t != null) {
-        t = t.trim();
-        if (t === 'locally') {
-          vrs[func];
-        } else {
-          window[oname] = vrs[func];
-        }
+        t.trim() === 'locally' ? vrs[func] : window[oname] = vrs[func];
       } else {
         window[onmae] = vrs[func];
       }
@@ -376,22 +312,19 @@ pen = (function() {
     this.partialSetup();
   };
   pen.prototype.partialSetup = function(ev) {
-    var szlp;
+    var height, szlp, width;
     this.attributes.id = vrs.detectAndReturn('id', this.el);
     this.attributes.class = vrs.detectAndReturn('class', this.el);
     szlp = this.el.getBoundingClientRect();
-    this.size = {
-      width: szlp.width,
-      height: szlp.height
-    };
+    this.size = {width, height} = szlp;
     this.inits();
     switch (this.tag) {
       case 'template':
         this.content = this.el.content;
         pen.prototype.clone = function() {
           var args;
-          args = vrs.slice(arguments);
-          return document.importNode([...args]);
+          args = arguments;
+          return document.importNode(...args);
         };
         break;
       case 'canvas':
@@ -400,45 +333,31 @@ pen = (function() {
     return this;
   };
   pen.prototype.initTag = function() {
-    var tag;
-    tag = this.tag = this.el.tagName != null ? this.el.tagName.toLowerCase() : 'ios-element';
-    return tag;
+    return this.tag = this.el.tagName != null ? this.el.tagName.toLowerCase() : 'ios-element';
   };
   pen.prototype.initText = function() {
-    var text;
-    text = this.text = this.html;
-    return text;
+    return this.text = this.html();
   };
   pen.prototype.initChildren = function() {
-    var children;
-    children = this.Children = this.tag === 'template' ? this.el.content.children : this.el.children;
-    return children;
+    return this.Children = this.tag === 'template' ? this.el.content.children : this.el.children;
   };
   pen.prototype.initParent = function() {
-    var parent;
-    parent = this.Parent = this.el.parentNode != null ? this.el.parentNode : null;
-    return parent;
+    return this.Parent = this.el.parentNode != null ? this.el.parentNode : null;
   };
   pen.prototype.initLocalName = function() {
-    var res1, res2, str;
+    var res1, res2;
     this.initAttributes();
     this.initTag();
     res1 = this.attributes.id != null ? `#${this.attributes.id}` : '';
     res2 = this.attributes.class != null ? `.${vrs.slice(this.el.classList).join('.')}` : '';
-    str = `${this.tag}${res1}${res2}`;
-    this.localName = str;
-    return str;
+    return this.localName = `${this.tag}${res1}${res2}`;
   };
   pen.prototype.initClasses = function() {
-    var res;
-    res = vrs.slice(this.el.classList);
-    this.Classes = res;
-    return res;
+    return this.Classes = vrs.slice(this.el.classList);
   };
   pen.prototype.initAttributes = function() {
-    var results, ret;
-    results = vrs.slice(this.el.attributes);
-    ret = results.map((result) => {
+    var ret;
+    ret = vrs.slice(this.el.attributes).map((result) => {
       this.attributes[result.name] = result.value;
       return `${result.name}='${result.value}'`;
     });
@@ -458,23 +377,19 @@ pen = (function() {
   };
   pen.prototype.html = function(str, ops) {
     var app, parse;
-    if (ops != null) {
-      app = ops.app != null ? ops.app : false;
-      parse = ops.parse != null ? ops.parse : false;
-    } else {
-      app = this.ops.global.html.app != null ? this.ops.global.html.app : false;
-      parse = this.ops.global.html.parse != null ? this.ops.global.html.parse : false;
-    }
+    app = (ops != null) && (ops.app != null) ? ops.app : this.ops.global.html.app;
+    parse = (ops != null) && (ops.app != null) ? ops.app : this.ops.global.html.app;
     this.initTag();
     switch (this.tag) {
       case 'input':
       case 'textarea':
-        return vrs.defo('value', str, this, ops);
+        vrs.defo('value', str, this, ops);
+        break;
       case 'option':
         vrs.def('value', str, this, ops);
         return vrs.defo('innerText', str, this, ops);
       default:
-        return vrs.defo((parse === true ? 'innerHTML' : 'innerText'), str, this, ops);
+        vrs.defo((parse ? 'innerHTML' : 'innerText'), str, this, ops);
     }
   };
   pen.prototype.attr = function(attribute, value) {
@@ -540,12 +455,8 @@ pen = (function() {
   };
   pen.prototype.on = function(evtp, cb, cp) {
     var typeEvent;
-    if (cp == null) {
-      cp = false;
-    }
-    if (this.events == null) {
-      this.events = {};
-    }
+    cp = cp || false;
+    this.events = this.events || {};
     this.events[evtp] = {};
     this.events[evtp].capture = cp;
     this.events[evtp][cb.name !== '' ? cb.name : 'func'] = cb;
@@ -578,52 +489,36 @@ pen = (function() {
     delete this.events[evtp];
     return this;
   };
-  pen.prototype.is = (tag) => {
+  pen.prototype.is = function(tag) {
     return this.tag === tag;
   };
   pen.prototype.append = function(...elements) {
     elements.forEach((element) => {
       var elu;
       if (vrs.type(element) === 'string') {
-        element = pen.$(element);
+        element = vrs.$(element);
       } else if (element instanceof pen) {
         element.Parent = this.el;
       }
       elu = (element instanceof pen ? element.el : element);
-      if (this.tag === 'template') {
-        return this.el.content.appendChild(elu);
-      } else {
-        return this.el.appendChild(elu);
-      }
+      return this.tag === 'template' ? this.el.content.appendChild(elu) : this.el.appendChild(elu);
     });
     return this;
   };
   pen.prototype.appendTo = function(element) {
-    if (vrs.type(element) === 'string') {
-      element = pen.$(element);
-    }
     pen(element).append(this.el);
     return this;
   };
   pen.prototype.remove = function() {
-    var check;
-    check = this.Parent != null ? 'Parent' : this.el.parentNode != null ? 'parentNode' : null;
-    if (check != null) {
-      this[check].removeChild(this.el);
-      this.Parent = null;
-    } else {
-      log(`Pen-remove-error: There's no parent to remove child: ${this.localName} from`);
-    }
+    this.Parent.removeChild(this.el);
+    this.Parent = null;
     return this;
   };
-  pen.prototype.$ = function(element, parseIt) {
+  pen.prototype.$ = function(element, parseIt = false) {
     var result;
     result = this.tag === 'template' ? this.el.content : this.el;
-    if (this.ops.global.parseIt === true || parseIt === true) {
-      return pen(result.querySelector(element));
-    } else {
-      return result.querySelector(element);
-    }
+    result = this.ops.global.parseIt === true ? pen(result.querySelector(element)) : parseIt === true ? pen(result.querySelector(element)) : result.querySelector(element);
+    return result;
   };
   pen.prototype.$$ = function(element) {
     var result;
@@ -636,21 +531,15 @@ pen = (function() {
     this.append(element);
     if (/child|parent/gi.test(ret) === true) {
       result = `return ${ret}`;
-      if (result.endsWith("parent") === true) {
-        return this;
-      } else {
-        return element;
-      }
+      return result.endsWith("parent") === true ? this : element;
     } else {
 
     }
   };
   pen.prototype.toggle = function(...classes) {
-    var classs, i, len;
-    for (i = 0, len = classes.length; i < len; i++) {
-      classs = classes[i];
-      this.el.classList.toggle(classs);
-    }
+    classes.forEach((classs) => {
+      return this.el.classList.toggle(classs);
+    });
     return this;
   };
   pen.prototype.hasClass = function(cls) {
@@ -680,26 +569,20 @@ pen = (function() {
       height: this.el.getBoundingClientRect().height
     };
   };
-  atribs = ['id', 'class', 'href', 'src', 'contentEditable', 'charset', 'title', 'rows', 'cols', 'style'];
-  evps = ['click', 'keyup', 'keypress', 'keydown', 'mouse', 'mouseup', 'error', 'load', 'mouseover', 'mousedown', 'mouseout', 'contextmenu', 'dblclick', 'drag', 'dragover', 'drop', 'dropend'];
+  atribs = "id class href src contentEditable charset title rows cols style".split(/\s+/g);
+  evps = "click keyup keypress keydown mouse mouseup error load mouseover mousedown mouseout contextmenu dblclick drag dragover drop dropend".split(/\s+/g);
   atribs.forEach(function(atrib) {
     return pen.prototype[atrib] = function() {
-      if (typeof str !== "undefined" && str !== null) {
-        this.attr(atrib, ...arguments);
-      } else {
-        this.attr(atrib);
-      }
+      return str != null ? this.attr(atrib, ...arguments) : this.attr(atrib);
     };
   });
   evps.forEach(function(evp) {
     return pen.prototype[evp] = function() {
-      if (this.events[evp] == null) {
-        this.on(evp, ...arguments);
-      } else {
-        this.off(evp, ...arguments);
-      }
+      return this.events[evp] == null ? this.on(evp, ...arguments) : this.off(evp, ...arguments);
     };
   });
-  pen.vrs = vrs;
+  for (prop in vrs) {
+    pen[prop] = vrs[prop];
+  }
   return pen;
 })();
