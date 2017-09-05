@@ -30,7 +30,7 @@ body {
     font-size: 2vmin;
     color: white;
     overflow: auto;
-    padding: 5vh;
+    padding-top: 5vh;
     height: 90vh; }
     body .wrapper .btn, body .wrapper a {
       display: inline-block;

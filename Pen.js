@@ -1,7 +1,7 @@
 var pen;
 
 pen = (function() {
-  var atribs, doc, elCount, evps, ldr, names, prop, vrs, win;
+  var atribs, doc, elCount, evps, ldr, names, vrs, win;
   ldr = (ev) => {
     window['body'] = document.body;
     window['pBody'] = pen(body);
@@ -69,8 +69,8 @@ pen = (function() {
     var app, reg;
     app = ops != null ? ops.app || false : it.ops.global.html.app;
     app === true ? it.text += str : it.text = str;
+    reg = /input|option|textarea/i;
     if (str != null) {
-      reg = /input|option|textarea/i;
       if (reg.test(it.tag) === true) {
         it.attr('value', (app === true ? `${it.el.getAttribute('value')}${str}` : str));
       } else {
@@ -144,10 +144,16 @@ pen = (function() {
   pen.ink = pen.prototype = {};
   pen.selected = {};
   pen.created = {};
-  vrs.$ = (el, ps = false) => {
-    return ps === true ? (pen.selected[`element${elCount++}`] = el, pen(doc.querySelector(el))) : (pen.selected[`element${elCount++}`] = el, doc.querySelector(el));
+  pen.$ = function(el, ps = false) {
+    if (ps === true) {
+      pen.selected[`element${elCount++}`] = el;
+      return pen(doc.querySelector(el));
+    } else {
+      pen.selected[`element${elCount++}`] = el;
+      return doc.querySelector(el);
+    }
   };
-  vrs.$$ = (el, ps) => {
+  pen.$$ = vrs.$$ = (el, ps) => {
     var els;
     els = vrs.slice(document.querySelectorAll(el));
     return ps === true ? els.map(el => {pen.selected[`element${elCount++}`] = el; return pen(el)}) : (els.forEach(el => {pen.selected[`element${elCount++}`] = el}), els);
@@ -356,13 +362,12 @@ pen = (function() {
     switch (this.tag) {
       case 'input':
       case 'textarea':
-        vrs.defo('value', str, this, ops);
-        break;
+        return vrs.defo('value', str, this, ops);
       case 'option':
-        vrs.def('value', str, this, ops);
+        vrs.defo('value', str, this, ops);
         return vrs.defo('innerText', str, this, ops);
       default:
-        vrs.defo((parse ? 'innerHTML' : 'innerText'), str, this, ops);
+        return vrs.defo((parse ? 'innerHTML' : 'innerText'), str, this, ops);
     }
   };
   pen.prototype.attr = function(attribute, value) {
@@ -554,8 +559,6 @@ pen = (function() {
       return this.events[evp] == null ? this.on(evp, ...arguments) : this.off(evp, ...arguments);
     };
   });
-  for (prop in vrs) {
-    pen[prop] = vrs[prop];
-  }
+  pen.vrs = vrs;
   return pen;
 })();

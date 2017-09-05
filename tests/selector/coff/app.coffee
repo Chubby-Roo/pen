@@ -30,7 +30,7 @@ pen(document).ready () ->
 
   selr = (content, el) ->
     container = pen "<div id='selectionDiv' class='selection#{i}' align='center'>"
-    header = pen "<h4 class='header'>"
+    header = pen "<h4 class='selector-header'>"
     .html content
     grabText = pen "<button id='grabber' class='grabber-btn btn'>grab text</button>"
     grabText.click (e) ->
@@ -41,7 +41,6 @@ pen(document).ready () ->
       el.toggle 'selected'
     toggleCls = pen "<input id='toggler' class='toggler-input input' placeholder='toggle class'>"
     toggleCls.enter (ev, it) ->
-      log it
       val = it.html()
       it.html ""
       el.toggle val

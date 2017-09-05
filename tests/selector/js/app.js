@@ -35,7 +35,7 @@ pen(document).ready(function() {
   selr = function(content, el) {
     var container, grabText, header, highlight, toggleCls;
     container = pen(`<div id='selectionDiv' class='selection${i}' align='center'>`);
-    header = pen("<h4 class='header'>").html(content);
+    header = pen("<h4 class='selector-header'>").html(content);
     grabText = pen("<button id='grabber' class='grabber-btn btn'>grab text</button>");
     grabText.click(function(e) {
       return grabText.el.outerHTML = `<p id='grabbed'>"${el.html()}"</p>`;
@@ -47,7 +47,6 @@ pen(document).ready(function() {
     toggleCls = pen("<input id='toggler' class='toggler-input input' placeholder='toggle class'>");
     toggleCls.enter(function(ev, it) {
       var val;
-      log(it);
       val = it.html();
       it.html("");
       el.toggle(val);

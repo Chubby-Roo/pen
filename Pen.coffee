@@ -51,8 +51,8 @@ pen = do ->
   vrs.defo = (prop, str, it, ops) =>
     app = if ops? then (ops.app or false) else it.ops.global.html.app
     `app === true ? it.text += str : it.text = str`
+    reg = /input|option|textarea/i
     if str?
-      reg = /input|option|textarea/i
       if reg.test(it.tag) is true
         it.attr 'value', (if app is true then "#{it.el.getAttribute('value')}#{str}" else str)
       else
@@ -101,8 +101,14 @@ pen = do ->
   pen.ink = pen:: = {}
   pen.selected = {}
   pen.created = {}
-  vrs.$ = (el, ps = false) => `ps === true ? (pen.selected[\`element${elCount++}\`] = el, pen(doc.querySelector(el))) : (pen.selected[\`element${elCount++}\`] = el, doc.querySelector(el))`
-  vrs.$$ = (el, ps) =>
+  pen.$ = (el, ps = false) ->
+    if ps is true
+      pen.selected["element#{elCount++}"] = el
+      pen(doc.querySelector(el))
+    else
+      pen.selected["element#{elCount++}"] = el
+      doc.querySelector(el)
+  pen.$$ = vrs.$$ =  (el, ps) =>
     els = vrs.slice document.querySelectorAll el
     return `ps === true ? els.map(el => {pen.selected[\`element${elCount++}\`] = el; return pen(el)}) : (els.forEach(el => {pen.selected[\`element${elCount++}\`] = el}), els)`
   `pen.create = (el, parseIt = false) => parseIt === true ? pen(doc.createElement (el)) : doc.createElement(el)`
@@ -259,13 +265,12 @@ pen = do ->
 
     switch @tag
       when 'input', 'textarea'
-        vrs.defo 'value', str, @, ops
+        return vrs.defo 'value', str, @, ops
       when 'option'
-        vrs.def 'value', str, @, ops
+        vrs.defo 'value', str, @, ops
         return vrs.defo 'innerText', str, @, ops
       else
-        vrs.defo((if parse then 'innerHTML' else 'innerText'), str, @, ops)
-    return
+        return vrs.defo((if parse then 'innerHTML' else 'innerText'), str, @, ops)
   pen::attr = (attribute, value) ->
     func = vrs.funcoso this, 'attributes', 'setAttribute'
     if attribute?
@@ -391,6 +396,5 @@ pen = do ->
   evps.forEach (evp) ->
     pen::[evp] = () ->
       `this.events[evp] == null ? this.on(evp, ...arguments) : this.off(evp, ...arguments)`
-  for prop of vrs
-    pen[prop] = vrs[prop]
+  pen.vrs = vrs
   return pen
