@@ -1,23 +1,21 @@
 {log, error, dir} = console
 
-pen.add
-  enter: (cb) ->
-    it = @
-    @on 'keydown', (e) ->
-      if e.key is 'Enter'
-        e.preventDefault()
-        cb(e, it)
-
+pen.ink.enter = (cb) ->
+  it = @
+  @on 'keydown', (e) ->
+    if e.key is 'Enter'
+      e.preventDefault()
+      cb(e, it)
 
 pen(document).ready () ->
   i = 0
   styz = pen "<link rel='stylesheet' href='../../style.css' id='sty'>"
   wrapper = pen "<div id='wrpr' class='wrapper'>"
   title = pen "<title id='ttl'>"
-  relbut = pen "<button id='relbutt' class='reload-btn btn bottom-right free'>Reload Style</button>"
+  relbut = pen "<button id='relbutt' class='reload btn bottom-right free'>Reload Style</button>"
   selector = pen "<div id='selectr' class='element-selector' align='center'>"
-  selectorInput = pen "<input id='selectrInput' class='element-selector-input input' placeholder='Place selector here.'>"
-  selectorBtn = pen "<button id='selectrBtn' class='element-selector-btn btn'>Submit</button>"
+  selectorInput = pen "<input id='selectrInput' class='element-input input' placeholder='Place selector here.'>"
+  selectorBtn = pen "<button id='selectrBtn' class='element-selector btn'>Submit</button>"
   br = pen "<br>"
   sideMsg = pen "<p id='sideInfo' class='side-message'>check the console</p>"
 
@@ -30,22 +28,22 @@ pen(document).ready () ->
 
   selr = (content, el) ->
     container = pen "<div id='selectionDiv' class='selection#{i}' align='center'>"
-    header = pen "<h4 class='selector-header'>"
-    .html content
-    grabText = pen "<button id='grabber' class='grabber-btn btn'>grab text</button>"
+    header = pen "<h4 class='selector-header'>#{content}</h4>"
+    grabText = pen "<button id='grabber' class='grabber btn'>grab text</button>"
+    highlight = pen "<button id='highlighter' class='highlighter btn'>Highlight</button>"
+    changeText = pen "input id='text-change' class='text-changer input' placeholder='change the text'"
+    toggleCls = pen "<input id='toggler' class='toggler input' placeholder='toggle class'>"
     grabText.click (e) ->
       grabText.el.outerHTML = "<p id='grabbed'>\"#{el.html()}\"</p>"
-    highlight = pen "<button id='highlighter' class='highlighter-btn btn'>"
-    .html "Highlight"
     highlight.click (e) ->
       el.toggle 'selected'
-    toggleCls = pen "<input id='toggler' class='toggler-input input' placeholder='toggle class'>"
     toggleCls.enter (ev, it) ->
-      val = it.html()
+      el.toggle it.html()
       it.html ""
-      el.toggle val
-      return
-    container.append header, grabText, highlight, toggleCls
+    changeText.enter (ev, it) ->
+      el.html it.html()
+      it.html()
+    container.append header, grabText, highlight, toggleCls, changeText
     return container
 
 
@@ -71,6 +69,8 @@ pen(document).ready () ->
     if e.key is 'Enter'
       e.preventDefault()
       selectorBtn.el.click()
+
+  log selectorBtn
 
   relbut.click (e) ->
     sty.remove()

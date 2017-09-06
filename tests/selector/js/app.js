@@ -2,18 +2,16 @@ var dir, error, log;
 
 ({log, error, dir} = console);
 
-pen.add({
-  enter: function(cb) {
-    var it;
-    it = this;
-    return this.on('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        return cb(e, it);
-      }
-    });
-  }
-});
+pen.ink.enter = function(cb) {
+  var it;
+  it = this;
+  return this.on('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      return cb(e, it);
+    }
+  });
+};
 
 pen(document).ready(function() {
   var br, freeEl, freeEls, i, j, len, relbut, results, selector, selectorBtn, selectorInput, selr, sideMsg, styz, title, wrapper;
@@ -21,10 +19,10 @@ pen(document).ready(function() {
   styz = pen("<link rel='stylesheet' href='../../style.css' id='sty'>");
   wrapper = pen("<div id='wrpr' class='wrapper'>");
   title = pen("<title id='ttl'>");
-  relbut = pen("<button id='relbutt' class='reload-btn btn bottom-right free'>Reload Style</button>");
+  relbut = pen("<button id='relbutt' class='reload btn bottom-right free'>Reload Style</button>");
   selector = pen("<div id='selectr' class='element-selector' align='center'>");
-  selectorInput = pen("<input id='selectrInput' class='element-selector-input input' placeholder='Place selector here.'>");
-  selectorBtn = pen("<button id='selectrBtn' class='element-selector-btn btn'>Submit</button>");
+  selectorInput = pen("<input id='selectrInput' class='element-input input' placeholder='Place selector here.'>");
+  selectorBtn = pen("<button id='selectrBtn' class='element-selector btn'>Submit</button>");
   br = pen("<br>");
   sideMsg = pen("<p id='sideInfo' class='side-message'>check the console</p>");
   title.html("Wrk");
@@ -33,25 +31,28 @@ pen(document).ready(function() {
   wrapper.append(selector, relbut);
   wrapper.appendTo(body);
   selr = function(content, el) {
-    var container, grabText, header, highlight, toggleCls;
+    var changeText, container, grabText, header, highlight, toggleCls;
     container = pen(`<div id='selectionDiv' class='selection${i}' align='center'>`);
-    header = pen("<h4 class='selector-header'>").html(content);
-    grabText = pen("<button id='grabber' class='grabber-btn btn'>grab text</button>");
+    header = pen(`<h4 class='selector-header'>${content}</h4>`);
+    grabText = pen("<button id='grabber' class='grabber btn'>grab text</button>");
+    highlight = pen("<button id='highlighter' class='highlighter btn'>Highlight</button>");
+    changeText = pen("input id='text-change' class='text-changer input' placeholder='change the text'");
+    toggleCls = pen("<input id='toggler' class='toggler input' placeholder='toggle class'>");
     grabText.click(function(e) {
       return grabText.el.outerHTML = `<p id='grabbed'>"${el.html()}"</p>`;
     });
-    highlight = pen("<button id='highlighter' class='highlighter-btn btn'>").html("Highlight");
     highlight.click(function(e) {
       return el.toggle('selected');
     });
-    toggleCls = pen("<input id='toggler' class='toggler-input input' placeholder='toggle class'>");
     toggleCls.enter(function(ev, it) {
-      var val;
-      val = it.html();
-      it.html("");
-      el.toggle(val);
+      el.toggle(it.html());
+      return it.html("");
     });
-    container.append(header, grabText, highlight, toggleCls);
+    changeText.enter(function(ev, it) {
+      el.html(it.html());
+      return it.html();
+    });
+    container.append(header, grabText, highlight, toggleCls, changeText);
     return container;
   };
   selectorBtn.click(function(e) {
@@ -77,6 +78,7 @@ pen(document).ready(function() {
       return selectorBtn.el.click();
     }
   });
+  log(selectorBtn);
   relbut.click(function(e) {
     sty.remove();
     styz.appendTo(head);

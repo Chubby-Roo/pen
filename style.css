@@ -53,7 +53,7 @@ body {
       width: 100vw;
       background: #52ac60;
       color: white; }
-      body .wrapper .element-selector .element-selector-input {
+      body .wrapper .element-selector .element-input {
         width: 50vw; }
     body .wrapper [class^=selection] {
       padding: 10px;
