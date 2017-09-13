@@ -35,7 +35,7 @@ pen(document).ready () ->
     toggleCls = pen "<input id='toggler' class='toggler input' placeholder='toggle class'>"
     grabText.click (e) ->
       grabText.el.outerHTML = "<p id='grabbed'>\"#{el.html()}\"</p>"
-    highlight.click (e) ->
+    highlight.on 'click', (e) ->
       el.toggle 'selected'
     toggleCls.enter (ev, it) ->
       el.toggle it.html()
@@ -47,7 +47,7 @@ pen(document).ready () ->
     return container
 
 
-  selectorBtn.click (e) ->
+  selectorBtn.on 'click', (e) ->
     i++
     e.preventDefault()
     val = selectorInput.html()
@@ -65,14 +65,14 @@ pen(document).ready () ->
 
     log pen.$ val
 
-  selectorInput.keydown (e) ->
+  selectorInput.on 'keydown', (e) ->
     if e.key is 'Enter'
       e.preventDefault()
       selectorBtn.el.click()
 
   log selectorBtn
 
-  relbut.click (e) ->
+  relbut.on 'click', (e) ->
     sty.remove()
     styz.appendTo(head)
     return

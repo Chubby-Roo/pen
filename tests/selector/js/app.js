@@ -41,7 +41,7 @@ pen(document).ready(function() {
     grabText.click(function(e) {
       return grabText.el.outerHTML = `<p id='grabbed'>"${el.html()}"</p>`;
     });
-    highlight.click(function(e) {
+    highlight.on('click', function(e) {
       return el.toggle('selected');
     });
     toggleCls.enter(function(ev, it) {
@@ -55,7 +55,7 @@ pen(document).ready(function() {
     container.append(header, grabText, highlight, toggleCls, changeText);
     return container;
   };
-  selectorBtn.click(function(e) {
+  selectorBtn.on('click', function(e) {
     var el, p, selec, val;
     i++;
     e.preventDefault();
@@ -72,14 +72,14 @@ pen(document).ready(function() {
     setTimeout(selec, 1500);
     return log(pen.$(val));
   });
-  selectorInput.keydown(function(e) {
+  selectorInput.on('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
       return selectorBtn.el.click();
     }
   });
   log(selectorBtn);
-  relbut.click(function(e) {
+  relbut.on('click', function(e) {
     sty.remove();
     styz.appendTo(head);
   });
