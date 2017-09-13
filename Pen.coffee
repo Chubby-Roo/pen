@@ -30,8 +30,8 @@ pen = do ->
   `vrs.type = (obj) => (vrs.class2Type[vrs.toString(obj)] || 'object')`
   vrs.parser = (regs, flags) ->
     regs = vrs.str regs, (flags or 'gi')
-    retsi = {}
     (str) =>
+      retsi = {}
       str = str or ''
       results = str.match regs
       if results? and results.length isnt 0
@@ -67,6 +67,7 @@ pen = do ->
     return args[0] if args[0] instanceof pen
     @hidden = false
     @cel = null
+    @attrs = null
     @start args...
     return
   pen.ink = pen:: = {}
@@ -94,7 +95,7 @@ pen = do ->
       [s, e] = vrs.searchAndSlice stTag, ' ', '>'; attribs = stTag.slice(s+1, e)
       [s, e] = vrs.searchAndSlice stTag, '<', ' '; tag = stTag.slice(s+1, e)
       [s, e] = vrs.searchAndSlice str, '>', '</'; text = str.slice(s+1, e)
-      return [str, stTag, attribs, tag, (if text is '' then null else text)]
+      return [str, stTag, (if attribs is "<#{tag}" then null else attribs), tag, (if text is '' then null else text)]
   pen::start = (ele, ops) ->
     t = vrs.type ops
     if t is 'string'
@@ -204,6 +205,8 @@ pen = do ->
       else
         return @el[prop]
     switch @tag
+      when 'input', 'textarea'
+        livi 'value', str, @, ops
       when 'option'
         livi 'value', str, @, ops
         return livi res, str

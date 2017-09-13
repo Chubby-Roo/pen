@@ -31,10 +31,10 @@ pen(document).ready () ->
     header = pen "<h4 class='selector-header'>#{content}</h4>"
     grabText = pen "<button id='grabber' class='grabber btn'>grab text</button>"
     highlight = pen "<button id='highlighter' class='highlighter btn'>Highlight</button>"
-    changeText = pen "input id='text-change' class='text-changer input' placeholder='change the text'"
+    changeText = pen "<input id='text-change' class='text-changer input' placeholder='change the text'>"
     toggleCls = pen "<input id='toggler' class='toggler input' placeholder='toggle class'>"
-    grabText.click (e) ->
-      grabText.el.outerHTML = "<p id='grabbed'>\"#{el.html()}\"</p>"
+    grabText.on 'click', (e) ->
+      grabText.el.outerHTML = "<p id='grabbed'>\"#{el.text}\"</p>"
     highlight.on 'click', (e) ->
       el.toggle 'selected'
     toggleCls.enter (ev, it) ->
@@ -49,28 +49,21 @@ pen(document).ready () ->
 
   selectorBtn.on 'click', (e) ->
     i++
-    e.preventDefault()
-    val = selectorInput.html()
-    selectorInput.html ""
+    val = selectorInput.text
+    selectorInput.text = ""
     el = pen.$ val, true
-    el.initLocalName()
     el.toggle 'selected'
-    p = new selr el.localName, el
-
+    p = new selr el.selector, el
     wrapper.append p
     selec = () ->
       el.toggle 'selected'
 
     setTimeout selec, 1500
 
-    log pen.$ val
-
   selectorInput.on 'keydown', (e) ->
     if e.key is 'Enter'
       e.preventDefault()
       selectorBtn.el.click()
-
-  log selectorBtn
 
   relbut.on 'click', (e) ->
     sty.remove()

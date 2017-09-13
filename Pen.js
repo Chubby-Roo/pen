@@ -40,11 +40,10 @@ pen = (function() {
   names.forEach(name => {vrs.class2Type[`[object ${name}]`] = name.toLowerCase()});
   vrs.type = (obj) => (vrs.class2Type[vrs.toString(obj)] || 'object');
   vrs.parser = function(regs, flags) {
-    var retsi;
     regs = vrs.str(regs, flags || 'gi');
-    retsi = {};
     return (str) => {
-      var results;
+      var results, retsi;
+      retsi = {};
       str = str || '';
       results = str.match(regs);
       if ((results != null) && results.length !== 0) {
@@ -99,6 +98,7 @@ pen = (function() {
     }
     this.hidden = false;
     this.cel = null;
+    this.attrs = null;
     this.start(...args);
   };
   pen.ink = pen.prototype = {};
@@ -138,7 +138,7 @@ pen = (function() {
       tag = stTag.slice(s + 1, e);
       [s, e] = vrs.searchAndSlice(str, '>', '</');
       text = str.slice(s + 1, e);
-      return [str, stTag, attribs, tag, (text === '' ? null : text)];
+      return [str, stTag, (attribs === `<${tag}` ? null : attribs), tag, (text === '' ? null : text)];
     }
   };
   pen.prototype.start = function(ele, ops) {
@@ -312,6 +312,9 @@ pen = (function() {
       }
     };
     switch (this.tag) {
+      case 'input':
+      case 'textarea':
+        return livi('value', str, this, ops);
       case 'option':
         livi('value', str, this, ops);
         return livi(res, str);

@@ -36,10 +36,10 @@ pen(document).ready(function() {
     header = pen(`<h4 class='selector-header'>${content}</h4>`);
     grabText = pen("<button id='grabber' class='grabber btn'>grab text</button>");
     highlight = pen("<button id='highlighter' class='highlighter btn'>Highlight</button>");
-    changeText = pen("input id='text-change' class='text-changer input' placeholder='change the text'");
+    changeText = pen("<input id='text-change' class='text-changer input' placeholder='change the text'>");
     toggleCls = pen("<input id='toggler' class='toggler input' placeholder='toggle class'>");
-    grabText.click(function(e) {
-      return grabText.el.outerHTML = `<p id='grabbed'>"${el.html()}"</p>`;
+    grabText.on('click', function(e) {
+      return grabText.el.outerHTML = `<p id='grabbed'>"${el.text}"</p>`;
     });
     highlight.on('click', function(e) {
       return el.toggle('selected');
@@ -58,19 +58,16 @@ pen(document).ready(function() {
   selectorBtn.on('click', function(e) {
     var el, p, selec, val;
     i++;
-    e.preventDefault();
-    val = selectorInput.html();
-    selectorInput.html("");
+    val = selectorInput.text;
+    selectorInput.text = "";
     el = pen.$(val, true);
-    el.initLocalName();
     el.toggle('selected');
-    p = new selr(el.localName, el);
+    p = new selr(el.selector, el);
     wrapper.append(p);
     selec = function() {
       return el.toggle('selected');
     };
-    setTimeout(selec, 1500);
-    return log(pen.$(val));
+    return setTimeout(selec, 1500);
   });
   selectorInput.on('keydown', function(e) {
     if (e.key === 'Enter') {
@@ -78,7 +75,6 @@ pen(document).ready(function() {
       return selectorBtn.el.click();
     }
   });
-  log(selectorBtn);
   relbut.on('click', function(e) {
     sty.remove();
     styz.appendTo(head);
