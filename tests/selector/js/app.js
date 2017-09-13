@@ -45,12 +45,12 @@ pen(document).ready(function() {
       return el.toggle('selected');
     });
     toggleCls.enter(function(ev, it) {
-      el.toggle(it.html());
-      return it.html("");
+      el.toggle(it.text);
+      return it.text = "";
     });
     changeText.enter(function(ev, it) {
-      el.html(it.html());
-      return it.html();
+      el.html(it.text);
+      return it.text = "";
     });
     container.append(header, grabText, highlight, toggleCls, changeText);
     return container;
@@ -59,7 +59,7 @@ pen(document).ready(function() {
     var el, p, selec, val;
     i++;
     val = selectorInput.text;
-    selectorInput.text = "";
+    selectorInput.html("");
     el = pen.$(val, true);
     el.toggle('selected');
     p = new selr(el.selector, el);

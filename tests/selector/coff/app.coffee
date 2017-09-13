@@ -38,11 +38,11 @@ pen(document).ready () ->
     highlight.on 'click', (e) ->
       el.toggle 'selected'
     toggleCls.enter (ev, it) ->
-      el.toggle it.html()
-      it.html ""
+      el.toggle it.text
+      it.text = ""
     changeText.enter (ev, it) ->
-      el.html it.html()
-      it.html()
+      el.html it.text
+      it.text = ""
     container.append header, grabText, highlight, toggleCls, changeText
     return container
 
@@ -50,7 +50,7 @@ pen(document).ready () ->
   selectorBtn.on 'click', (e) ->
     i++
     val = selectorInput.text
-    selectorInput.text = ""
+    selectorInput.html ""
     el = pen.$ val, true
     el.toggle 'selected'
     p = new selr el.selector, el
