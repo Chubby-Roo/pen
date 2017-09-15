@@ -38,7 +38,8 @@ pen = do ->
         results.forEach (match) =>
           if match.includes "="
             [name, value] = match.split "="
-            value = value.replace /^['"]([^\n]+)['"]$/m, '$1'
+            reg = /^['"]([^\n]+)['"]$/m
+            value = value.replace reg, '$1'
             retsi[name] = value
           return
         return retsi
@@ -153,8 +154,11 @@ pen = do ->
         configurable: true
       Children:
         get: () -> @cel.children
+        set: (el...) -> @append el...
       Parent:
         get: () -> @el.parentNode or null
+        set: (el) -> pen(el).append @
+        configurable: true
       Classes:
         get: () -> vrs.slice @el.classList
       attrs:
@@ -164,6 +168,8 @@ pen = do ->
           .forEach (res) =>
             ar[res.name] = res.value
           return ar
+        set: (obj) -> @attr obj
+        configurable: true
       selector:
         get: () ->
           res1 = if @attrs.id? then "##{@attrs.id}" else ''
@@ -206,9 +212,9 @@ pen = do ->
         return @el[prop]
     switch @tag
       when 'input', 'textarea'
-        livi 'value', str, @, ops
+        livi 'value', str
       when 'option'
-        livi 'value', str, @, ops
+        livi 'value', str
         return livi res, str
       else
         return livi res, str

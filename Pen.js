@@ -48,10 +48,11 @@ pen = (function() {
       results = str.match(regs);
       if ((results != null) && results.length !== 0) {
         results.forEach((match) => {
-          var name, value;
+          var name, reg, value;
           if (match.includes("=")) {
             [name, value] = match.split("=");
-            value = value.replace(/^['"]([^\n]+)['"]$/m, '$1');
+            reg = /^['"]([^\n]+)['"]$/m;
+            value = value.replace(reg, '$1');
             retsi[name] = value;
           }
         });
@@ -231,12 +232,19 @@ pen = (function() {
       Children: {
         get: function() {
           return this.cel.children;
+        },
+        set: function(...el) {
+          return this.append(...el);
         }
       },
       Parent: {
         get: function() {
           return this.el.parentNode || null;
-        }
+        },
+        set: function(el) {
+          return pen(el).append(this);
+        },
+        configurable: true
       },
       Classes: {
         get: function() {
@@ -251,7 +259,11 @@ pen = (function() {
             return ar[res.name] = res.value;
           });
           return ar;
-        }
+        },
+        set: function(obj) {
+          return this.attr(obj);
+        },
+        configurable: true
       },
       selector: {
         get: function() {
@@ -314,9 +326,9 @@ pen = (function() {
     switch (this.tag) {
       case 'input':
       case 'textarea':
-        return livi('value', str, this, ops);
+        return livi('value', str);
       case 'option':
-        livi('value', str, this, ops);
+        livi('value', str);
         return livi(res, str);
       default:
         return livi(res, str);

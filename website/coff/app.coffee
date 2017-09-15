@@ -17,15 +17,15 @@ pen(document).ready () ->
   header = pen "<div class='header top free' id='hdr'>"
   ttl = pen "<span id='hdrTitle' class='header-title'>"
   header.append ttl
-  relbut.click (e) ->
+  relbut.on "click", (e) ->
     sty.remove()
-    styz.appendTo(head)
+    styz.appendTo head
     return
-
+  wrapper.append relbut, txt
   pHead.append title, styz
-  pBody.append header, wrapper.append(relbut, txt)
+  pBody.append header, wrapper
 
-  ttl.html(document.title)
+  ttl.text = document.title
 
   fetch "https://raw.githubusercontent.com/Chubby-Roo/pen/master/README.md"
   .then (resp) => resp.text()
