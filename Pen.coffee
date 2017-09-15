@@ -1,118 +1,61 @@
 pen = do ->
-  ldr = (ev) =>
-    window['body'] = document.body; window['pBody'] = pen body; window['head'] = document.head; window['pHead'] = pen head
-    window['pDoc'] = pen document
-    return
-  document.addEventListener "DOMContentLoaded", ldr, {once:true}
-  vrs = {}
-  elCount = 0
-  win = window
-  doc = document
-  `vrs.proto = (pro) => pro.prototype`
-  `vrs.arr = vrs.proto(Array); vrs.obj = vrs.proto(Object)`
-  `vrs.slice = (vr) => vrs.arr.slice.call(vr)`
-  `vrs.toString = (vr) => vrs.obj.toString.call(vr)`
-  `vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)]`
-  vrs.iterate = (arr, times) =>
-    res = []
-    `for (var i = 0; i < times; ++i) {res.push(vrs.ranDos(arr));}`
-    return "i#{res.join ''}"
-  `vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags) : regs`
-  vrs.regs =
-    attribute: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi
-    css: /([^\n;: ]+):([^\n]+);/gi
-    tag: /<([^\n]*?)>/gi
-    eleme: /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi
-    innerText: />([\S\s]*?)</gi
-  vrs.class2Type = {}
-  names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split /\s+/gi
-  `names.forEach(name => {vrs.class2Type[\`[object ${name}]\`] = name.toLowerCase()})`
-  `vrs.type = (obj) => (vrs.class2Type[vrs.toString(obj)] || 'object')`
-  vrs.parser = (regs, flags) ->
-    regs = vrs.str regs, (flags or 'gi')
-    (str) =>
-      retsi = {}
-      str = str or ''
-      results = str.match regs
-      if results? and results.length isnt 0
-        results.forEach (match) =>
-          if match.includes "="
-            [name, value] = match.split "="
-            reg = /^['"]([^\n]+)['"]$/m
-            value = value.replace reg, '$1'
-            retsi[name] = value
-          return
-        return retsi
-      return
   {log, error, dir} = console
-  `vrs.detectAndReturn = (ting, ev) => ev.hasAttribute(ting) === true ? ev.getAttribute(ting) : null`
-  vrs.funcoso = (it, typeso, typesi) ->
-    typesi ?= typeso
-    `chk1 = (whl, propz, prop) => vrs.type(it.el[typesi]) === 'function' ? it.el[typesi](whl, propz[prop]) : it.el[typesi][whl] = propz[prop]`
-    funcso = (propz, nm) ->
+  define = () =>
+    `window['body'] = document.body; window['pBody'] = pen(body); window['head'] = document.head; window['pHead'] = pen(head)`
+    return
+  ```document.addEventListener("DOMContentLoaded", define, {once:true});
+  vrs = {}; vrs.class2Type = {}; vrs.elCount = 0; vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
+  vrs.names.forEach(name => {var nm;nm = "[object "+name+"]";vrs.class2Type[nm] = name.toLowerCase()});
+  vrs.proto = pro => pro.prototype;vrs.arr = vrs.proto(Array);vrs.obj = vrs.proto(Object);vrs.slice = (vr) => vrs.arr.slice.call(vr);vrs._toString = (vr) => vrs.obj.toString.call(vr);
+  vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object');
+  vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
+  vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)]; vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags): regs;
+  vrs.iterate = (arr, times) => {var res,i;res = [];for(i = 0;i < times;++i){res.push(vrs.ranDos(arr))};return res.join('');};
+  vrs.parser = (regs, flags) => {regs = vrs.str(regs, (flags || 'gi'));return str => {var obj;obj = {};str = str || '';results = str.match(regs);if((results != null) && results.length !== 0){results.map(match => {if (match.includes("=")){return match.split("=")}}).forEach(match => {var name,reg,val;[name, val] = match;reg = /^['"]([^\n]*?)['"]$/m;val = val.replace(reg, '$1');obj[name]=val;});return obj}}};
+  vrs.sAS = (str, ...els) => els.map(el => str.search(el));
+  vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};```
+  vrs.funcoso = (it, typeso, typesi) =>
+    typesi = typesi or typeso
+    `var chk;
+    chk = (whl, propz, prop) => vrs.type(it.el[typesi]) === 'function'  ? it.el[typesi](whl, propz[prop]) : it.el[typesi] = propz[prop]`
+    func = (propz, nm) =>
       for prop, prp of propz
         if vrs.type(prp) is 'object'
           funcso prp, prop
         else
-          if nm?
-            chk1 "#{nm}-#{prop}", propz, prop
-          else
-            chk1 prop, propz, prop
+          res = if nm? then "#{nm}-#{prop}" else prop
+          chk res, propz, prop
       return it
-    return funcso
-  `vrs.searchAndSlice = (str, ...els) => els.map(el => str.search(el))`
-  `vrs.penError = (name, msg) => {er = new Error(msg); er.name = name; throw er;}`
+    return func
   pen = () ->
-    args = arguments
-    return new pen args... if !(@ instanceof pen)
+    args = arguments; return new pen args... if !(@ instanceof pen)
     return args[0] if args[0] instanceof pen
-    @hidden = false
     @cel = null
     @attrs = null
     @start args...
     return
   pen.ink = pen:: = {}
-  pen.selected = {}; pen.created = {}
-  pen.$ = (el, ps = false) ->
-    if vrs.type(el) is 'string'
-      selec = doc.querySelector(el)
-      pen.selected["element#{elCount++}"] = selec
-      return `ps === true ? pen(selec) : selec`
-    else
-      return el
-  pen.$$ = (el, ps) =>
-    els = vrs.slice document.querySelectorAll el
-    `els.forEach(el => {pen.selected["element#{elCount++}"] = el})`
-    elv = if ps is true then `els.map(el => {return pen(el)})` else els
-    return elv
-  pen.create = (el, parseIt = false) =>
-    el = doc.createElement(el)
-    pen.created["element#{elCount++}"] = el
-    return `parseIt === true ? pen(el) : el`
+  ```pen.selected = {}; pen.created = {}
+  pen.$ = (el, ps = false) => {var elshi; elshi = "element"+vrs.elCount++;if (vrs.type(el) === 'string'){selec = document.querySelector(el); pen.selected[elshi] = selec; return ps===true?pen(selec):selec}else{return el}};
+  pen.$$ = (el, ps = false) => {var els, elshi; elshi = "element"+vrs.elCount++;els = vrs.slice(document.querySelectorAll(el)).map(el => {pen.selected[elshi] = el; return ps===true?pen(el):el});return els};
+  pen.create = (el, ps = false) => {var el, elshi; elshi = "element"+vrs.elCount++;el = document.createElement(el);pen.created[elshi] = el; return ps===true?pen(el):el}```
   pen.parse =
-    attributes: vrs.parser vrs.regs.attribute
-    element: (str) ->
-      [s, e] = vrs.searchAndSlice str, '<', '>'; stTag = str.slice(s, e+1)
-      [s, e] = vrs.searchAndSlice stTag, ' ', '>'; attribs = stTag.slice(s+1, e)
-      [s, e] = vrs.searchAndSlice stTag, '<', ' '; tag = stTag.slice(s+1, e)
-      [s, e] = vrs.searchAndSlice str, '>', '</'; text = str.slice(s+1, e)
-      return [str, stTag, (if attribs is "<#{tag}" then null else attribs), tag, (if text is '' then null else text)]
+    attrs: vrs.parser vrs.regs.attribute
+    element: (str) -> [s, e] = vrs.sAS str, '<', '>'; stTag = str.slice(s, e+1); [s, e] = vrs.sAS stTag, ' ', '>'; attribs = stTag.slice(s+1, e); [s, e] = vrs.sAS stTag, '<', ' '; tag = stTag.slice(s+1, e); [s, e] = vrs.sAS str, '>', '</'; text = str.slice(s+1, e); return [str, stTag, (if attribs is "<#{tag}" then null else attribs), tag, (if text is '' then null else text)]
+
   pen::start = (ele, ops) ->
-    t = vrs.type ops
-    if t is 'string'
-      el = pen.$ ops, yes
-      ele = if /\.|#|\[\]/gi.test(ele) is yes then el.$ ele else el.create ele
-    else
-      @initOptions ops
+    if vrs.type(ops) is 'string'
+      el = pen.$ ops, yes; ele = if /\.|#|\[\]/gi.test(ele) is yes then el.$ ele else el.create ele
+    else @initOptions ops
     @el = ele
-    t1 = vrs.type @el
-    if t1 is 'object'
+    t = vrs.type @el
+    if t is 'object'
       @partialSetup()
-    else if t1 is 'string'
+    else if t is 'string'
       @setup @el
-    if @ops.autoAttach is yes
-      @ops.autoAttachTo.append @el
+    @ops.autoAttachTo.append @el if @ops.autoAttach is yes
     return @
+
   pen::initOptions = (ops) ->
     @ops =
       autoAttach: (if ops? then (ops.autoAttach or no) else no)
@@ -123,14 +66,14 @@ pen = do ->
         html:
           app: (if ops? and ops.global? and ops.global.html? then (ops.global.html.app or no) else no)
           parse: (if ops? and ops.global? and ops.global.html? then (ops.global.html.parse or no) else no)
-    return @ops
-  `pen.prototype.toString = function () {return this.el.outerHTML;}`
+    return @
+  `pen.ink.toString = function () {return this.outerHTML}`
   pen::setup = (el) ->
     t = vrs.type el
     if t is 'string'
       if el.startsWith('<')
         [whole, startTag, attributes, tag, text] = pen.parse.element el
-        attribs = pen.parse.attributes attributes
+        attribs = pen.parse.attrs attributes
         @el = pen.create tag
       else
         @el = pen.$ el
@@ -211,13 +154,11 @@ pen = do ->
       else
         return @el[prop]
     switch @tag
-      when 'input', 'textarea'
-        livi 'value', str
+      when 'input', 'textarea' then livi 'value', str
       when 'option'
         livi 'value', str
         return livi res, str
-      else
-        return livi res, str
+      else return livi res, str
   pen::attr = (attribute, value) ->
     func = vrs.funcoso this, 'attributes', 'setAttribute'
     if attribute?
@@ -246,9 +187,7 @@ pen = do ->
   pen::on = (evtp, cb, cp) ->
     cp = cp or false
     @el.events = @el.events or {}
-    @el.events[evtp] = {}
-    @el.events[evtp].capture = cp
-    @el.events[evtp][cb.name or 'func'] = cb
+    `this.el.events[evtp] = {}; this.el.events[evtp].capture = cp; this.el.events[evtp][cb.name || 'func'] = cb`
     @el.addEventListener arguments...
     return @
   pen::off = (evtp, cb) ->

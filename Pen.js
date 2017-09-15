@@ -1,93 +1,42 @@
 var pen;
 
 pen = (function() {
-  var dir, doc, elCount, error, ldr, log, names, vrs, win;
-  ldr = (ev) => {
-    window['body'] = document.body;
-    window['pBody'] = pen(body);
-    window['head'] = document.head;
-    window['pHead'] = pen(head);
-    window['pDoc'] = pen(document);
-  };
-  document.addEventListener("DOMContentLoaded", ldr, {
-    once: true
-  });
-  vrs = {};
-  elCount = 0;
-  win = window;
-  doc = document;
-  vrs.proto = (pro) => pro.prototype;
-  vrs.arr = vrs.proto(Array); vrs.obj = vrs.proto(Object);
-  vrs.slice = (vr) => vrs.arr.slice.call(vr);
-  vrs.toString = (vr) => vrs.obj.toString.call(vr);
-  vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  vrs.iterate = (arr, times) => {
-    var res;
-    res = [];
-    for (var i = 0; i < times; ++i) {res.push(vrs.ranDos(arr));};
-    return `i${res.join('')}`;
-  };
-  vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags) : regs;
-  vrs.regs = {
-    attribute: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi,
-    css: /([^\n;: ]+):([^\n]+);/gi,
-    tag: /<([^\n]*?)>/gi,
-    eleme: /<([^\n]*?)>([\S\s]*?)<\/([^\n]*?)>/gi,
-    innerText: />([\S\s]*?)</gi
-  };
-  vrs.class2Type = {};
-  names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
-  names.forEach(name => {vrs.class2Type[`[object ${name}]`] = name.toLowerCase()});
-  vrs.type = (obj) => (vrs.class2Type[vrs.toString(obj)] || 'object');
-  vrs.parser = function(regs, flags) {
-    regs = vrs.str(regs, flags || 'gi');
-    return (str) => {
-      var results, retsi;
-      retsi = {};
-      str = str || '';
-      results = str.match(regs);
-      if ((results != null) && results.length !== 0) {
-        results.forEach((match) => {
-          var name, reg, value;
-          if (match.includes("=")) {
-            [name, value] = match.split("=");
-            reg = /^['"]([^\n]+)['"]$/m;
-            value = value.replace(reg, '$1');
-            retsi[name] = value;
-          }
-        });
-        return retsi;
-      }
-    };
-  };
+  var define, dir, error, log;
   ({log, error, dir} = console);
-  vrs.detectAndReturn = (ting, ev) => ev.hasAttribute(ting) === true ? ev.getAttribute(ting) : null;
-  vrs.funcoso = function(it, typeso, typesi) {
-    var funcso;
-    if (typesi == null) {
-      typesi = typeso;
-    }
-    chk1 = (whl, propz, prop) => vrs.type(it.el[typesi]) === 'function' ? it.el[typesi](whl, propz[prop]) : it.el[typesi][whl] = propz[prop];
-    funcso = function(propz, nm) {
-      var prop, prp;
+  define = () => {
+    window['body'] = document.body; window['pBody'] = pen(body); window['head'] = document.head; window['pHead'] = pen(head);
+  };
+  document.addEventListener("DOMContentLoaded", define, {once:true});
+  vrs = {}; vrs.class2Type = {}; vrs.elCount = 0; vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
+  vrs.names.forEach(name => {var nm;nm = "[object "+name+"]";vrs.class2Type[nm] = name.toLowerCase()});
+  vrs.proto = pro => pro.prototype;vrs.arr = vrs.proto(Array);vrs.obj = vrs.proto(Object);vrs.slice = (vr) => vrs.arr.slice.call(vr);vrs._toString = (vr) => vrs.obj.toString.call(vr);
+  vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object');
+  vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
+  vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)]; vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags): regs;
+  vrs.iterate = (arr, times) => {var res,i;res = [];for(i = 0;i < times;++i){res.push(vrs.ranDos(arr))};return res.join('');};
+  vrs.parser = (regs, flags) => {regs = vrs.str(regs, (flags || 'gi'));return str => {var obj;obj = {};str = str || '';results = str.match(regs);if((results != null) && results.length !== 0){results.map(match => {if (match.includes("=")){return match.split("=")}}).forEach(match => {var name,reg,val;[name, val] = match;reg = /^['"]([^\n]*?)['"]$/m;val = val.replace(reg, '$1');obj[name]=val;});return obj}}};
+  vrs.sAS = (str, ...els) => els.map(el => str.search(el));
+  vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};;
+  vrs.funcoso = (it, typeso, typesi) => {
+    var func;
+    typesi = typesi || typeso;
+    var chk;
+    chk = (whl, propz, prop) => vrs.type(it.el[typesi]) === 'function'  ? it.el[typesi](whl, propz[prop]) : it.el[typesi] = propz[prop];
+    func = (propz, nm) => {
+      var prop, prp, res;
       for (prop in propz) {
         prp = propz[prop];
         if (vrs.type(prp) === 'object') {
           funcso(prp, prop);
         } else {
-          if (nm != null) {
-            chk1(`${nm}-${prop}`, propz, prop);
-          } else {
-            chk1(prop, propz, prop);
-          }
+          res = nm != null ? `${nm}-${prop}` : prop;
+          chk(res, propz, prop);
         }
       }
       return it;
     };
-    return funcso;
+    return func;
   };
-  vrs.searchAndSlice = (str, ...els) => els.map(el => str.search(el));
-  vrs.penError = (name, msg) => {er = new Error(msg); er.name = name; throw er;};
   pen = function() {
     var args;
     args = arguments;
@@ -97,65 +46,43 @@ pen = (function() {
     if (args[0] instanceof pen) {
       return args[0];
     }
-    this.hidden = false;
     this.cel = null;
     this.attrs = null;
     this.start(...args);
   };
   pen.ink = pen.prototype = {};
-  pen.selected = {};
-  pen.created = {};
-  pen.$ = function(el, ps = false) {
-    var selec;
-    if (vrs.type(el) === 'string') {
-      selec = doc.querySelector(el);
-      pen.selected[`element${elCount++}`] = selec;
-      return ps === true ? pen(selec) : selec;
-    } else {
-      return el;
-    }
-  };
-  pen.$$ = (el, ps) => {
-    var els, elv;
-    els = vrs.slice(document.querySelectorAll(el));
-    els.forEach(el => {pen.selected["element#{elCount++}"] = el});
-    elv = ps === true ? els.map(el => {return pen(el)}) : els;
-    return elv;
-  };
-  pen.create = (el, parseIt = false) => {
-    el = doc.createElement(el);
-    pen.created[`element${elCount++}`] = el;
-    return parseIt === true ? pen(el) : el;
-  };
+  pen.selected = {}; pen.created = {}
+  pen.$ = (el, ps = false) => {var elshi; elshi = "element"+vrs.elCount++;if (vrs.type(el) === 'string'){selec = document.querySelector(el); pen.selected[elshi] = selec; return ps===true?pen(selec):selec}else{return el}};
+  pen.$$ = (el, ps = false) => {var els, elshi; elshi = "element"+vrs.elCount++;els = vrs.slice(document.querySelectorAll(el)).map(el => {pen.selected[elshi] = el; return ps===true?pen(el):el});return els};
+  pen.create = (el, ps = false) => {var el, elshi; elshi = "element"+vrs.elCount++;el = document.createElement(el);pen.created[elshi] = el; return ps===true?pen(el):el};
   pen.parse = {
-    attributes: vrs.parser(vrs.regs.attribute),
+    attrs: vrs.parser(vrs.regs.attribute),
     element: function(str) {
       var attribs, e, s, stTag, tag, text;
-      [s, e] = vrs.searchAndSlice(str, '<', '>');
+      [s, e] = vrs.sAS(str, '<', '>');
       stTag = str.slice(s, e + 1);
-      [s, e] = vrs.searchAndSlice(stTag, ' ', '>');
+      [s, e] = vrs.sAS(stTag, ' ', '>');
       attribs = stTag.slice(s + 1, e);
-      [s, e] = vrs.searchAndSlice(stTag, '<', ' ');
+      [s, e] = vrs.sAS(stTag, '<', ' ');
       tag = stTag.slice(s + 1, e);
-      [s, e] = vrs.searchAndSlice(str, '>', '</');
+      [s, e] = vrs.sAS(str, '>', '</');
       text = str.slice(s + 1, e);
       return [str, stTag, (attribs === `<${tag}` ? null : attribs), tag, (text === '' ? null : text)];
     }
   };
   pen.prototype.start = function(ele, ops) {
-    var el, t, t1;
-    t = vrs.type(ops);
-    if (t === 'string') {
+    var el, t;
+    if (vrs.type(ops) === 'string') {
       el = pen.$(ops, true);
       ele = /\.|#|\[\]/gi.test(ele) === true ? el.$(ele) : el.create(ele);
     } else {
       this.initOptions(ops);
     }
     this.el = ele;
-    t1 = vrs.type(this.el);
-    if (t1 === 'object') {
+    t = vrs.type(this.el);
+    if (t === 'object') {
       this.partialSetup();
-    } else if (t1 === 'string') {
+    } else if (t === 'string') {
       this.setup(this.el);
     }
     if (this.ops.autoAttach === true) {
@@ -176,16 +103,16 @@ pen = (function() {
         }
       }
     };
-    return this.ops;
+    return this;
   };
-  pen.prototype.toString = function () {return this.el.outerHTML;};
+  pen.ink.toString = function () {return this.outerHTML};
   pen.prototype.setup = function(el) {
     var attribs, attributes, name, startTag, t, tag, text, value, whole;
     t = vrs.type(el);
     if (t === 'string') {
       if (el.startsWith('<')) {
         [whole, startTag, attributes, tag, text] = pen.parse.element(el);
-        attribs = pen.parse.attributes(attributes);
+        attribs = pen.parse.attrs(attributes);
         this.el = pen.create(tag);
       } else {
         this.el = pen.$(el);
@@ -373,9 +300,7 @@ pen = (function() {
   pen.prototype.on = function(evtp, cb, cp) {
     cp = cp || false;
     this.el.events = this.el.events || {};
-    this.el.events[evtp] = {};
-    this.el.events[evtp].capture = cp;
-    this.el.events[evtp][cb.name || 'func'] = cb;
+    this.el.events[evtp] = {}; this.el.events[evtp].capture = cp; this.el.events[evtp][cb.name || 'func'] = cb;
     this.el.addEventListener(...arguments);
     return this;
   };
