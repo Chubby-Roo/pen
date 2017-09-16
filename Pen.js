@@ -10,13 +10,11 @@ pen = (function() {
   vrs = {}; vrs.class2Type = {}; vrs.elCount = 0; vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
   vrs.names.forEach(name => {var nm;nm = "[object "+name+"]";vrs.class2Type[nm] = name.toLowerCase()});
   vrs.proto = pro => pro.prototype;vrs.arr = vrs.proto(Array);vrs.obj = vrs.proto(Object);vrs.slice = (vr) => vrs.arr.slice.call(vr);vrs._toString = (vr) => vrs.obj.toString.call(vr);
-  vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object');
-  vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
+  vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object'); vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
   vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)]; vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags): regs;
   vrs.iterate = (arr, times) => {var res,i;res = [];for(i = 0;i < times;++i){res.push(vrs.ranDos(arr))};return res.join('');};
   vrs.parser = (regs, flags) => {regs = vrs.str(regs, (flags || 'gi'));return str => {var obj;obj = {};str = str || '';results = str.match(regs);if((results != null) && results.length !== 0){results.map(match => {if (match.includes("=")){return match.split("=")}}).forEach(match => {var name,reg,val;[name, val] = match;reg = /^['"]([^\n]*?)['"]$/m;val = val.replace(reg, '$1');obj[name]=val;});return obj}}};
-  vrs.sAS = (str, ...els) => els.map(el => str.search(el));
-  vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};;
+  vrs.sAS = (str, ...els) => els.map(el => str.search(el));vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};;
   vrs.funcoso = (it, typeso, typesi) => {
     var func, pz;
     typesi = typesi || typeso;
@@ -111,7 +109,7 @@ pen = (function() {
   };
   pen.ink.toString = function () {return this.outerHTML};
   pen.prototype.setup = function(el) {
-    var attribs, attributes, name, startTag, t, tag, text, value, whole;
+    var attribs, attributes, startTag, t, tag, text, whole;
     t = vrs.type(el);
     if (t === 'string') {
       if (el.startsWith('<')) {
@@ -124,10 +122,7 @@ pen = (function() {
     } else {
       this.el = el;
     }
-    for (name in attribs) {
-      value = attribs[name];
-      this.attr(name, value);
-    }
+    this.attr(attribs);
     if ((text != null) && text.length !== 0) {
       this.html(text, {
         parse: true
@@ -162,7 +157,9 @@ pen = (function() {
       },
       Children: {
         get: function() {
-          return this.cel.children;
+          return vrs.slice(this.cel.children).map((el) => {
+            return pen(el);
+          });
         },
         set: function(...el) {
           return this.append(...el);

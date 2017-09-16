@@ -7,13 +7,11 @@ pen = do ->
   vrs = {}; vrs.class2Type = {}; vrs.elCount = 0; vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
   vrs.names.forEach(name => {var nm;nm = "[object "+name+"]";vrs.class2Type[nm] = name.toLowerCase()});
   vrs.proto = pro => pro.prototype;vrs.arr = vrs.proto(Array);vrs.obj = vrs.proto(Object);vrs.slice = (vr) => vrs.arr.slice.call(vr);vrs._toString = (vr) => vrs.obj.toString.call(vr);
-  vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object');
-  vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
+  vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object'); vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
   vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)]; vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags): regs;
   vrs.iterate = (arr, times) => {var res,i;res = [];for(i = 0;i < times;++i){res.push(vrs.ranDos(arr))};return res.join('');};
   vrs.parser = (regs, flags) => {regs = vrs.str(regs, (flags || 'gi'));return str => {var obj;obj = {};str = str || '';results = str.match(regs);if((results != null) && results.length !== 0){results.map(match => {if (match.includes("=")){return match.split("=")}}).forEach(match => {var name,reg,val;[name, val] = match;reg = /^['"]([^\n]*?)['"]$/m;val = val.replace(reg, '$1');obj[name]=val;});return obj}}};
-  vrs.sAS = (str, ...els) => els.map(el => str.search(el));
-  vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};```
+  vrs.sAS = (str, ...els) => els.map(el => str.search(el));vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};```
   vrs.funcoso = (it, typeso, typesi) =>
     typesi = typesi or typeso
     pz = vrs.type(it.el[typesi])
@@ -82,8 +80,7 @@ pen = do ->
         @el = pen.$ el
     else
       @el = el
-    for name, value of attribs
-      @attr name, value
+    @attr attribs
     if text? and text.length isnt 0
       @html text, parse: yes
     @partialSetup()
@@ -99,7 +96,9 @@ pen = do ->
         set: (str) -> @html str
         configurable: true
       Children:
-        get: () -> @cel.children
+        get: () ->
+          vrs.slice @cel.children
+          .map (el) => pen(el)
         set: (el...) -> @append el...
       Parent:
         get: () -> @el.parentNode or null
