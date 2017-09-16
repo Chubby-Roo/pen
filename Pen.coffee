@@ -16,15 +16,17 @@ pen = do ->
   vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};```
   vrs.funcoso = (it, typeso, typesi) =>
     typesi = typesi or typeso
-    `var chk;
-    chk = (whl, propz, prop) => vrs.type(it.el[typesi]) === 'function'  ? it.el[typesi](whl, propz[prop]) : it.el[typesi] = propz[prop]`
+    pz = vrs.type(it.el[typesi])
     func = (propz, nm) =>
       for prop, prp of propz
+        res = if nm? then "#{nm}-#{prop}" else prop
         if vrs.type(prp) is 'object'
-          funcso prp, prop
+          func prp, res
         else
-          res = if nm? then "#{nm}-#{prop}" else prop
-          chk res, propz, prop
+          if pz is 'function'
+            it.el[typesi](res, prp)
+          else
+            it.el[typesi][res] = prp
       return it
     return func
   pen = () ->
@@ -122,21 +124,21 @@ pen = do ->
         get: () ->
           @el.getBoundingClientRect()
     @el.events = {}
-    if @el instanceof Document
-      @body = window['pBody']
-      @head = window['pHead']
-      pen::ready = () ->
-        args = arguments
-        @on 'DOMContentLoaded', args...
-        return @
-    else if @el instanceof Window
-      @doc = @el.document
-    switch @tag
-      when 'template'
+    switch true
+      when @el instanceof Document
+        @body = window['pBody']
+        @head = window['pHead']
+        pen::ready = () ->
+          args = arguments
+          @on 'DOMContentLoaded', args...
+          return @
+      when @el instanceof Window
+        @doc = @el.document
+      when @tag is 'template'
         pen::clone = () ->
           args = arguments
           document.importNode args...
-      when 'canvas'
+      when @tag is 'canvas'
         @ctx = @context = @el.getContext '2d'
     return @
   pen::html = (str, ops) ->
@@ -146,18 +148,13 @@ pen = do ->
     reg = /input|option|textarea/i
     livi = (prop, str) =>
       if str?
-        if reg.test(@tag) is true
-          @attr 'value', (if app is true then "#{@el.getAttribute('value')}#{str}" else str)
-        else
-          `app === true ? this.el[prop] += str : this.el[prop] = str`
+        if reg.test(@tag) is true then @attr 'value', (if app is true then "#{@el.getAttribute('value')}#{str}" else str) else `app === true ? this.el[prop] += str : this.el[prop] = str`
         return @
-      else
-        return @el[prop]
+      else return @el[prop]
     switch @tag
       when 'input', 'textarea' then livi 'value', str
       when 'option'
-        livi 'value', str
-        return livi res, str
+        livi 'value', str; return livi res, str
       else return livi res, str
   pen::attr = (attribute, value) ->
     func = vrs.funcoso this, 'attributes', 'setAttribute'

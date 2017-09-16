@@ -18,19 +18,22 @@ pen = (function() {
   vrs.sAS = (str, ...els) => els.map(el => str.search(el));
   vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};;
   vrs.funcoso = (it, typeso, typesi) => {
-    var func;
+    var func, pz;
     typesi = typesi || typeso;
-    var chk;
-    chk = (whl, propz, prop) => vrs.type(it.el[typesi]) === 'function'  ? it.el[typesi](whl, propz[prop]) : it.el[typesi] = propz[prop];
+    pz = vrs.type(it.el[typesi]);
     func = (propz, nm) => {
       var prop, prp, res;
       for (prop in propz) {
         prp = propz[prop];
+        res = nm != null ? `${nm}-${prop}` : prop;
         if (vrs.type(prp) === 'object') {
-          funcso(prp, prop);
+          func(prp, res);
         } else {
-          res = nm != null ? `${nm}-${prop}` : prop;
-          chk(res, propz, prop);
+          if (pz === 'function') {
+            it.el[typesi](res, prp);
+          } else {
+            it.el[typesi][res] = prp;
+          }
         }
       }
       return it;
@@ -207,27 +210,28 @@ pen = (function() {
       }
     });
     this.el.events = {};
-    if (this.el instanceof Document) {
-      this.body = window['pBody'];
-      this.head = window['pHead'];
-      pen.prototype.ready = function() {
-        var args;
-        args = arguments;
-        this.on('DOMContentLoaded', ...args);
-        return this;
-      };
-    } else if (this.el instanceof Window) {
-      this.doc = this.el.document;
-    }
-    switch (this.tag) {
-      case 'template':
+    switch (true) {
+      case this.el instanceof Document:
+        this.body = window['pBody'];
+        this.head = window['pHead'];
+        pen.prototype.ready = function() {
+          var args;
+          args = arguments;
+          this.on('DOMContentLoaded', ...args);
+          return this;
+        };
+        break;
+      case this.el instanceof Window:
+        this.doc = this.el.document;
+        break;
+      case this.tag === 'template':
         pen.prototype.clone = function() {
           var args;
           args = arguments;
           return document.importNode(...args);
         };
         break;
-      case 'canvas':
+      case this.tag === 'canvas':
         this.ctx = this.context = this.el.getContext('2d');
     }
     return this;
