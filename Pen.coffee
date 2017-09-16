@@ -20,7 +20,8 @@ pen = do ->
     func = (propz, nm) =>
       for prop, prp of propz
         res = if nm? then "#{nm}-#{prop}" else prop
-        if vrs.type(prp) is 'object'
+        pzp = vrs.type(prp)
+        if pzp is 'object'
           func prp, res
         else
           if pz is 'function'
@@ -142,8 +143,7 @@ pen = do ->
         @ctx = @context = @el.getContext '2d'
     return @
   pen::html = (str, ops) ->
-    parse = if ops? then (ops.parse or false) else @ops.global.html.parse
-    app = if ops? then (ops.app or false) else @ops.global.html.app
+    {parse, app} = @initOptions ops
     res = if parse then 'innerHTML' else 'innerText'
     reg = /input|option|textarea/i
     livi = (prop, str) =>

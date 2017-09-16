@@ -22,11 +22,12 @@ pen = (function() {
     typesi = typesi || typeso;
     pz = vrs.type(it.el[typesi]);
     func = (propz, nm) => {
-      var prop, prp, res;
+      var prop, prp, pzp, res;
       for (prop in propz) {
         prp = propz[prop];
         res = nm != null ? `${nm}-${prop}` : prop;
-        if (vrs.type(prp) === 'object') {
+        pzp = vrs.type(prp);
+        if (pzp === 'object') {
           func(prp, res);
         } else {
           if (pz === 'function') {
@@ -238,8 +239,7 @@ pen = (function() {
   };
   pen.prototype.html = function(str, ops) {
     var app, livi, parse, reg, res;
-    parse = ops != null ? ops.parse || false : this.ops.global.html.parse;
-    app = ops != null ? ops.app || false : this.ops.global.html.app;
+    ({parse, app} = this.initOptions(ops));
     res = parse ? 'innerHTML' : 'innerText';
     reg = /input|option|textarea/i;
     livi = (prop, str) => {
