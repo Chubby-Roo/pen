@@ -20,12 +20,11 @@ pen = (function() {
     typesi = typesi || typeso;
     pz = vrs.type(it.el[typesi]);
     func = (propz, nm) => {
-      var prop, prp, pzp, res;
+      var prop, prp, res;
       for (prop in propz) {
         prp = propz[prop];
         res = nm != null ? `${nm}-${prop}` : prop;
-        pzp = vrs.type(prp);
-        if (pzp === 'object') {
+        if (vrs.type(prp) === 'object') {
           func(prp, res);
         } else {
           if (pz === 'function') {
@@ -53,10 +52,7 @@ pen = (function() {
     this.start(...args);
   };
   pen.ink = pen.prototype = {};
-  pen.selected = {}; pen.created = {}
-  pen.$ = (el, ps = false) => {var elshi; elshi = "element"+vrs.elCount++;if (vrs.type(el) === 'string'){selec = document.querySelector(el); pen.selected[elshi] = selec; return ps===true?pen(selec):selec}else{return el}};
-  pen.$$ = (el, ps = false) => {var els, elshi; elshi = "element"+vrs.elCount++;els = vrs.slice(document.querySelectorAll(el)).map(el => {pen.selected[elshi] = el; return ps===true?pen(el):el});return els};
-  pen.create = (el, ps = false) => {var el, elshi; elshi = "element"+vrs.elCount++;el = document.createElement(el);pen.created[elshi] = el; return ps===true?pen(el):el};
+  pen.selected = {}; pen.created = {}; pen.$ = (el, ps = false) => {var elshi; elshi = "element"+vrs.elCount++;if (vrs.type(el) === 'string'){selec = document.querySelector(el); pen.selected[elshi] = selec; return ps===true?pen(selec):selec}else{return el}};pen.$$ = (el, ps = false) => {var els, elshi; elshi = "element"+vrs.elCount++;els = vrs.slice(document.querySelectorAll(el)).map(el => {pen.selected[elshi] = el; return ps===true?pen(el):el});return els};pen.create = (el, ps = false) => {var el, elshi; elshi = "element"+vrs.elCount++;el = document.createElement(el);pen.created[elshi] = el; return ps===true?pen(el):el};
   pen.parse = {
     attrs: vrs.parser(vrs.regs.attribute),
     element: function(str) {
@@ -107,7 +103,7 @@ pen = (function() {
     };
     return this;
   };
-  pen.ink.toString = function () {return this.outerHTML};
+  pen.ink.toString = function () {return this.cel.outerHTML};
   pen.prototype.setup = function(el) {
     var attribs, attributes, startTag, t, tag, text, whole;
     t = vrs.type(el);
@@ -132,80 +128,15 @@ pen = (function() {
   };
   pen.prototype.partialSetup = function() {
     Object.defineProperties(this, {
-      tag: {
-        get: function() {
-          return (this.el.tagName || 'IOS-ELEMENT').toLowerCase();
-        }
-      },
-      cel: {
-        get: function() {
-          if (this.tag === 'template') {
-            return this.el.content;
-          } else {
-            return this.el;
-          }
-        }
-      },
-      text: {
-        get: function() {
-          return this.html();
-        },
-        set: function(str) {
-          return this.html(str);
-        },
-        configurable: true
-      },
-      Children: {
-        get: function() {
-          return vrs.slice(this.cel.children).map((el) => {
-            return pen(el);
-          });
-        },
-        set: function(...el) {
-          return this.append(...el);
-        }
-      },
-      Parent: {
-        get: function() {
-          return this.el.parentNode || null;
-        },
-        set: function(el) {
-          return pen(el).append(this);
-        },
-        configurable: true
-      },
-      Classes: {
-        get: function() {
-          return vrs.slice(this.el.classList);
-        }
-      },
-      attrs: {
-        get: function() {
-          var ar;
-          ar = {};
-          vrs.slice(this.el.attributes).forEach((res) => {
-            return ar[res.name] = res.value;
-          });
-          return ar;
-        },
-        set: function(obj) {
-          return this.attr(obj);
-        },
-        configurable: true
-      },
-      selector: {
-        get: function() {
-          var res1, res2;
-          res1 = this.attrs.id != null ? `#${this.attrs.id}` : '';
-          res2 = this.attrs.class != null ? `.${this.Classes.join('.')}` : '';
-          return `${this.tag}${res1}${res2}`;
-        }
-      },
-      size: {
-        get: function() {
-          return this.el.getBoundingClientRect();
-        }
-      }
+      tag: {get: function () {return (this.el.tagName or 'IOS-ELEMENT').toLowerCase();}},
+      cel: {get: function () {return (@tag === 'template' ? this.el.content : this.el);}},
+      text: {get: function () {return this.html();}, set: function (str) {return this.html(str);}, configurable: true},
+      Children: {get: function () {return vrs.slice(this.cel.children).map(el => pen(el))}, set: function (...els) {return this.append(...els)}, configurable: true},
+      Parent: {get: function () {return (this.el.parentNode || null)}, set: function (el) {return this.appendTo(el)}, configurable: true},
+      Classes: {get: function () {return vrs.slice(this.el.classList)}, set: function (cls) {return this.toggle(cls);}, configurable: true},
+      attrs: {get: function () {var ar;ar = {};vrs.slice(this.el.attributes).forEach(res => {ar[res.name] = res.value}); return ar}, set: function (obj) {return this.attr(obj);}, configurable: true}
+      selector: {get: function () {return this.tag + (this.attrs.id != null ? `#${this.attrs.id}` : '') + (this.attrs.class? != null ? `.${this.Classes.join('.')}` : '')}},
+      size: {get: function () {return this.el.getBoundingClientRect()}}
     });
     this.el.events = {};
     switch (true) {
@@ -256,7 +187,6 @@ pen = (function() {
       case 'textarea':
         return livi('value', str);
       case 'option':
-        livi('value', str);
         return livi(res, str);
       default:
         return livi(res, str);

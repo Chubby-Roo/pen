@@ -18,8 +18,7 @@ pen = do ->
     func = (propz, nm) =>
       for prop, prp of propz
         res = if nm? then "#{nm}-#{prop}" else prop
-        pzp = vrs.type(prp)
-        if pzp is 'object'
+        if vrs.type(prp) is 'object'
           func prp, res
         else
           if pz is 'function'
@@ -36,14 +35,10 @@ pen = do ->
     @start args...
     return
   pen.ink = pen:: = {}
-  ```pen.selected = {}; pen.created = {}
-  pen.$ = (el, ps = false) => {var elshi; elshi = "element"+vrs.elCount++;if (vrs.type(el) === 'string'){selec = document.querySelector(el); pen.selected[elshi] = selec; return ps===true?pen(selec):selec}else{return el}};
-  pen.$$ = (el, ps = false) => {var els, elshi; elshi = "element"+vrs.elCount++;els = vrs.slice(document.querySelectorAll(el)).map(el => {pen.selected[elshi] = el; return ps===true?pen(el):el});return els};
-  pen.create = (el, ps = false) => {var el, elshi; elshi = "element"+vrs.elCount++;el = document.createElement(el);pen.created[elshi] = el; return ps===true?pen(el):el}```
+  ```pen.selected = {}; pen.created = {}; pen.$ = (el, ps = false) => {var elshi; elshi = "element"+vrs.elCount++;if (vrs.type(el) === 'string'){selec = document.querySelector(el); pen.selected[elshi] = selec; return ps===true?pen(selec):selec}else{return el}};pen.$$ = (el, ps = false) => {var els, elshi; elshi = "element"+vrs.elCount++;els = vrs.slice(document.querySelectorAll(el)).map(el => {pen.selected[elshi] = el; return ps===true?pen(el):el});return els};pen.create = (el, ps = false) => {var el, elshi; elshi = "element"+vrs.elCount++;el = document.createElement(el);pen.created[elshi] = el; return ps===true?pen(el):el}```
   pen.parse =
     attrs: vrs.parser vrs.regs.attribute
     element: (str) -> [s, e] = vrs.sAS str, '<', '>'; stTag = str.slice(s, e+1); [s, e] = vrs.sAS stTag, ' ', '>'; attribs = stTag.slice(s+1, e); [s, e] = vrs.sAS stTag, '<', ' '; tag = stTag.slice(s+1, e); [s, e] = vrs.sAS str, '>', '</'; text = str.slice(s+1, e); return [str, stTag, (if attribs is "<#{tag}" then null else attribs), tag, (if text is '' then null else text)]
-
   pen::start = (ele, ops) ->
     if vrs.type(ops) is 'string'
       el = pen.$ ops, yes; ele = if /\.|#|\[\]/gi.test(ele) is yes then el.$ ele else el.create ele
@@ -56,7 +51,6 @@ pen = do ->
       @setup @el
     @ops.autoAttachTo.append @el if @ops.autoAttach is yes
     return @
-
   pen::initOptions = (ops) ->
     @ops =
       autoAttach: (if ops? then (ops.autoAttach or no) else no)
@@ -68,7 +62,7 @@ pen = do ->
           app: (if ops? and ops.global? and ops.global.html? then (ops.global.html.app or no) else no)
           parse: (if ops? and ops.global? and ops.global.html? then (ops.global.html.parse or no) else no)
     return @
-  `pen.ink.toString = function () {return this.outerHTML}`
+  `pen.ink.toString = function () {return this.cel.outerHTML}`
   pen::setup = (el) ->
     t = vrs.type el
     if t is 'string'
@@ -86,43 +80,17 @@ pen = do ->
     @partialSetup()
     return
   pen::partialSetup = () ->
-    Object.defineProperties this,
-      tag:
-        get: () -> (@el.tagName or 'IOS-ELEMENT').toLowerCase()
-      cel:
-        get: () -> if @tag is 'template' then @el.content else @el
-      text:
-        get: () -> @html()
-        set: (str) -> @html str
-        configurable: true
-      Children:
-        get: () ->
-          vrs.slice @cel.children
-          .map (el) => pen(el)
-        set: (el...) -> @append el...
-      Parent:
-        get: () -> @el.parentNode or null
-        set: (el) -> pen(el).append @
-        configurable: true
-      Classes:
-        get: () -> vrs.slice @el.classList
-      attrs:
-        get: () ->
-          ar = {}
-          vrs.slice @el.attributes
-          .forEach (res) =>
-            ar[res.name] = res.value
-          return ar
-        set: (obj) -> @attr obj
-        configurable: true
-      selector:
-        get: () ->
-          res1 = if @attrs.id? then "##{@attrs.id}" else ''
-          res2 = if @attrs.class? then ".#{@Classes.join '.'}" else ''
-          "#{@tag}#{res1}#{res2}"
-      size:
-        get: () ->
-          @el.getBoundingClientRect()
+    Object.defineProperties this, ```{
+      tag: {get: function () {return (this.el.tagName or 'IOS-ELEMENT').toLowerCase();}},
+      cel: {get: function () {return (@tag === 'template' ? this.el.content : this.el);}},
+      text: {get: function () {return this.html();}, set: function (str) {return this.html(str);}, configurable: true},
+      Children: {get: function () {return vrs.slice(this.cel.children).map(el => pen(el))}, set: function (...els) {return this.append(...els)}, configurable: true},
+      Parent: {get: function () {return (this.el.parentNode || null)}, set: function (el) {return this.appendTo(el)}, configurable: true},
+      Classes: {get: function () {return vrs.slice(this.el.classList)}, set: function (cls) {return this.toggle(cls);}, configurable: true},
+      attrs: {get: function () {var ar;ar = {};vrs.slice(this.el.attributes).forEach(res => {ar[res.name] = res.value}); return ar}, set: function (obj) {return this.attr(obj);}, configurable: true}
+      selector: {get: function () {return this.tag + (this.attrs.id != null ? `#${this.attrs.id}` : '') + (this.attrs.class? != null ? `.${this.Classes.join('.')}` : '')}},
+      size: {get: function () {return this.el.getBoundingClientRect()}}
+    }```
     @el.events = {}
     switch true
       when @el instanceof Document
@@ -153,7 +121,7 @@ pen = do ->
     switch @tag
       when 'input', 'textarea' then livi 'value', str
       when 'option'
-        livi 'value', str; return livi res, str
+        return livi res, str
       else return livi res, str
   pen::attr = (attribute, value) ->
     func = vrs.funcoso this, 'attributes', 'setAttribute'
