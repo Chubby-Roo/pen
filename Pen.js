@@ -1,20 +1,10 @@
 var pen;
 
 pen = (function() {
-  var define, dir, error, log;
+  var define;
+  var dir, error, log;
   ({log, error, dir} = console);
-  define = () => {
-    window['body'] = document.body; window['pBody'] = pen(body); window['head'] = document.head; window['pHead'] = pen(head);
-  };
-  document.addEventListener("DOMContentLoaded", define, {once:true});
-  vrs = {}; vrs.class2Type = {};vrs.elCount = 0;vrs.funcCount = 0;vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
-  vrs.names.forEach(name => {var nm;nm = "[object "+name+"]";vrs.class2Type[nm] = name.toLowerCase()});
-  vrs.proto = pro => pro.prototype;vrs.arr = vrs.proto(Array);vrs.obj = vrs.proto(Object);vrs.slice = (vr) => vrs.arr.slice.call(vr);vrs._toString = (vr) => vrs.obj.toString.call(vr);
-  vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object'); vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
-  vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)]; vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags): regs;
-  vrs.iterate = (arr, times) => {var res,i;res = [];for(i = 0;i < times;++i){res.push(vrs.ranDos(arr))};return res.join('');};
-  vrs.parser = (regs, flags) => {regs = vrs.str(regs, (flags || 'gi'));return str => {var obj;obj = {};str = str || '';results = str.match(regs);if((results != null) && results.length !== 0){results.map(match => {if (match.includes("=")){return match.split("=")}}).forEach(match => {var name,reg,val;[name, val] = match;reg = /^['"]([^\n]*?)['"]$/m;val = val.replace(reg, '$1');obj[name]=val;});return obj}}};
-  vrs.sAS = (str, ...els) => els.map(el => str.search(el));vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};;
+  define=()=>{window['body']=document.body;window['pBody']=pen(body);window['head']=document.head;window['pHead']=pen(head)};document.addEventListener("DOMContentLoaded",define,{once:true});vrs={};vrs.class2Type={};vrs.elCount=0;vrs.funcCount=0;vrs.names='Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);vrs.names.forEach(name=>{vrs.class2Type[("[object "+name+"]")]=name.toLowerCase()});vrs.proto=pro=>pro.prototype;vrs.arr=vrs.proto(Array);vrs.obj=vrs.proto(Object);vrs.slice=(vr)=>vrs.arr.slice.call(vr);vrs._toString=(vr)=>vrs.obj.toString.call(vr);vrs.type=(obj)=>(vrs.class2Type[vrs._toString(obj)]||'object');vrs.regs={};vrs.regs.attribute=/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;vrs.ranDos=(arr)=>arr[Math.floor(Math.random()*arr.length)];vrs.str=(regs,flags)=>vrs.type(regs)==='string'?new RegExp(regs,flags):regs;vrs.iterate=(arr,times)=>{var res,i;res=[];for(i=0;i<times;++i){res.push(vrs.ranDos(arr))};return res.join('');};vrs.parser=(regs,flags)=>{regs=vrs.str(regs,(flags||'gi'));return (str)=>{var obj;obj={};str=str||'';results=str.match(regs);if((results!=null)&&results.length!==0){results.map(match=>{if(match.includes("=")){return match.split("=")}}).forEach(match=>{var name,reg,val;[name,val]=match;reg=/^['"]([^\n]*?)['"]$/m;val=val.replace(reg,'$1');obj[name]=val;});return obj}}};vrs.sAS=(str,...els)=>els.map(el=>str.search(el));vrs.pErr=(name,msg)=>{var er;er=new Error(msg);er.name=name;throw er};;
   vrs.funcoso = (it, typeso, typesi) => {
     var func, pz;
     typesi = typesi || typeso;
@@ -47,8 +37,7 @@ pen = (function() {
     if (args[0] instanceof pen) {
       return args[0];
     }
-    this.cel = null;
-    this.attrs = null;
+    this.cel=null;this.attrs=null;this.el=args[0];
     this.start(...args);
   };
   pen.ink = pen.prototype = {};
@@ -70,57 +59,45 @@ pen = (function() {
   };
   pen.genId = (times) => {var arr;arr = "0 1 2 3 4 5 6 7 8 9".split(/\s+/);return ("i"+(vrs.iterate(arr, times)));};
   pen.prototype.start = function(ele, ops) {
-    var el, t;
-    if (vrs.type(ops) === 'string') {
-      el = pen.$(ops, true);
-      ele = /\.|#|\[\]/gi.test(ele) === true ? el.$(ele) : el.create(ele);
-    } else {
-      this.initOptions(ops);
-    }
-    this.el = ele;
+    var t;
+    this.initOptions(ops);
     t = vrs.type(this.el);
     if (t === 'object') {
       this.partialSetup();
     } else if (t === 'string') {
       this.setup(this.el);
     }
-    if (this.ops.autoAttach === true) {
-      this.ops.autoAttachTo.append(this.el);
-    }
     return this;
   };
   pen.prototype.initOptions = function(ops) {
     this.ops = {
-      autoAttach: (ops != null ? ops.autoAttach || false : false),
-      autoAttachTo: (ops != null ? ops.autoAttachTo || window['body'] : window['body']),
-      global: {
-        parseIt: ((ops != null) && (ops.global != null) ? ops.global.parseIt || false : false),
-        create: ((ops != null) && (ops.global != null) ? ops.global.create || 'return child' : 'return child'),
-        html: {
-          app: ((ops != null) && (ops.global != null) && (ops.global.html != null) ? ops.global.html.app || false : false),
-          parse: ((ops != null) && (ops.global != null) && (ops.global.html != null) ? ops.global.html.parse || false : false)
-        }
+      parseIt: (ops != null ? ops.parseIt || false : false),
+      create: (ops != null ? ops.create || 'return child' : 'return child'),
+      html: {
+        app: ((ops != null) && (ops.html != null) ? ops.html.app || false : false),
+        parse: ((ops != null) && (ops.html != null) ? ops.html.parse || false : false)
       }
     };
     return this;
   };
   pen.ink.toString = function () {return this.cel.outerHTML};
   pen.prototype.setup = function(el) {
-    var attribs, attributes, startTag, t, tag, text, whole;
+    var whole,startTag,attributes,tag,text;
+    var t;
     t = vrs.type(el);
     if (t === 'string') {
       if (el.startsWith('<')) {
-        [whole, startTag, attributes, tag, text] = pen.parse.element(el);
-        attribs = pen.parse.attrs(attributes);
-        this.el = pen.create(tag);
+        [whole,startTag,attributes,tag,text]=pen.parse.element(el);attribs=pen.parse.attrs(attributes);this.el=pen.create(tag);
       } else {
         this.el = pen.$(el);
       }
     } else {
       this.el = el;
     }
-    this.attr(attribs);
-    if ((text != null) && text.length !== 0) {
+    if (typeof attribs !== "undefined" && attribs !== null) {
+      this.attr(attribs);
+    }
+    if ((typeof text !== "undefined" && text !== null) && text.length === 0) {
       this.html(text, {
         parse: true
       });
@@ -128,17 +105,7 @@ pen = (function() {
     this.partialSetup();
   };
   pen.prototype.partialSetup = function() {
-    Object.defineProperties(this, {
-      tag: {get: function () {return (this.el.tagName || 'IOS-ELEMENT').toLowerCase();}},
-      cel: {get: function () {return (this.tag === 'template' ? this.el.content : this.el);}},
-      text: {get: function () {return this.html();}, set: function (str) {return this.html(str);}, configurable: true},
-      Children: {get: function () {return vrs.slice(this.cel.children).map(el => pen(el))}, set: function (...els) {return this.append(...els)}, configurable: true},
-      Parent: {get: function () {return (this.el.parentNode || null)}, set: function (el) {return this.appendTo(el)}, configurable: true},
-      Classes: {get: function () {return vrs.slice(this.el.classList)}, set: function (cls) {return this.toggle(cls);}, configurable: true},
-      attrs: {get: function () {var ar;ar = {};vrs.slice(this.el.attributes).forEach(res => {ar[res.name] = res.value}); return ar}, set: function (obj) {return this.attr(obj);}, configurable: true},
-      selector: {get: function () {return this.tag + (this.attrs.id != null ? `#${this.attrs.id}` : '') + (this.attrs.class != null ? `.${this.Classes.join('.')}` : '')}},
-      size: {get: function () {return this.el.getBoundingClientRect()}}
-    });
+    Object.defineProperties(this, {tag:{get:function(){return (this.el.tagName||'IOS-ELEMENT').toLowerCase();}},cel:{get:function(){return (this.tag==='template'?this.el.content:this.el);}},text:{get:function(){return this.html();},set:function(str){return this.html(str);},configurable:true},Children:{get:function(){return vrs.slice(this.cel.children).map(el=>pen(el))},set:function(...els){return this.append(...els)},configurable:true},Parent:{get:function(){return (this.el.parentNode||null)},set:function(el){return this.appendTo(el)},configurable:true},Classes:{get:function(){return vrs.slice(this.el.classList)},set:function(cls){return this.toggle(cls);},configurable:true},attrs:{get:function(){var ar;ar={};vrs.slice(this.el.attributes).forEach(res=>{ar[res.name]=res.value});return ar},set:function(obj){return this.attr(obj);},configurable:true},selector:{get:function(){return this.tag+(this.attrs.id!=null?("#"+this.attrs.id):'')+(this.attrs.class!=null?('.'+this.Classes.join('.')):'')}},size:{get:function(){return this.el.getBoundingClientRect()}},hidden:{get:function(){return this.css('display')==='none'}}});
     this.el.events = {};
     switch (true) {
       case this.el instanceof Document:
@@ -217,13 +184,15 @@ pen = (function() {
         case 'object':
           return func(rule);
         case 'string':
-          rule = rule.replace(/-(\w{1})/g, (whole, dash) => {
-            return dash.toUpperCase();
-          });
-          this.el.style[rule] = rules;
-          return this;
-        default:
-          return this.el.style[rule];
+          if (rules != null) {
+            rule = rule.replace(/-(\w{1})/g, (whole, dash) => {
+              return dash.toUpperCase();
+            });
+            this.el.style[rule] = rules;
+            return this;
+          } else {
+            return this.el.style[rule];
+          }
       }
     } else {
       return this.el.style;
@@ -255,7 +224,7 @@ pen = (function() {
     return this;
   };
   pen.prototype.remove = function() {
-    this.el.remove();
+    this.Parent.removeChild(this);
     return this;
   };
   pen.prototype.$ = function(element, parseIt = false) {
@@ -267,15 +236,15 @@ pen = (function() {
   pen.prototype.$$ = function(element) {
     return this.cel.querySelectorAll(element);
   };
-  pen.prototype.create = pen.prototype.createElement = function(element, ret) {
+  pen.prototype.create = function(element, ret) {
     var result;
     element = pen(element);
     this.append(element);
     if (/child|parent/gi.test(ret) === true) {
       result = `return ${ret}`;
-      return result.endsWith("parent") === true ? this : element;
+      return result.endsWith("parent")===true?this:element;
     } else {
-
+      return this;
     }
   };
   pen.prototype.toggle = function(...classes) {
@@ -296,13 +265,8 @@ pen = (function() {
     return false;
   };
   pen.prototype.hide = function() {
-    if (this.hidden !== true) {
-      this.hidden = true;
-      this.css('display', 'none');
-    } else {
-      this.hidden = false;
-      this.css('display', '');
-    }
+    this.hidden===true?this.css('display',''):this.css('display','none');
+    return this;
   };
   pen.vrs = vrs;
   return pen;

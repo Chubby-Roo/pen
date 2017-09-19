@@ -1,37 +1,23 @@
 pen = do ->
+  `var define`
   {log, error, dir} = console
-  define = () =>
-    `window['body'] = document.body; window['pBody'] = pen(body); window['head'] = document.head; window['pHead'] = pen(head)`
-    return
-  ```document.addEventListener("DOMContentLoaded", define, {once:true});
-  vrs = {}; vrs.class2Type = {};vrs.elCount = 0;vrs.funcCount = 0;vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
-  vrs.names.forEach(name => {var nm;nm = "[object "+name+"]";vrs.class2Type[nm] = name.toLowerCase()});
-  vrs.proto = pro => pro.prototype;vrs.arr = vrs.proto(Array);vrs.obj = vrs.proto(Object);vrs.slice = (vr) => vrs.arr.slice.call(vr);vrs._toString = (vr) => vrs.obj.toString.call(vr);
-  vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object'); vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
-  vrs.ranDos = (arr) => arr[Math.floor(Math.random() * arr.length)]; vrs.str = (regs, flags) => vrs.type(regs) === 'string' ? new RegExp(regs, flags): regs;
-  vrs.iterate = (arr, times) => {var res,i;res = [];for(i = 0;i < times;++i){res.push(vrs.ranDos(arr))};return res.join('');};
-  vrs.parser = (regs, flags) => {regs = vrs.str(regs, (flags || 'gi'));return str => {var obj;obj = {};str = str || '';results = str.match(regs);if((results != null) && results.length !== 0){results.map(match => {if (match.includes("=")){return match.split("=")}}).forEach(match => {var name,reg,val;[name, val] = match;reg = /^['"]([^\n]*?)['"]$/m;val = val.replace(reg, '$1');obj[name]=val;});return obj}}};
-  vrs.sAS = (str, ...els) => els.map(el => str.search(el));vrs.pErr = (name, msg) => {var er;er = new Error(msg);er.name = name;throw er};```
+  ```define=()=>{window['body']=document.body;window['pBody']=pen(body);window['head']=document.head;window['pHead']=pen(head)};document.addEventListener("DOMContentLoaded",define,{once:true});vrs={};vrs.class2Type={};vrs.elCount=0;vrs.funcCount=0;vrs.names='Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);vrs.names.forEach(name=>{vrs.class2Type[("[object "+name+"]")]=name.toLowerCase()});vrs.proto=pro=>pro.prototype;vrs.arr=vrs.proto(Array);vrs.obj=vrs.proto(Object);vrs.slice=(vr)=>vrs.arr.slice.call(vr);vrs._toString=(vr)=>vrs.obj.toString.call(vr);vrs.type=(obj)=>(vrs.class2Type[vrs._toString(obj)]||'object');vrs.regs={};vrs.regs.attribute=/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;vrs.ranDos=(arr)=>arr[Math.floor(Math.random()*arr.length)];vrs.str=(regs,flags)=>vrs.type(regs)==='string'?new RegExp(regs,flags):regs;vrs.iterate=(arr,times)=>{var res,i;res=[];for(i=0;i<times;++i){res.push(vrs.ranDos(arr))};return res.join('');};vrs.parser=(regs,flags)=>{regs=vrs.str(regs,(flags||'gi'));return (str)=>{var obj;obj={};str=str||'';results=str.match(regs);if((results!=null)&&results.length!==0){results.map(match=>{if(match.includes("=")){return match.split("=")}}).forEach(match=>{var name,reg,val;[name,val]=match;reg=/^['"]([^\n]*?)['"]$/m;val=val.replace(reg,'$1');obj[name]=val;});return obj}}};vrs.sAS=(str,...els)=>els.map(el=>str.search(el));vrs.pErr=(name,msg)=>{var er;er=new Error(msg);er.name=name;throw er};```
   vrs.funcoso = (it, typeso, typesi) =>
     typesi = typesi or typeso
     pz = vrs.type(it.el[typesi])
     func = (propz, nm) =>
       for prop, prp of propz
         res = if nm? then "#{nm}-#{prop}" else prop
-        if vrs.type(prp) is 'object'
-          func prp, res
+        if vrs.type(prp) is 'object' then func prp, res
         else
-          if pz is 'function'
-            it.el[typesi](res, prp)
-          else
-            it.el[typesi][res] = prp
-      return it
-    return func
+          if pz is 'function' then it.el[typesi](res, prp)
+          else it.el[typesi][res] = prp
+      it
+    func
   pen = () ->
     args = arguments; return new pen args... if !(@ instanceof pen)
     return args[0] if args[0] instanceof pen
-    @cel = null
-    @attrs = null
+    `this.cel=null;this.attrs=null;this.el=args[0]`
     @start args...
     return
   pen.ink = pen:: = {}
@@ -41,57 +27,33 @@ pen = do ->
     element: (str) -> [s, e] = vrs.sAS str, '<', '>'; stTag = str.slice(s, e+1); [s, e] = vrs.sAS stTag, ' ', '>'; attribs = stTag.slice(s+1, e); [s, e] = vrs.sAS stTag, '<', ' '; tag = stTag.slice(s+1, e); [s, e] = vrs.sAS str, '>', '</'; text = str.slice(s+1, e); return [str, stTag, (if attribs is "<#{tag}" then null else attribs), tag, (if text is '' then null else text)]
   `pen.genId = (times) => {var arr;arr = "0 1 2 3 4 5 6 7 8 9".split(/\s+/);return ("i"+(vrs.iterate(arr, times)));}`
   pen::start = (ele, ops) ->
-    if vrs.type(ops) is 'string'
-      el = pen.$ ops, yes; ele = if /\.|#|\[\]/gi.test(ele) is yes then el.$ ele else el.create ele
-    else @initOptions ops
-    @el = ele
+    @initOptions ops
     t = vrs.type @el
-    if t is 'object'
-      @partialSetup()
-    else if t is 'string'
-      @setup @el
-    @ops.autoAttachTo.append @el if @ops.autoAttach is yes
+    if t is 'object' then @partialSetup() else if t is 'string' then @setup @el
     return @
   pen::initOptions = (ops) ->
     @ops =
-      autoAttach: (if ops? then (ops.autoAttach or no) else no)
-      autoAttachTo: (if ops? then (ops.autoAttachTo or window['body']) else window['body'])
-      global:
-        parseIt: (if ops? and ops.global? then (ops.global.parseIt or no) else no)
-        create: (if ops? and ops.global? then (ops.global.create or 'return child') else 'return child')
-        html:
-          app: (if ops? and ops.global? and ops.global.html? then (ops.global.html.app or no) else no)
-          parse: (if ops? and ops.global? and ops.global.html? then (ops.global.html.parse or no) else no)
+      parseIt: (if ops? then (ops.parseIt or no) else no)
+      create: (if ops? then (ops.create or 'return child') else 'return child')
+      html:
+        app: (if ops? and ops.html? then (ops.html.app or no) else no)
+        parse: (if ops? and ops.html? then (ops.html.parse or no) else no)
     return @
   `pen.ink.toString = function () {return this.cel.outerHTML}`
   pen::setup = (el) ->
+    `var whole,startTag,attributes,tag,text`
     t = vrs.type el
     if t is 'string'
       if el.startsWith('<')
-        [whole, startTag, attributes, tag, text] = pen.parse.element el
-        attribs = pen.parse.attrs attributes
-        @el = pen.create tag
-      else
-        @el = pen.$ el
-    else
-      @el = el
-    @attr attribs
-    if text? and text.length isnt 0
-      @html text, parse: yes
+        `[whole,startTag,attributes,tag,text]=pen.parse.element(el);attribs=pen.parse.attrs(attributes);this.el=pen.create(tag)`
+      else @el = pen.$ el
+    else @el = el
+    @attr attribs if attribs?
+    @html text, parse: yes if text? and text.length is 0
     @partialSetup()
     return
   pen::partialSetup = () ->
-    Object.defineProperties this, ```{
-      tag: {get: function () {return (this.el.tagName || 'IOS-ELEMENT').toLowerCase();}},
-      cel: {get: function () {return (this.tag === 'template' ? this.el.content : this.el);}},
-      text: {get: function () {return this.html();}, set: function (str) {return this.html(str);}, configurable: true},
-      Children: {get: function () {return vrs.slice(this.cel.children).map(el => pen(el))}, set: function (...els) {return this.append(...els)}, configurable: true},
-      Parent: {get: function () {return (this.el.parentNode || null)}, set: function (el) {return this.appendTo(el)}, configurable: true},
-      Classes: {get: function () {return vrs.slice(this.el.classList)}, set: function (cls) {return this.toggle(cls);}, configurable: true},
-      attrs: {get: function () {var ar;ar = {};vrs.slice(this.el.attributes).forEach(res => {ar[res.name] = res.value}); return ar}, set: function (obj) {return this.attr(obj);}, configurable: true},
-      selector: {get: function () {return this.tag + (this.attrs.id != null ? `#${this.attrs.id}` : '') + (this.attrs.class != null ? `.${this.Classes.join('.')}` : '')}},
-      size: {get: function () {return this.el.getBoundingClientRect()}}
-    }```
+    Object.defineProperties @, `{tag:{get:function(){return (this.el.tagName||'IOS-ELEMENT').toLowerCase();}},cel:{get:function(){return (this.tag==='template'?this.el.content:this.el);}},text:{get:function(){return this.html();},set:function(str){return this.html(str);},configurable:true},Children:{get:function(){return vrs.slice(this.cel.children).map(el=>pen(el))},set:function(...els){return this.append(...els)},configurable:true},Parent:{get:function(){return (this.el.parentNode||null)},set:function(el){return this.appendTo(el)},configurable:true},Classes:{get:function(){return vrs.slice(this.el.classList)},set:function(cls){return this.toggle(cls);},configurable:true},attrs:{get:function(){var ar;ar={};vrs.slice(this.el.attributes).forEach(res=>{ar[res.name]=res.value});return ar},set:function(obj){return this.attr(obj);},configurable:true},selector:{get:function(){return this.tag+(this.attrs.id!=null?("#"+this.attrs.id):'')+(this.attrs.class!=null?('.'+this.Classes.join('.')):'')}},size:{get:function(){return this.el.getBoundingClientRect()}},hidden:{get:function(){return this.css('display')==='none'}}}`
     @el.events = {}
     switch true
       when @el instanceof Document
@@ -125,30 +87,27 @@ pen = do ->
         return livi res, str
       else return livi res, str
   pen::attr = (attribute, value) ->
-    func = vrs.funcoso this, 'attributes', 'setAttribute'
+    func = vrs.funcoso @, 'attributes', 'setAttribute'
     if attribute?
-      if vrs.type(attribute) is 'object'
-        return func(attribute)
-      else if value?
-        @el.setAttribute attribute, value
-        return @
-      else
-        return @el.getAttribute attribute
-    else
-      return @attrs
+      if vrs.type(attribute) is 'object' then func(attribute)
+      else if value? then @el.setAttribute attribute, value; this
+      else @el.getAttribute attribute
+    else @attrs
   pen::css = (rule, rules) ->
-    func = vrs.funcoso this, 'style'
+    func = vrs.funcoso @, 'style'
     if rule?
       switch vrs.type(rule)
-        when 'object' then return func(rule)
+        when 'object' then func(rule)
         when 'string'
-          rule = rule.replace /-(\w{1})/g, (whole, dash) => dash.toUpperCase()
-          @el.style[rule] = rules
-          return @
-        else
-          return @el.style[rule]
+          if rules?
+            rule = rule.replace /-(\w{1})/g, (whole, dash) =>
+              dash.toUpperCase()
+            @el.style[rule] = rules
+            @
+          else
+            @el.style[rule]
     else
-      return @el.style
+      @el.style
   pen::on = (evtp, cb, cp) ->
     cp = cp or false
     @el.events = @el.events or {}
@@ -165,25 +124,18 @@ pen = do ->
       elu = (if element instanceof pen then element.el else element)
       @cel.appendChild(elu)
     return @
-  pen::appendTo = (element) ->
-    pen(element).append(@)
-    return @
-  pen::remove = ->
-    @el.remove()
-    return @
+  pen::appendTo = (element) -> pen(element).append(@); return @
+  pen::remove = -> @Parent.removeChild(@); return @
   pen::$ = (element, parseIt = false) ->
     qur = @cel.querySelector(element)
     result = if @ops.global.parseIt is true then pen(qur) else if parseIt is true then pen(qur) else qur
     return result
   pen::$$ = (element) -> @cel.querySelectorAll(element)
-  pen::create = pen::createElement = (element, ret) ->
+  pen::create = (element, ret) ->
     element = pen(element)
     @append(element)
-    if /child|parent/gi.test(ret) is true
-      result = "return #{ret}"
-      return `result.endsWith("parent") === true ? this : element`
-    else
-      return
+    if /child|parent/gi.test(ret) is true then result = "return #{ret}"; return `result.endsWith("parent")===true?this:element`
+    else return @
   pen::toggle = (classes...) ->
     classes.forEach (classs) =>
       @el.classList.toggle classs
@@ -194,12 +146,7 @@ pen = do ->
         return true
     return false
   pen::hide = () ->
-    if @hidden isnt true
-      @hidden = true
-      @css 'display', 'none'
-    else
-      @hidden = false
-      @css 'display', ''
-    return
+    `this.hidden===true?this.css('display',''):this.css('display','none')`
+    return @
   pen.vrs = vrs
   return pen
