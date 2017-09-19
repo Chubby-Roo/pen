@@ -81,14 +81,14 @@ pen = do ->
     return
   pen::partialSetup = () ->
     Object.defineProperties this, ```{
-      tag: {get: function () {return (this.el.tagName or 'IOS-ELEMENT').toLowerCase();}},
-      cel: {get: function () {return (@tag === 'template' ? this.el.content : this.el);}},
+      tag: {get: function () {return (this.el.tagName || 'IOS-ELEMENT').toLowerCase();}},
+      cel: {get: function () {return (this.tag === 'template' ? this.el.content : this.el);}},
       text: {get: function () {return this.html();}, set: function (str) {return this.html(str);}, configurable: true},
       Children: {get: function () {return vrs.slice(this.cel.children).map(el => pen(el))}, set: function (...els) {return this.append(...els)}, configurable: true},
       Parent: {get: function () {return (this.el.parentNode || null)}, set: function (el) {return this.appendTo(el)}, configurable: true},
       Classes: {get: function () {return vrs.slice(this.el.classList)}, set: function (cls) {return this.toggle(cls);}, configurable: true},
-      attrs: {get: function () {var ar;ar = {};vrs.slice(this.el.attributes).forEach(res => {ar[res.name] = res.value}); return ar}, set: function (obj) {return this.attr(obj);}, configurable: true}
-      selector: {get: function () {return this.tag + (this.attrs.id != null ? `#${this.attrs.id}` : '') + (this.attrs.class? != null ? `.${this.Classes.join('.')}` : '')}},
+      attrs: {get: function () {var ar;ar = {};vrs.slice(this.el.attributes).forEach(res => {ar[res.name] = res.value}); return ar}, set: function (obj) {return this.attr(obj);}, configurable: true},
+      selector: {get: function () {return this.tag + (this.attrs.id != null ? `#${this.attrs.id}` : '') + (this.attrs.class != null ? `.${this.Classes.join('.')}` : '')}},
       size: {get: function () {return this.el.getBoundingClientRect()}}
     }```
     @el.events = {}
