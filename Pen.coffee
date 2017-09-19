@@ -4,7 +4,7 @@ pen = do ->
     `window['body'] = document.body; window['pBody'] = pen(body); window['head'] = document.head; window['pHead'] = pen(head)`
     return
   ```document.addEventListener("DOMContentLoaded", define, {once:true});
-  vrs = {}; vrs.class2Type = {}; vrs.elCount = 0; vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
+  vrs = {}; vrs.class2Type = {};vrs.elCount = 0;vrs.funcCount = 0;vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
   vrs.names.forEach(name => {var nm;nm = "[object "+name+"]";vrs.class2Type[nm] = name.toLowerCase()});
   vrs.proto = pro => pro.prototype;vrs.arr = vrs.proto(Array);vrs.obj = vrs.proto(Object);vrs.slice = (vr) => vrs.arr.slice.call(vr);vrs._toString = (vr) => vrs.obj.toString.call(vr);
   vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object'); vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
@@ -39,6 +39,7 @@ pen = do ->
   pen.parse =
     attrs: vrs.parser vrs.regs.attribute
     element: (str) -> [s, e] = vrs.sAS str, '<', '>'; stTag = str.slice(s, e+1); [s, e] = vrs.sAS stTag, ' ', '>'; attribs = stTag.slice(s+1, e); [s, e] = vrs.sAS stTag, '<', ' '; tag = stTag.slice(s+1, e); [s, e] = vrs.sAS str, '>', '</'; text = str.slice(s+1, e); return [str, stTag, (if attribs is "<#{tag}" then null else attribs), tag, (if text is '' then null else text)]
+  `pen.genId = (times) => {var arr;arr = "0 1 2 3 4 5 6 7 8 9".split(/\s+/);return ("i"+(vrs.iterate(arr, times)));}`
   pen::start = (ele, ops) ->
     if vrs.type(ops) is 'string'
       el = pen.$ ops, yes; ele = if /\.|#|\[\]/gi.test(ele) is yes then el.$ ele else el.create ele
@@ -151,7 +152,7 @@ pen = do ->
   pen::on = (evtp, cb, cp) ->
     cp = cp or false
     @el.events = @el.events or {}
-    `this.el.events[evtp] = {}; this.el.events[evtp].capture = cp; this.el.events[evtp][cb.name || 'func'] = cb`
+    `this.el.events[evtp] = {};this.el.events[evtp].capture = cp;this.el.events[evtp][cb.name || 'func'] = cb`
     @el.addEventListener arguments...
     return @
   pen::off = (evtp, cb) ->

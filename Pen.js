@@ -7,7 +7,7 @@ pen = (function() {
     window['body'] = document.body; window['pBody'] = pen(body); window['head'] = document.head; window['pHead'] = pen(head);
   };
   document.addEventListener("DOMContentLoaded", define, {once:true});
-  vrs = {}; vrs.class2Type = {}; vrs.elCount = 0; vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
+  vrs = {}; vrs.class2Type = {};vrs.elCount = 0;vrs.funcCount = 0;vrs.names = 'Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
   vrs.names.forEach(name => {var nm;nm = "[object "+name+"]";vrs.class2Type[nm] = name.toLowerCase()});
   vrs.proto = pro => pro.prototype;vrs.arr = vrs.proto(Array);vrs.obj = vrs.proto(Object);vrs.slice = (vr) => vrs.arr.slice.call(vr);vrs._toString = (vr) => vrs.obj.toString.call(vr);
   vrs.type = (obj) => (vrs.class2Type[vrs._toString(obj)] || 'object'); vrs.regs = {}; vrs.regs.attribute = /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
@@ -68,6 +68,7 @@ pen = (function() {
       return [str, stTag, (attribs === `<${tag}` ? null : attribs), tag, (text === '' ? null : text)];
     }
   };
+  pen.genId = (times) => {var arr;arr = "0 1 2 3 4 5 6 7 8 9".split(/\s+/);return ("i"+(vrs.iterate(arr, times)));};
   pen.prototype.start = function(ele, ops) {
     var el, t;
     if (vrs.type(ops) === 'string') {
@@ -231,7 +232,7 @@ pen = (function() {
   pen.prototype.on = function(evtp, cb, cp) {
     cp = cp || false;
     this.el.events = this.el.events || {};
-    this.el.events[evtp] = {}; this.el.events[evtp].capture = cp; this.el.events[evtp][cb.name || 'func'] = cb;
+    this.el.events[evtp] = {};this.el.events[evtp].capture = cp;this.el.events[evtp][cb.name || 'func'] = cb;
     this.el.addEventListener(...arguments);
     return this;
   };
