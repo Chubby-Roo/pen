@@ -1,7 +1,46 @@
 pen = do ->
   `var define`
   {log, error, dir} = console
-  ```define=()=>{window['body']=document.body;window['pBody']=pen(body);window['head']=document.head;window['pHead']=pen(head)};document.addEventListener("DOMContentLoaded",define,{once:true});vrs={};vrs.class2Type={};vrs.elCount=0;vrs.funcCount=0;vrs.names='Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);vrs.names.forEach(name=>{vrs.class2Type[("[object "+name+"]")]=name.toLowerCase()});vrs.proto=pro=>pro.prototype;vrs.arr=vrs.proto(Array);vrs.obj=vrs.proto(Object);vrs.slice=(vr)=>vrs.arr.slice.call(vr);vrs._toString=(vr)=>vrs.obj.toString.call(vr);vrs.type=(obj)=>(vrs.class2Type[vrs._toString(obj)]||'object');vrs.regs={};vrs.regs.attribute=/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;vrs.ranDos=(arr)=>arr[Math.floor(Math.random()*arr.length)];vrs.str=(regs,flags)=>vrs.type(regs)==='string'?new RegExp(regs,flags):regs;vrs.iterate=(arr,times)=>{var res,i;res=[];for(i=0;i<times;++i){res.push(vrs.ranDos(arr))};return res.join('');};vrs.parser=(regs,flags)=>{regs=vrs.str(regs,(flags||'gi'));return (str)=>{var obj;obj={};str=str||'';results=str.match(regs);if((results!=null)&&results.length!==0){results.map(match=>{if(match.includes("=")){return match.split("=")}}).forEach(match=>{var name,reg,val;[name,val]=match;reg=/^['"]([^\n]*?)['"]$/m;val=val.replace(reg,'$1');obj[name]=val;});return obj}}};vrs.sAS=(str,...els)=>els.map(el=>str.search(el));vrs.pErr=(name,msg)=>{var er;er=new Error(msg);er.name=name;throw er};```
+  ```define=()=>{window['body']=document.body;window['pBody']=pen(body);window['head']=document.head;window['pHead']=pen(head)};document.addEventListener("DOMContentLoaded",define,{once:true});vrs={};vrs.class2Type={}
+  vrs.names='Boolean Number String Function Array Date RegExp Undefined Null Error Symbol Promise NamedNodeMap Map NodeList DOMTokenList DOMStringMap CSSStyleDeclaration Document Window'.split(/\s+/gi);
+  for(var i=0,len=vrs.names.length,name;i<len;++i){name=vrs.names[i];vrs.class2Type[("[object "+name+"]")]=name.toLowerCase()};
+  vrs.proto=pro=>pro.prototype;vrs.arr=vrs.proto(Array);vrs.obj=vrs.proto(Object);
+  vrs.slice=(vr)=>vrs.arr.slice.call(vr);vrs._toString=(vr)=>vrs.obj.toString.call(vr);
+  vrs.type=(obj)=>(vrs.class2Type[vrs._toString(obj)]||'object');
+  vrs.regs={};vrs.regs.attribute=/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi;
+  vrs.ranDos=(arr)=>arr[Math.floor(Math.random()*arr.length)];
+  vrs.str=(regs,flags)=>vrs.type(regs)==='string'?new RegExp(regs,flags):regs;
+  vrs.iterate=(arr,times)=>{var res,i;res=[];for(i=0;i<times;++i){res.push(vrs.ranDos(arr))};return res.join('');};
+  vrs.parser=(regs,flags)=>{
+    regs=vrs.str(regs,(flags||'gi'));
+    return (str)=>{
+      var obj,reg;
+      obj={};
+      str=str||'';
+      results=str.match(regs);
+      reg=/^['"]([^\n]*?)['"]$/m;
+      if((results!=null)&&results.length!==0) {
+        for(var i=0,len=results.length,match;i<len;++i) {
+          match=results[i];
+          var name,val;
+          if(match.includes("=")===true){
+            [name,val]=match.split("=");
+            val=val.replace(reg,'$1');
+            obj[name]=val;
+          };
+        };
+        return obj;
+      };
+    };
+  };
+  vrs.sAS=(str,...els)=>{
+    var arr;arr=[];
+    for(var i=0,len=els.length;i<len;++i){
+      arr.push(str.search(els[i]));
+    };
+    return arr
+  };
+  vrs.pErr=(name,msg)=>{var er;er=new Error(msg);er.name=name;throw er};```
   vrs.funcoso = (it, typeso, typesi) =>
     typesi = typesi or typeso
     pz = vrs.type(it.el[typesi])
@@ -53,7 +92,17 @@ pen = do ->
     @partialSetup()
     return
   pen::partialSetup = () ->
-    Object.defineProperties @, `{tag:{get:function(){return (this.el.tagName||'IOS-ELEMENT').toLowerCase();}},cel:{get:function(){return (this.tag==='template'?this.el.content:this.el);}},text:{get:function(){return this.html();},set:function(str){return this.html(str);},configurable:true},Children:{get:function(){return vrs.slice(this.cel.children).map(el=>pen(el))},set:function(...els){return this.append(...els)},configurable:true},Parent:{get:function(){return (this.el.parentNode||null)},set:function(el){return this.appendTo(el)},configurable:true},Classes:{get:function(){return vrs.slice(this.el.classList)},set:function(cls){return this.toggle(cls);},configurable:true},attrs:{get:function(){var ar;ar={};vrs.slice(this.el.attributes).forEach(res=>{ar[res.name]=res.value});return ar},set:function(obj){return this.attr(obj);},configurable:true},selector:{get:function(){return this.tag+(this.attrs.id!=null?("#"+this.attrs.id):'')+(this.attrs.class!=null?('.'+this.Classes.join('.')):'')}},size:{get:function(){return this.el.getBoundingClientRect()}},hidden:{get:function(){return this.css('display')==='none'}}}`
+    Object.defineProperties @, `{
+      tag:{get:function(){return (this.el.tagName||'IOS-ELEMENT').toLowerCase();}},
+      cel:{get:function(){return (this.tag==='template'?this.el.content:this.el);}},
+      text:{get:function(){return this.html();},set:function(str){return this.html(str);},configurable:true},
+      Children:{get:function(){var arr,chi;arr=[];chi=vrs.slice(this.cel.children);for(var i=0,len=chi.length;i<len;++i){arr.push(pen(chi[i]))};return arr},set:function(...els){return this.append(...els)},configurable:true},
+      Parent:{get:function(){return (this.el.parentNode||null)},set:function(el){return this.appendTo(el)},configurable:true},
+      Classes:{get:function(){return vrs.slice(this.el.classList)},set:function(cls){return this.toggle(cls);},configurable:true},
+      attrs:{get:function(){var ar,arr,chi;ar={};arr=[];chi=vrs.slice(this.el.attributes);for(var i=0,len=chi.length,attr;i<len;++i){attr=chi[i];ar[attr.name]=attr.value};return ar},set:function(obj){return this.attr(obj);},configurable:true},
+      selector:{get:function(){return this.tag+(this.attrs.id!=null?("#"+this.attrs.id):'')+(this.attrs.class!=null?('.'+this.Classes.join('.')):'')}},
+      size:{get:function(){return this.el.getBoundingClientRect()}},
+      hidden:{get:function(){return this.css('display')==='none'}}}`
     @el.events = {}
     switch true
       when @el instanceof Document
@@ -119,13 +168,13 @@ pen = do ->
     delete @el.events[evtp]
     return @
   pen::append = (elements...) ->
-    elements.forEach (element) =>
+    for element in elements
       element = pen.$ element
       elu = (if element instanceof pen then element.el else element)
       @cel.appendChild(elu)
     return @
   pen::appendTo = (element) -> pen(element).append(@); return @
-  pen::remove = -> @Parent.removeChild(@); return @
+  pen::remove = -> @Parent.removeChild(@el); return @
   pen::$ = (element, parseIt = false) ->
     qur = @cel.querySelector(element)
     result = if @ops.global.parseIt is true then pen(qur) else if parseIt is true then pen(qur) else qur
@@ -137,7 +186,7 @@ pen = do ->
     if /child|parent/gi.test(ret) is true then result = "return #{ret}"; return `result.endsWith("parent")===true?this:element`
     else return @
   pen::toggle = (classes...) ->
-    classes.forEach (classs) =>
+    for classs in classes
       @el.classList.toggle classs
     return @
   pen::hasClass = (cls) ->
