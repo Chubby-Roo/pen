@@ -194,12 +194,12 @@ pen = (function() {
     if (t === 'object') {
       this.partialSetup();
     } else if (t === 'string') {
-      if (el.startsWith('<')) {
-        [whole, startTag, attributes, tag, text] = pen.parse.element(el);
+      if (this.el.startsWith('<')) {
+        [whole, startTag, attributes, tag, text] = pen.parse.element(this.el);
         attribs = pen.parse.attrs(attributes);
         this.el = pen.create(tag);
       } else {
-        this.el = pen.$(el);
+        this.el = pen.$(this.el);
       }
       if (attribs != null) {
         this.attr(attribs);
@@ -217,12 +217,10 @@ pen = (function() {
     this.ops = {
       parseIt: (ops != null ? ops.parseIt || false : false),
       create: (ops != null ? ops.create || 'return child' : 'return child'),
-      html: {
-        app: ((ops != null) && (ops.html != null) ? ops.html.app || false : false),
-        parse: ((ops != null) && (ops.html != null) ? ops.html.parse || false : false)
-      }
+      app: ((ops != null) && (ops.app != null) ? ops.app || false : false),
+      parse: ((ops != null) && (ops.parse != null) ? ops.parse || false : false)
     };
-    return this;
+    return this.ops;
   };
   pen.ink.toString = function () {return this.cel.outerHTML};
   pen.prototype.partialSetup = function() {

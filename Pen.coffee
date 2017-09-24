@@ -98,11 +98,11 @@ pen = do ->
     if t is 'object'
       @partialSetup()
     else if t is 'string'
-      if el.startsWith('<')
-        [whole,startTag,attributes,tag,text]=pen.parse.element(el)
+      if @el.startsWith('<')
+        [whole,startTag,attributes,tag,text]=pen.parse.element(@el)
         attribs=pen.parse.attrs(attributes)
-        this.el=pen.create(tag)
-      else @el = pen.$ el
+        @el = pen.create(tag)
+      else @el = pen.$ @el
       @attr attribs if attribs?
       @html text, parse: yes if text? and text.length isnt 0
       @partialSetup()
@@ -111,10 +111,9 @@ pen = do ->
     @ops =
       parseIt: (if ops? then (ops.parseIt or no) else no)
       create: (if ops? then (ops.create or 'return child') else 'return child')
-      html:
-        app: (if ops? and ops.html? then (ops.html.app or no) else no)
-        parse: (if ops? and ops.html? then (ops.html.parse or no) else no)
-    return @
+      app: (if ops? and ops.app? then (ops.app or no) else no)
+      parse: (if ops? and ops.parse? then (ops.parse or no) else no)
+    return @ops
   `pen.ink.toString = function () {return this.cel.outerHTML}`
   pen::partialSetup = () ->
     Object.defineProperties @, `{
@@ -152,14 +151,16 @@ pen = do ->
     reg = /input|option|textarea/i
     livi = (prop, str) =>
       if str?
-        if reg.test(@tag) is true then @attr 'value', (if app is true then "#{@el.getAttribute('value')}#{str}" else str) else `app === true ? this.el[prop] += str : this.el[prop] = str`
+        if reg.test(@tag) is true
+          @attr 'value', (if app is true then "#{@el.getAttribute('value')}#{str}" else str)
+        else
+          `app === true ? this.el[prop] += str : this.el[prop] = str`
         return @
       else return @el[prop]
     switch @tag
       when 'input', 'textarea' then livi 'value', str
-      when 'option'
-        return livi res, str
-      else return livi res, str
+      when 'option' then livi res, str
+      else livi res, str
   pen::attr = (attribute, value) ->
     func = vrs.funcoso @, 'attributes', 'setAttribute'
     if attribute?
