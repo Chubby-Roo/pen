@@ -3,15 +3,11 @@ class Card
     title = title or "I'm a title"
     message = message or "I'm a message"
     @container = pen "<div class='cd-container'>"
-    titleCont = pen "<span class='cd-title-container'>"
-    msgCont = pen "<span class='cd-msg-container'>"
-    msg = pen "<span class='cd-msg'>"
+    titleCont = @container.create "<span class='cd-title-container'>", 'child'
+    msgCont = @container.create "<span class='cd-msg-container'>", 'child'
+    msgCont.create "<span class='cd-msg'>", 'child'
     .html message
-    .appendTo msgCont
 
-    title = pen "<span class='cd-title'>"
+    titleCont.create "<span class='cd-title'>", 'child'
     .html title
-    .appendTo titleCont
-
-    @container.append titleCont, msgCont
     return @

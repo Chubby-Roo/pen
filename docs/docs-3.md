@@ -4,22 +4,25 @@ Now there are many new methods added to pen. Which hopefully adds more to it,
 like such:
 
 ```js
-var para, dir, bacon, body;
-body = document.body
-para = pen("<p id='para'>").html("moo");
-pen(body).append para;
-// and you can do this or that
-// this:
-para.html("moo cow");
-// that:
-pen("#para").html("moo cow");
-// why do I use moo cow so much?, well I just don't know, moo cow. just moo cow
-// also if you're expecting me to be proper with this, I'm not lol I joke and stuff and seeing all this "'i'm fancy and only make my scripts top noch with my talking capabilities'" stuff is boring-
-// so why not make it fun?
-// now you can also make something with text or an object already defined:
-dir = pen("<div id='dir'>");
-bacon = pen("<p>").html("I love tuna feesh");
-pen(body).append(bacon, dir);
+pDoc.ready(() => {
+
+  var para, dir, bacon;
+  para = pen("<p id='para'>moo</p>").html("");
+  pBody.append(para);
+  // and you can do this or that
+  // this:
+  para.html("moo cow");
+  // that:
+  pen("#para").html("moo cow");
+  // why do I use moo cow so much?, well I just don't know, moo cow. just moo cow
+  // also if you're expecting me to be proper with this, I'm not lol I joke and stuff and seeing all this "'i'm fancy and only make my scripts top noch with my talking capabilities'" stuff is boring-
+  // so why not make it fun?
+  // now you can also make something with text or an object already defined:
+  dir = pen("<div id='dir'>");
+  bacon = pen("<p>I love tuna feesh</p>");
+  pBody.append(bacon, dir);
+
+})
 ```
 
 Now this can be used for many things as an easy fix so that way it won't be as long for the developer
@@ -30,47 +33,32 @@ var Modal;
 
 Modal = class Modal {
   constructor(headstr, bodystr, footstr) {
-    var prefix;
-    if (headstr == null) {
-      headstr = "I'm a header";
-    }
-    if (bodystr == null) {
-      bodystr = "I'm a body";
-    }
-    if (footstr == null) {
-      footstr = "I'm a footer";
-    }
+    var body, bodyText, closebtn, foot, footText, head, headText, prefix;
+    headstr = headstr || "I'm a header";
+    bodystr = bodystr || "I'm a body";
+    footstr = footstr || "I'm a footer";
     prefix = 'modal';
     this.container = pen(`<div class='${prefix}-container'>`);
-    this.head = pen(`<div class='${prefix}-head'>`);
-    this.body = pen(`<div class='${prefix}-body'>`);
-    this.foot = pen(`<div class='${prefix}-foot'>`);
-    this.closebtn = pen("<span class='close-button'>").html('X');
-    this.closebtn.on('click', this.closebtn.remove(), {
+    head = pen(`<div class='${prefix}-head'>`);
+    body = pen(`<div class='${prefix}-body'>`);
+    foot = pen(`<div class='${prefix}-foot'>`);
+    closebtn = pen("<span class='close-button'>").html('X');
+    closebtn.on('click', closebtn.remove(), {
       capture: false,
       once: true
     });
-    this.headText = pen(`<h2 class='${prefix}-head-text'>`).html(headstr).appendTo(this.head);
-    this.bodyText = pen(`<p class='${prefix}-body-text'>`).html(bodystr).appendTo(this.body);
-    this.footText = pen(`<h2 class='${prefix}-foot-text'>`).html(footstr).appendTo(this.foot);
-    this.container.append(this.closebtn, this.head, this.body, this.foot);
-    return;
-  }
-
-  setText(el, str) {
-    if (!el.endsWith('text')) {
-      this[`${el}Text`].html(str);
-    } else {
-      this[el].html(str);
-    }
+    headText = pen(`<h2 class='${prefix}-head-text'>`).html(headstr).appendTo(head);
+    bodyText = pen(`<p class='${prefix}-body-text'>`).html(bodystr).appendTo(body);
+    footText = pen(`<h2 class='${prefix}-foot-text'>`).html(footstr).appendTo(foot);
+    this.container.append(closebtn, head, body, foot);
     return this;
   }
 
 };
 
 // now by doing this next step you created a simple modal
-Mymodal = Modal 'Some head text', 'Some body text', 'Some foot text'
-console.log Mymodal
+Mymodal = new Modal('Some head text', 'Some body text', 'Some foot text')
+console.log(Mymodal)
 ```
 would return this:
 ```html

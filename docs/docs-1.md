@@ -29,7 +29,7 @@ Now lets try it with *this* API.
 
 ```js
 var para;
-para = pen("<p id='para'>").html("some text").appendTo(document.body);
+para = pen("<p id='para'>some text</p>").appendTo(document.body);
 ```
 
 It's a lot quicker to just do those simple stuff
