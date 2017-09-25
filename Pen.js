@@ -225,16 +225,95 @@ pen = (function() {
   pen.ink.toString = function () {return this.cel.outerHTML};
   pen.prototype.partialSetup = function() {
     Object.defineProperties(this, {
-      tag:{get:function(){return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase();}},
-      cel:{get:function(){return (this.tag==='template'?this.el.content:this.el);}},
-      text:{get:function(){return this.html();},set:function(str){return this.html(str);},configurable:true},
-      Children:{get:function(){var arr,chi;arr=[];chi=vrs.slice(this.cel.children);for(var i=0,len=chi.length;i<len;++i){arr.push(pen(chi[i]))};return arr},set:function(...els){return this.append(...els)},configurable:true},
-      Parent:{get:function(){return (this.el.parentNode||null)},set:function(el){return this.appendTo(el)},configurable:true},
-      Classes:{get:function(){return vrs.slice(this.el.classList)},set:function(cls){return this.toggle(cls);},configurable:true},
-      attrs:{get:function(){var ar,arr,chi;ar={};arr=[];chi=vrs.slice(this.el.attributes);for(var i=0,len=chi.length,attr;i<len;++i){attr=chi[i];ar[attr.name]=attr.value};return ar},set:function(obj){return this.attr(obj);},configurable:true},
-      selector:{get:function(){return this.tag+(this.attrs.id!=null?("#"+this.attrs.id):'')+(this.attrs.class!=null?('.'+this.Classes.join('.')):'')}},
-      size:{get:function(){return this.el.getBoundingClientRect()}},
-      hidden:{get:function(){return this.css('display')==='none'}}});
+      tag: {
+        get: function() {
+          return (this.el.tagName || 'UNPARSED-OR-IOS-ELEMENT').toLowerCase();
+        }
+      },
+      cel: {
+        get: function() {
+          if (this.tag === 'template') {
+            return this.el.content;
+          } else {
+            return this.el;
+          }
+        }
+      },
+      text: {
+        get: function() {
+          return this.html();
+        },
+        set: function(str) {
+          return this.html(str);
+        },
+        configurable: true
+      },
+      Children: {
+        get: function() {
+          var arr, child, children, k, len1;
+          arr = [];
+          children = vrs.slice(this.cel.children);
+          for (k = 0, len1 = children.length; k < len1; k++) {
+            child = children[k];
+            arr.push(pen(children));
+          }
+          return arr;
+        },
+        set: function(...els) {
+          return this.append(...els);
+        },
+        configurable: true
+      },
+      Parent: {
+        get: function() {
+          return this.el.parentNode || null;
+        },
+        set: function(el) {
+          return this.appendTo(el);
+        },
+        configurable: true
+      },
+      Classes: {
+        get: function() {
+          return vrs.slice(this.el.classList);
+        },
+        set: function(cls) {
+          return this.toggle(cls);
+        },
+        configurable: true
+      },
+      attrs: {
+        get: function() {
+          var ar, attr, attrs, k, len1;
+          ar = {};
+          attrs = vrs.slice(this.el.attributes);
+          for (k = 0, len1 = attrs.length; k < len1; k++) {
+            attr = attrs[k];
+            ar[attr.name] = attr.value;
+          }
+          return ar;
+        },
+        set: function(obj) {
+          return this.attr(obj);
+        },
+        configurable: true
+      },
+      selector: {
+        get: function() {
+          return `${this.tag}${(this.attrs.id != null ? `#${this.attrs.id}` : '')}${(this.attrs.class != null ? `.${this.Classes.join('.')}` : '')}`;
+        }
+      },
+      size: {
+        get: function() {
+          return this.el.getBoundingClientRect();
+        }
+      },
+      hidden: {
+        get: function() {
+          return this.css('display') === 'none';
+        }
+      }
+    });
     this.el.events = {};
     switch (true) {
       case this.el instanceof Document:
@@ -270,9 +349,9 @@ pen = (function() {
         if (reg.test(this.tag) === true) {
           this.attr('value', (app === true ? `${this.el.getAttribute('value')}${str}` : str));
         } else if (/textarea/.test(this.tag) === true) {
-          app === true ? this.el.innerText += str: this.el.innerText = str;
+          this.el.innerText = app === true ? this.el.value + str : str;
         } else {
-          app === true ? this.el[prop] += str : this.el[prop] = str;
+          this.el[prop] = app === true ? this.el[prop] + str : str;
         }
         return this;
       } else {

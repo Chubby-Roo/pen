@@ -116,17 +116,48 @@ pen = do ->
     return @ops
   `pen.ink.toString = function () {return this.cel.outerHTML}`
   pen::partialSetup = () ->
-    Object.defineProperties @, `{
-      tag:{get:function(){return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase();}},
-      cel:{get:function(){return (this.tag==='template'?this.el.content:this.el);}},
-      text:{get:function(){return this.html();},set:function(str){return this.html(str);},configurable:true},
-      Children:{get:function(){var arr,chi;arr=[];chi=vrs.slice(this.cel.children);for(var i=0,len=chi.length;i<len;++i){arr.push(pen(chi[i]))};return arr},set:function(...els){return this.append(...els)},configurable:true},
-      Parent:{get:function(){return (this.el.parentNode||null)},set:function(el){return this.appendTo(el)},configurable:true},
-      Classes:{get:function(){return vrs.slice(this.el.classList)},set:function(cls){return this.toggle(cls);},configurable:true},
-      attrs:{get:function(){var ar,arr,chi;ar={};arr=[];chi=vrs.slice(this.el.attributes);for(var i=0,len=chi.length,attr;i<len;++i){attr=chi[i];ar[attr.name]=attr.value};return ar},set:function(obj){return this.attr(obj);},configurable:true},
-      selector:{get:function(){return this.tag+(this.attrs.id!=null?("#"+this.attrs.id):'')+(this.attrs.class!=null?('.'+this.Classes.join('.')):'')}},
-      size:{get:function(){return this.el.getBoundingClientRect()}},
-      hidden:{get:function(){return this.css('display')==='none'}}}`
+    Object.defineProperties @,
+      tag:
+        get: () ->(@el.tagName or 'UNPARSED-OR-IOS-ELEMENT').toLowerCase()
+      cel:
+        get: () ->(if @tag is'template' then @el.content else @el)
+      text:
+        get: () ->@html()
+        set: (str) ->@html str
+        configurable:true
+      Children:
+        get: () ->
+          arr = []
+          children = vrs.slice(this.cel.children)
+          for child in children
+            arr.push pen children
+          return arr
+        set: (...els) ->@append els...
+        configurable:true
+      Parent:
+        get: () ->(@el.parentNode||null)
+        set: (el) ->@appendTo el
+        configurable:true
+      Classes:
+        get: () -> vrs.slice @el.classList
+        set: (cls) -> @toggle(cls)
+        configurable:true
+      attrs:
+        get: () ->
+          ar = {}
+          attrs = vrs.slice @el.attributes
+          for attr in attrs
+            ar[attr.name]=attr.value
+          return ar
+        set: (obj) -> @attr(obj)
+        configurable:true
+      selector:
+        get: () ->
+          "#{@tag}#{if @attrs.id? then "##{@attrs.id}" else ''}#{if @attrs.class? then ".#{@Classes.join('.')}" else ''}"
+      size:
+        get: () -> @el.getBoundingClientRect()
+      hidden:
+        get: () -> (@css('display') is 'none')
     @el.events = {}
     switch true
       when @el instanceof Document
@@ -152,9 +183,9 @@ pen = do ->
         if reg.test(@tag) is true
           @attr 'value', (if app is true then "#{@el.getAttribute('value')}#{str}" else str)
         else if /textarea/.test(@tag) is true
-          `app === true ? this.el.innerText += str: this.el.innerText = str`
+          @el.innerText = if app is true then (@el.value + str) else str
         else
-          `app === true ? this.el[prop] += str : this.el[prop] = str`
+          @el[prop] = if app is true then (@el[prop] + str) else str
         return @
       else
         if reg.test(@tag) or /textarea/.test(@tag)
