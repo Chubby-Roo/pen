@@ -130,8 +130,6 @@ pen = do ->
     @el.events = {}
     switch true
       when @el instanceof Document
-        @body = window['pBody']
-        @head = window['pHead']
         pen::ready = () ->
           args = arguments
           @on 'DOMContentLoaded', args...
@@ -148,17 +146,23 @@ pen = do ->
   pen::html = (str, ops) ->
     {parse, app} = @initOptions ops
     res = if parse is true then 'innerHTML' else 'innerText'
-    reg = /input|option|textarea/i
+    reg = /input|option/i
     livi = (prop, str) =>
       if str?
         if reg.test(@tag) is true
           @attr 'value', (if app is true then "#{@el.getAttribute('value')}#{str}" else str)
+        else if /textarea/.test(@tag) is true
+          `app === true ? this.el.innerText += str: this.el.innerText = str`
         else
           `app === true ? this.el[prop] += str : this.el[prop] = str`
         return @
-      else return @el[prop]
+      else
+        if reg.test(@tag) or /textarea/.test(@tag)
+          @el.value
+        else
+          @el[prop]
     switch @tag
-      when 'input', 'textarea' then livi 'value', str
+      when 'input' then livi 'value', str
       when 'option' then livi res, str
       else livi res, str
   pen::attr = (attribute, value) ->
@@ -200,7 +204,7 @@ pen = do ->
       @cel.appendChild(elu)
     return @
   pen::appendTo = (element) -> pen(element).append(@); return @
-  pen::remove = -> @Parent.removeChild(@el); return @
+  pen::remove = -> @Parent.removeChild(@el) unless !@Parent?; return @
   pen::$ = (element, parseIt = false) ->
     qur = @cel.querySelector(element)
     result = if @ops.global.parseIt is true then pen(qur) else if parseIt is true then pen(qur) else qur
@@ -224,4 +228,5 @@ pen = do ->
     `this.hidden===true?this.css('display',''):this.css('display','none')`
     return @
   pen.vrs = vrs
+  window.pDoc = pen(document); window.pWin = pen(window)
   return pen

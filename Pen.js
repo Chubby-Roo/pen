@@ -238,8 +238,6 @@ pen = (function() {
     this.el.events = {};
     switch (true) {
       case this.el instanceof Document:
-        this.body = window['pBody'];
-        this.head = window['pHead'];
         pen.prototype.ready = function() {
           var args;
           args = arguments;
@@ -266,22 +264,27 @@ pen = (function() {
     var app, livi, parse, reg, res;
     ({parse, app} = this.initOptions(ops));
     res = parse === true ? 'innerHTML' : 'innerText';
-    reg = /input|option|textarea/i;
+    reg = /input|option/i;
     livi = (prop, str) => {
       if (str != null) {
         if (reg.test(this.tag) === true) {
           this.attr('value', (app === true ? `${this.el.getAttribute('value')}${str}` : str));
+        } else if (/textarea/.test(this.tag) === true) {
+          app === true ? this.el.innerText += str: this.el.innerText = str;
         } else {
           app === true ? this.el[prop] += str : this.el[prop] = str;
         }
         return this;
       } else {
-        return this.el[prop];
+        if (reg.test(this.tag) || /textarea/.test(this.tag)) {
+          return this.el.value;
+        } else {
+          return this.el[prop];
+        }
       }
     };
     switch (this.tag) {
       case 'input':
-      case 'textarea':
         return livi('value', str);
       case 'option':
         return livi(res, str);
@@ -354,7 +357,9 @@ pen = (function() {
     return this;
   };
   pen.prototype.remove = function() {
-    this.Parent.removeChild(this.el);
+    if (!(this.Parent == null)) {
+      this.Parent.removeChild(this.el);
+    }
     return this;
   };
   pen.prototype.$ = function(element, parseIt = false) {
@@ -401,5 +406,7 @@ pen = (function() {
     return this;
   };
   pen.vrs = vrs;
+  window.pDoc = pen(document);
+  window.pWin = pen(window);
   return pen;
 })();
