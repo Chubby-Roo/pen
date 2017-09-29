@@ -35,7 +35,8 @@ It will be available in the near future if not then oh well
 
 # Documentation and examples
 [Docs](docs)
-[game](tests/game/) | [selector](tests/selector/)
+..:Test:..
+[selector](tests/selector/)
 
 There's a selector and a simple game in the works.
 

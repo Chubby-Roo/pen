@@ -33,7 +33,5 @@ pen(document).ready () ->
     txt.html ms.render(text), parse: yes
 
   freeEls = pen.$$ ".free", yes
-
-  freeEls.forEach (freeEl) =>
-    freeEl.css("position", "fixed")
-    return
+  for freeEl in freeEls
+    freeEl.css "position", "fixed"
