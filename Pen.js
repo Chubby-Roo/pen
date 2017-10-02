@@ -101,30 +101,23 @@
   vrs.parser = (regs, flags) => {
     regs = vrs.str(regs, flags || 'gi');
     return (str) => {
-      var attr, k, len1, match, obj, reg, results;
+      var attr, k, len1, match, obj, results;
+      if (str == null) {
+        return;
+      }
       obj = {};
-      str = str || '';
       results = str.match(regs);
-      reg = /^['"]([^\n]*?)['"]$/m;
       if (results == null) {
         return;
       }
       if (results.length === 0) {
         return;
       }
-      if (results.length === 1) {
-        match = results.pop();
+      for (k = 0, len1 = results.length; k < len1; k++) {
+        match = results[k];
         if (match.includes("=") === true) {
           attr = vrs.attribute.fromString(match);
           obj[attr.name] = attr.value;
-        }
-      } else {
-        for (k = 0, len1 = results.length; k < len1; k++) {
-          match = results[k];
-          if (match.includes("=") === true) {
-            attr = vrs.attribute.fromString(match);
-            obj[attr.name] = attr.value;
-          }
         }
       }
       return obj;
@@ -327,22 +320,14 @@
       },
       Children: {
         get: function() {
-          var arr, child, children, k, len1;
-          arr = [];
+          var child, children, k, len1, results1;
           children = vrs.slice(this.cel.children);
-          if (children.length === 0) {
-            return;
+          results1 = [];
+          for (k = 0, len1 = children.length; k < len1; k++) {
+            child = children[k];
+            results1.push(pen(child));
           }
-          if (children.length === 1) {
-            child = children.pop();
-            arr.push(pen(child));
-          } else {
-            for (k = 0, len1 = children.length; k < len1; k++) {
-              child = children[k];
-              arr.push(pen(child));
-            }
-          }
-          return arr;
+          return results1;
         },
         set: function(...els) {
           return this.append(...els);
@@ -372,17 +357,9 @@
           var ar, attr, attrs, k, len1;
           ar = {};
           attrs = vrs.slice(this.el.attributes);
-          if (attrs.length === 0) {
-            return;
-          }
-          if (attrs.length === 1) {
-            attr = attrs.pop();
+          for (k = 0, len1 = attrs.length; k < len1; k++) {
+            attr = attrs[k];
             ar[attr.name] = attr.value;
-          } else {
-            for (k = 0, len1 = attrs.length; k < len1; k++) {
-              attr = attrs[k];
-              ar[attr.name] = attr.value;
-            }
           }
           return ar;
         },
@@ -468,9 +445,9 @@
 
   pen.prototype.attr = function(attribute, value) {
     var func;
-    func = vrs.funcoso(this, 'attributes', 'setAttribute');
     if (attribute != null) {
       if (vrs.type(attribute) === 'object') {
+        func = vrs.funcoso(this, 'attributes', 'setAttribute');
         return func(attribute);
       } else if (value != null) {
         this.el.setAttribute(attribute, value);
@@ -485,10 +462,10 @@
 
   pen.prototype.css = function(rule, rules) {
     var func;
-    func = vrs.funcoso(this, 'style');
     if (rule != null) {
       switch (vrs.type(rule)) {
         case 'object':
+          func = vrs.funcoso(this, 'style');
           return func(rule);
         case 'string':
           if (rules != null) {
@@ -531,17 +508,11 @@
     if (elements.length === 0) {
       return;
     }
-    if (elements.length === 1) {
-      element = pen.$(elements.pop());
-      elu = element instanceof pen ? element.el : element;
-      this.cel.append(elu);
-    } else {
-      for (k = 0, len1 = elements.length; k < len1; k++) {
-        element = elements[k];
-        element = pen.$(element);
-        elu = (element instanceof pen ? element.el : element);
-        this.cel.appendChild(elu);
-      }
+    for (k = 0, len1 = elements.length; k < len1; k++) {
+      element = elements[k];
+      element = pen.$(element);
+      elu = (element instanceof pen ? element.el : element);
+      this.cel.appendChild(elu);
     }
     return this;
   };
@@ -588,18 +559,13 @@
   pen.prototype.hasClass = function(cls) {
     var clss, k, len1, ref1;
     if (this.Classes.length === 0) {
-      return false;
+      return;
     }
-    if (this.Classes.length === 1) {
-      clss = this.Clases.pop();
-      clss === cls;
-    } else {
-      ref1 = this.Classes;
-      for (k = 0, len1 = ref1.length; k < len1; k++) {
-        clss = ref1[k];
-        if (clss === cls) {
-          return true;
-        }
+    ref1 = this.Classes;
+    for (k = 0, len1 = ref1.length; k < len1; k++) {
+      clss = ref1[k];
+      if (clss === cls) {
+        return true;
       }
     }
     return false;

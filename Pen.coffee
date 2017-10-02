@@ -46,22 +46,15 @@ vrs.attribute = class attribute
 vrs.parser = (regs,flags)=>
   regs=vrs.str(regs,(flags||'gi'))
   (str)=>
+    return if !str?
     obj={}
-    str=str or ''
     results=str.match(regs)
-    reg=/^['"]([^\n]*?)['"]$/m
     return if !results?
     return if results.length is 0
-    if results.length is 1
-      match = results.pop()
+    for match in results
       if match.includes("=") is true
         attr = vrs.attribute.fromString(match)
         obj[attr.name] = attr.value
-    else
-      for match in results
-        if match.includes("=") is true
-          attr = vrs.attribute.fromString(match)
-          obj[attr.name] = attr.value
     return obj
 
 vrs.sAS=(str,els...)=>
@@ -182,16 +175,9 @@ pen::partialSetup = ->
 
     Children:
       get: ->
-        arr = []
         children = vrs.slice(this.cel.children)
-        return if children.length is 0
-        if children.length is 1
-          child = children.pop()
-          arr.push pen child
-        else
-          for child in children
-            arr.push pen child
-        return arr
+        for child in children
+          pen child
       set: (...els) ->@append els...
       configurable:true
 
@@ -209,13 +195,8 @@ pen::partialSetup = ->
       get: ->
         ar = {}
         attrs = vrs.slice @el.attributes
-        return if attrs.length is 0
-        if attrs.length is 1
-          attr = attrs.pop()
-          ar[attr.name] = attr.value
-        else
-          for attr in attrs
-            ar[attr.name]=attr.value
+        for attr in attrs
+          ar[attr.name]=attr.value
         return ar
       set: (obj) -> @attr(obj)
       configurable:true
@@ -276,18 +257,20 @@ pen::html = (str, ops) ->
     else livi res, str
 
 pen::attr = (attribute, value) ->
-  func = vrs.funcoso @, 'attributes', 'setAttribute'
   if attribute?
-    if vrs.type(attribute) is 'object' then func(attribute)
+    if vrs.type(attribute) is 'object'
+      func = vrs.funcoso @, 'attributes', 'setAttribute'
+      func(attribute)
     else if value? then @el.setAttribute attribute, value; this
     else @el.getAttribute attribute
   else @attrs
 
 pen::css = (rule, rules) ->
-  func = vrs.funcoso @, 'style'
   if rule?
     switch vrs.type(rule)
-      when 'object' then func(rule)
+      when 'object'
+        func = vrs.funcoso @, 'style'
+        func(rule)
       when 'string'
         if rules?
           rule = rule.replace /-(\w{1})/g, (whole, dash) => dash.toUpperCase()
@@ -316,15 +299,10 @@ pen::off = (evtp, cb, name) ->
 
 pen::append = (elements...) ->
   return if elements.length is 0
-  if elements.length is 1
-    element = pen.$ elements.pop()
-    elu = if element instanceof pen then element.el else element
-    @cel.append elu
-  else
-    for element in elements
-      element = pen.$ element
-      elu = (if element instanceof pen then element.el else element)
-      @cel.appendChild(elu)
+  for element in elements
+    element = pen.$ element
+    elu = (if element instanceof pen then element.el else element)
+    @cel.appendChild(elu)
   return @
 
 pen::appendTo = (element) -> `pen(element).append(this); return this`
@@ -346,14 +324,10 @@ pen::toggle = (classes...) ->
   return @
 
 pen::hasClass = (cls) ->
-  return false if @Classes.length is 0
-  if @Classes.length is 1
-    clss = @Clases.pop()
-    `clss === cls`
-  else
-    for clss in @Classes
-      if clss is cls
-        return true
+  return if @Classes.length is 0
+  for clss in @Classes
+    if clss is cls
+      return true
   return false
 
 pen::hide = ->
