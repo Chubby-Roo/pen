@@ -48,3 +48,7 @@ git clone https://github.com/Monochromefx/pen.git
 ```
 Adjust fixes if needed to add features you think need to be in it.
 Then make a pull request.
+
+## Note about using pen("<p id='someID'>")
+When creating an element via: **pen("<p id='someID'>");**
+It's much slower than: **pen("<p>").attr('id', 'someID');**
