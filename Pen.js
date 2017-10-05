@@ -168,13 +168,12 @@
         if (text != null && (text.length !== 0)) {this.html(text, {parse: true})};
         this.partialSetup();
       };
-      return this;
     },
     initOptions(ops) {
-      this.ops = {parseIt: (ops != null ? (ops.parseIt || false) : false),
-        create: (ops != null ? (ops.create || 'child') : 'child'),
-        app: (ops != null ? (ops.app || false) : false),
-        parse: (ops != null ? (ops.parse || false) : false)};
+      this.ops = {parseIt: (ops!=null?(ops.parseIt||false):false),
+        create: (ops!=null?(ops.create||'child'):'child'),
+        app: (ops!=null?(ops.app||false):false),
+        parse: (ops!=null?(ops.parse||false):false)};
       return this.ops;
     },
     toString() {return this.cel.outerHTML},
@@ -183,15 +182,15 @@
       configurable = true; enumerable = true;
       Object.defineProperties(this,{
         tag:{get(){return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase()},enumerable},
-        cel:{get(){return this.tag==='template' ? this.el.content : this.el},enumerable},
+        cel:{get(){return this.tag==='template'?this.el.content:this.el},enumerable},
         text:{get(){return this.html()},set(str){return this.html(str)},configurable,enumerable},
-        Children:{get(){var children,ar,i,len;children=vrs.slice(this.cel.children);ar=[];for(i=0,len=children.length;i<len;i++){ar.push(pen(children[i]));};return ar;},set(el){return this.append(...el)},configurable,enumerable},
+        Children:{get(){var children,ar;children=vrs.slice(this.cel.children);ar=[];for(var i=0,len=children.length;i<len;i++){ar.push(pen(children[i]));};return ar;},set(el){return this.append(...el)},configurable,enumerable},
         Parent:{get(){return this.el.parentNode||null},set(el){return this.appendTo(el)},configurable,enumerable},
         Classes:{get(){return vrs.slice(this.el.classList)},set(cls){return this.toggle(cls)},configurable,enumerable},
-        attrs:{get(){var ar,attrs,i,len;ar={};attrs=vrs.slice(this.el.attributes);for(i=0,len=attrs.length;i<len;i++){ar[attrs[i].name]=attrs[i].value;};return ar;},set(obj){return this.attr(obj)},configurable,enumerable},
-        selector:{get(){return `${this.tag}${this.attrs.id != null?`#${this.attrs.id}`:''}${this.attrs.class != null?`.${this.Classes.join('.')}`:''}`},enumerable},
+        attrs:{get(){var ar,attrs;ar={};attrs=vrs.slice(this.el.attributes);for(var i=0,len=attrs.length;i<len;i++){ar[attrs[i].name]=attrs[i].value;};return ar;},set(obj){return this.attr(obj)},configurable,enumerable},
+        selector:{get(){return `${this.tag}${this.attrs.id!= null?`#${this.attrs.id}`:''}${this.attrs.class!=null?`.${this.Classes.join('.')}`:''}`},enumerable},
         size:{get(){return this.el.getBoundingClientRect()},enumerable},
-        hidden:{get(){return this.css('display') === 'none'},enumerable}});
+        hidden:{get(){return this.css('display')==='none'},enumerable}});
       this.el.events = {};
       switch (true) {
         case this.el instanceof Document:
@@ -218,24 +217,18 @@
     html(str, ops) {
       var parse, app, res, reg, livi;
       ({parse, app} = this.initOptions(ops));
-      res = parse === true ? 'innerHTML' : 'innerText';
+      res = parse===true?'innerHTML':'innerText';
       reg = /input|option/i;
       livi = (prop, str) => {
         if (str != null) {
           if (reg.test(this.tag)) {
-            this.attr('value', (app === true ? this.el.getAttribute('value')+str : str));
-          } else if (/textarea/.test(this.tag)) {
-            this.el.innerText = (app === true ? this.el.value+str : str);
+            this.attr('value', (app===true?this.el.getAttribute('value')+str:str));
           } else {
-            this.el[prop] = (app === true ? this.el[prop]+str : str);
+            this.el[/textarea/.test(this.tag)===true?'innerText':prop] = (app===true?this.el.value+str:str);
           }
           return this;
         } else {
-          if (reg.test(this.tag) || /textarea/.test(this.tag)) {
-            return this.el.value;
-          } else {
-            return this.el[prop];
-          }
+          return this.el[reg.test(this.tag)||/textarea/.test(this.tag)?'value':prop];
         }
       };
       switch (this.tag) {
@@ -262,42 +255,36 @@
     },
     css(rule, rules) {
       if (rule != null) {
-        switch (vrs.type(rule)) {
-          case 'object':
-            return vrs.funcoso(this,'style')(rule);
-            break;
-          case 'string':
-            if (rules != null) {
-              rule = rule.replace(/-(\w{1})/g,(whole, dash) => dash.toUpperCase());
-              this.el.style[rule] = rules;
-              return this;
-            } else {
-              return this.el.style[rule];
-            }
+        if (vrs.type(rule) === 'object') {
+          return vrs.funcoso(this,'style')(rule);
+        } else if (rules != null) {
+          rule = rule.replace(/-(\w{1})/g,(whole, dash) => dash.toUpperCase());
+          this.el.style[rule] = rules;
+          return this;
+        } else {
+          return this.el.style[rule];
         }
       } else {
         return this.el.style;
       }
     },
     on(evtp, cb, cp = false, name) {
-      var ev;
       this.el.events = this.el.events || {};
-      ev = this.el.events[evtp] = {capture: cp};
-      ev[name != null ? name : (cb.name || 'func')] = cb;
+      this.el.events[evtp] = {capture: cp};
+      this.el.events[evtp][name!=null?name:(cb.name||'func')] = cb;
       this.el.addEventListener(evtp, cb, cp);
       return this;
     },
     off(evtp, cb, name) {
       this.el.removeEventListener(evtp, (name != null ? this.el.events[evtp][name] : cb));
-      delete this.el.events[evtp][name != null ? name : (cb.name || 'func')];
+      delete this.el.events[evtp][name!=null?name:(cb.name||'func')];
       return this;
     },
     append(...elements) {
       if (elements.length === 0) {return};
-      var i, len, element;
-      for (i = 0, len = elements.length; i < len; i++) {
+      for (var i = 0,len = elements.length,element; i<len; i++) {
         element = pen.$(elements[i]);
-        this.cel.appendChild((element instanceof pen ? element.el : element));
+        this.cel.appendChild((element instanceof pen?element.el:element));
       }
       return this;
     },
@@ -311,27 +298,22 @@
     create(el, ret) {
       el = pen(el);
       this.append(el);
-      switch (ret) {
-        case 'parent':
-          return this;
-          break;
-        case 'child':
-          return el;
-          break;
-        default:
-          return this;
+      if (ret === 'parent') {
+        return this;
+      } else if (ret === 'child') {
+        return el;
+      } else {
+        return this;
       }
     },
     toggle(...classes) {
-      var i, len;
-      for (i = 0, len = classes.length; i < len; i++) {
+      for (var i = 0, len = classes.length; i < len; i++) {
         this.el.classList.toggle(classes[i]);
       }
       return this;
     },
     hasClass(cls) {
-      var i, len;
-      for (i = 0, len = this.Classes.length; i < len; i++) {
+      for (var i = 0, len = this.Classes.length; i < len; i++) {
         if (this.Classes[i] === cls) {
           return true;
         }
@@ -339,7 +321,7 @@
       return false;
     },
     hide() {
-      this.hidden === true ? this.css('display', '') : this.css('display', 'none');
+      this.hidden===true?this.css('display',''):this.css('display','none');
       return this;
     }
   };

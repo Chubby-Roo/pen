@@ -1,16 +1,33 @@
-var Card;
+var Card, Cards;
 
-Card = class Card {
-  constructor(title, message) {
-    var msgCont, titleCont;
-    title = title || "I'm a title";
-    message = message || "I'm a message";
-    this.container = pen("<div class='cd-container'>");
-    titleCont = this.container.create("<span class='cd-title-container'>", 'child');
-    msgCont = this.container.create("<span class='cd-msg-container'>", 'child');
-    msgCont.create("<span class='cd-msg'>", 'child').html(message);
-    titleCont.create("<span class='cd-title'>", 'child').html(title);
+Cards = {};
+
+// Going off of Container.js
+Card = class Card extends Container {
+  constructor(title = "I'm a title", message = "I'm a message") {
+    super('card', 'cd');
+    this.title = super.addEl(`<span class='${this._id}-title'>`).html(title);
+    this.clsBtn = super.addEl(`<span class='cls-btn'>`).html("X");
+    this.msg = super.addEl(`<span class='${this._id}-msg'>`).html(message);
+    this.clsBtn.on('click', (e) => {
+      this.close();
+    });
+    Cards[this.title.text] = this;
     return this;
   }
-
+  change(typ, data) {
+    switch(typ) {
+      case 'title':
+        this.title.html(data);
+        break;
+      case 'message':
+        this.msg.html(data);
+        break;
+    }
+    return this;
+  }
+  close() {
+    this.cont.remove();
+    return this;
+  }
 };
