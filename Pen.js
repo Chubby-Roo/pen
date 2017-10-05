@@ -92,7 +92,8 @@
         case 'string': case 'array':
           return arg.length;
           break;
-        // the fact that i have to do this just to get the length of an object is annoying
+        // the fact that i have to do this just to get the length of an object is annoying also this may or may not be the only comment because I just find those pesky comments, storage-taking
+        // so unless you want comments just wait for me to create a seperate md file
         case 'object':
           return Object.keys(arg).length;
           break;
@@ -292,7 +293,7 @@
     remove() {this.Parent != null ? this.Parent.removeChild(this.el) : null},
     $(qur) {
       qur = this.cel.querySelector(qur);
-      return pen.handoff(this.ops.global.parseIt, qur);
+      return pen.handoff(this.ops.parseIt, qur);
     },
     $$(qur) {return this.cel.querySelectorAll(qur)},
     create(el, ret) {
