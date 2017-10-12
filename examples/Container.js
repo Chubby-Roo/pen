@@ -25,4 +25,25 @@ Container = class Container {
     delete this._els[selec];
     return this;
   }
+  deploy(el) {
+    this.cont.appendTo(el);
+    return this;
+  }
+  // (optional use), "uObjProp" = "use Object.defineProperty"
+  define(key, prop, uObjProp = false) {
+    if (uObjProp === true) {
+      Object.defineProperty(this, key, prop);
+    } else {
+      this[key] = prop;
+    }
+    return this;
+  }
+  // (optional use) structure takes: {"key": prop, "key": prop, ...}
+  defines(...kprops) {
+    for (var kprop in kprops) {
+      //kprop is key + prop
+      this.define(kprop, kprops[kprop]);
+    }
+    return this;
+  }
 }

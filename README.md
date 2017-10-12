@@ -33,12 +33,19 @@ It also supports passing objects but not arrays yet.
 But has the same power almost as Umbrella though maybe a bit more but it does not support AJAX as of yet.
 It will be available in the near future if not then oh well
 
+---
+
 # Documentation and examples
 [Docs](docs)
+
 ..:Test:..
+
+
 [selector](tests/selector/)
 
 There's a selector and a simple game in the works.
+
+---
 
 # Contribution
 
@@ -49,6 +56,7 @@ git clone https://github.com/Monochromefx/pen.git
 Adjust fixes if needed to add features you think need to be in it.
 Then make a pull request.
 
-## Note about using pen("<p id='someID'>")
-When creating an element via: **pen("<p id='someID'>");**
-It's much slower than: **pen("<p>").attr('id', 'someID');**
+## Note about using pen("&lt;p id='someID'&gt;")
+When creating an element via: **pen("&lt;p id='someID'&gt;");**
+
+It's much slower than: **pen("&lt;p&gt;").attr('id', 'someID');**

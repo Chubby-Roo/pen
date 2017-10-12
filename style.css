@@ -14,6 +14,20 @@
   ::-webkit-scrollbar-corner, ::-webkit-scrollbar-resizer {
     background: #295630; }
 
+::-moz-scrollbar {
+  width: 5px; }
+  ::-moz-scrollbar-thumb {
+    background: rgba(168, 214, 175, 0.5); }
+  ::-moz-scrollbar-corner, ::-moz-scrollbar-resizer {
+    background: #295630; }
+
+::-o-scrollbar {
+  width: 5px; }
+  ::-o-scrollbar-thumb {
+    background: rgba(168, 214, 175, 0.5); }
+  ::-o-scrollbar-corner, ::-o-scrollbar-resizer {
+    background: #295630; }
+
 body {
   font-family: Arial;
   background: #295630; }

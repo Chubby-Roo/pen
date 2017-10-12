@@ -18,6 +18,7 @@ Modal = class Modal extends Container {
   }
   change (typ, data) {
     this[typ].html(data);
+    return this;
   }
   close () {
     this.cont.remove();

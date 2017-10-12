@@ -35,7 +35,7 @@
       toString() {return `${this.name}="${this.value}"`}
       static fromString(str) {
         var name, value;
-        [name, value] = str.split('=');
+        ([name, value] = str.split('='));
         value = value.replace(/'+|"+/g, '');
         return new vrs.attribute(name, value);
       }
@@ -86,18 +86,6 @@
         return it;
       }
       return func;
-    },
-    len(arg) {
-      switch (vrs.type(arg)) {
-        case 'string': case 'array':
-          return arg.length;
-          break;
-        // the fact that i have to do this just to get the length of an object is annoying also this may or may not be the only comment because I just find those pesky comments, storage-taking
-        // so unless you want comments just wait for me to create a seperate md file
-        case 'object':
-          return Object.keys(arg).length;
-          break;
-      }
     }
   };
   for (let i = 0, len = vrs.names.length; i < len; i++) {
@@ -106,7 +94,7 @@
   pen = function (ops = {}) {
     if (!(this instanceof pen)) {return new pen(...arguments)};
     if (arguments[0] instanceof pen) {return arguments[0]};
-    if (arguments[0] == null) {return};
+    if (arguments[0] == null) {console.warn(`argument passed was ${vrs.type(arguments[0])}, returning undefined`);return};
     this.el = arguments[0];
     this.start(arguments[1]);
   };
@@ -141,34 +129,34 @@
     attrs: vrs.parser(vrs.regs.attr),
     element(str) {
       var arr, s, e, stTag, attribs, tag, text;
-      [s, e] = vrs.sAS(str, '<', '>'); stTag = str.slice(s, e+1);
-      [s, e] = vrs.sAS(stTag, ' ', '>'); attribs = stTag.slice(s+1, e);
-      [s, e] = vrs.sAS(stTag, '<', ' '); tag = stTag.slice(s+1, e);
-      [s, e] = vrs.sAS(str, '>', '</'); text = str.slice(s+1, e);
-      return [str, stTag, (attribs !== `<${tag}` ? attribs : null), tag, (text !== '' ? text : null)];
+      [s, e] = vrs.sAS(str, /</, />/); stTag = str.substring(s, e+1);
+      [s, e] = vrs.sAS(stTag, / /, />/); attribs = stTag.substring(s+1, e);
+      [s, e] = vrs.sAS(stTag, /</, / /); tag = stTag.substring(s+1, e);
+      [s, e] = vrs.sAS(str, />/, /<\//); text = str.substring(s+1, e);
+      return [(attribs!==`<${tag}`?attribs:null),tag,(text!==''?text:null)];
     }
   };
   pen.genId = (times) => `i${vrs.iterate([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], times)}`;
   pen.ink = pen.prototype = {
     constructor: pen,
     start(ops) {
-      var t, whole, startTag, attrs, tag, text;
+      var t;
       this.initOptions(ops);
       t = vrs.type(this.el);
       if (t === 'object') {
         this.partialSetup();
       } else if (t === 'string') {
         if (this.el.startsWith('<')) {
-          [whole, startTag, attrs, tag, text] = pen.parse.element(this.el);
+          var [attrs, tag, text] = pen.parse.element(this.el);
           attrs = pen.parse.attrs(attrs);
           this.el = pen.create(tag);
+          if (attrs != null) {this.attr(attrs)};
+          if (text != null && (text.length !== 0)) {this.html(text, {parse: true})};
         } else {
           this.el = pen.$(this.el);
         }
-        if (attrs != null) {this.attr(attrs)};
-        if (text != null && (text.length !== 0)) {this.html(text, {parse: true})};
         this.partialSetup();
-      };
+      }
     },
     initOptions(ops) {
       this.ops = {parseIt: (ops!=null?(ops.parseIt||false):false),
@@ -199,22 +187,23 @@
             this.on('DOMContentLoaded', ...arguments);
             return this;
           };
-          break;
+        break;
+
         case this.el instanceof Window:
           this.doc = this.el.document;
-          break;
+        break;
+
         case this.tag === 'canvas':
           pen.prototype.clone = function () {
             document.importNode(...arguments);
             return this;
           };
-          break;
-        case this.tag === 'canvas':
           this.ctx = this.context = this.el.getContext('2d');
-          break;
+        break;
       }
       return this;
     },
+
     html(str, ops) {
       var parse, app, res, reg, livi;
       ({parse, app} = this.initOptions(ops));
@@ -292,8 +281,7 @@
     appendTo(el) {pen(el).append(this);return this;},
     remove() {this.Parent != null ? this.Parent.removeChild(this.el) : null},
     $(qur) {
-      qur = this.cel.querySelector(qur);
-      return pen.handoff(this.ops.parseIt, qur);
+      return pen.handoff(this.ops.parseIt, this.cel.querySelector(qur));
     },
     $$(qur) {return this.cel.querySelectorAll(qur)},
     create(el, ret) {
@@ -327,6 +315,5 @@
     }
   };
   pen.tools = vrs;
-  window.pDoc = pen(document); window.pWin = pen(window);
-  window.pen = pen;
+  window.pDoc = pen(document); window.pWin = pen(window); window.pen = pen;
 }).call(this);
