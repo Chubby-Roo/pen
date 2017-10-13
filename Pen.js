@@ -47,6 +47,7 @@
         if (str == null) {return};
         obj = {};
         results = str.match(regs);
+        if (results == null) {return};
         for (i = 0, len = results.length; i < len; ++i) {
           if (results[i].includes("=")) {
             attr = vrs.attribute.fromString(results[i]);
@@ -91,7 +92,7 @@
   for (let i = 0, len = vrs.names.length; i < len; i++) {
     vrs.class2Type[`[object ${vrs.names[i]}]`] = vrs.names[i].toLowerCase();
   }
-  pen = function (ops = {}) {
+  pen = function (el, ops = {}) {
     if (!(this instanceof pen)) {return new pen(...arguments)};
     if (arguments[0] instanceof pen) {return arguments[0]};
     if (arguments[0] == null) {console.warn(`argument passed was ${vrs.type(arguments[0])}, returning undefined`);return};
@@ -129,10 +130,22 @@
     attrs: vrs.parser(vrs.regs.attr),
     element(str) {
       var arr, s, e, stTag, attribs, tag, text;
-      [s, e] = vrs.sAS(str, /</, />/); stTag = str.substring(s, e+1);
-      [s, e] = vrs.sAS(stTag, / /, />/); attribs = stTag.substring(s+1, e);
-      [s, e] = vrs.sAS(stTag, /</, / /); tag = stTag.substring(s+1, e);
-      [s, e] = vrs.sAS(str, />/, /<\//); text = str.substring(s+1, e);
+      [s, e] = vrs.sAS(str, '<', '>');
+      stTag = str.substring(s, e+1);
+
+      if (stTag.match(/<([^\n ]+)>/)) {
+        [s, e] = vrs.sAS(stTag, '<', '>');
+      } else {
+        [s, e] = vrs.sAS(stTag, '<', ' ');
+      }
+      tag = stTag.substring(s+1, e);
+
+      [s, e] = vrs.sAS(stTag, ' ', '>');
+      attribs = stTag.substring(s+1, e);
+
+      [s, e] = vrs.sAS(str, '>', '<');
+      text = str.substring(s+1, e);
+
       return [(attribs!==`<${tag}`?attribs:null),tag,(text!==''?text:null)];
     }
   };
@@ -148,9 +161,8 @@
       } else if (t === 'string') {
         if (this.el.startsWith('<')) {
           var [attrs, tag, text] = pen.parse.element(this.el);
-          attrs = pen.parse.attrs(attrs);
-          this.el = pen.create(tag);
-          if (attrs != null) {this.attr(attrs)};
+          this.el = document.createElement(tag);
+          if (attrs != null) {this.attr(pen.parse.attrs(attrs))};
           if (text != null && (text.length !== 0)) {this.html(text, {parse: true})};
         } else {
           this.el = pen.$(this.el);
