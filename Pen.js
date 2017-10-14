@@ -8,15 +8,12 @@
     names: ['Boolean', 'Number', 'String', 'Function', 'Array', 'Date', 'RegExp', 'Undefined', 'Null', 'Error', 'Symbol', 'Promise', 'NamedNodeMap', 'Map', 'NodeList', 'DOMTokenList', 'DOMStringMap', 'CSSStyleDeclaration', 'Document', 'Window'],
     slice: (vr) => {return Array.prototype.slice.call(vr);},
     _toString: (vr) => {return Object.prototype.toString.call(vr);},
-    elCount: 0,
     type(obj) {return this.class2Type[this._toString(obj)] || 'object'},
     regs: {attr: /([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi},
     ranDos(arr) {return arr[Math.floor(Math.random()*arr.length)]},
     str(regs, flags) {return this.type(regs) === 'string' ? new RegExp(regs, flags) : regs},
     iterate(arr, times) {
-      var res, i;
-      res = [];
-      i = 0;
+      var res = [], i = 0;
       while (i < times) {
         res.push(this.ranDos(arr));
         i++;
@@ -25,30 +22,24 @@
     },
     attribute: class attribute {
       constructor(name, value) {
-        this.name = name;
-        this.value = value;
+        this.name = name; this.value = value; return this;
       }
       change(typ, data) {
-        this[typ] = data;
-        return this;
+        this[typ] = data; return this;
       }
       toString() {return `${this.name}="${this.value}"`}
       static fromString(str) {
-        var name, value;
-        ([name, value] = str.split('='));
-        value = value.replace(/'+|"+/g, '');
-        return new vrs.attribute(name, value);
+        var [name, value] = str.split('=');
+        return new vrs.attribute(name, value.replace(/'|"/g,''));
       }
     },
     parser(regs, flags) {
       regs = this.str(regs,(flags || 'gi'));
       return (str) => {
-        var obj, results, i, len, attr;
+        var obj = {}, results = str.match(regs), attr;
         if (str == null) {return};
-        obj = {};
-        results = str.match(regs);
         if (results == null) {return};
-        for (i = 0, len = results.length; i < len; ++i) {
+        for (var i = 0, len = results.length; i < len; ++i) {
           if (results[i].includes("=")) {
             attr = vrs.attribute.fromString(results[i]);
             obj[attr.name] = attr.value;
@@ -57,26 +48,15 @@
         return obj;
       };
     },
-    sAS(str, ...els) {
-      var i, len, arr;
-      arr = [];
-      for (i = 0, len = els.length; i < len; i++) {
-        arr.push(str.search(els[i]));
-      }
-      return arr;
-    },
     pErr(name, msg) {
-      var er;
-      er = new Error(msg); er.name = name;
+      var er = new Error(msg); er.name = name;
       throw er;
     },
     funcoso(it, typeso, typesi) {
-      var pz;
       typesi = typesi || typeso;
-      pz = vrs.type(it.el[typesi]);
+      var pz = vrs.type(it.el[typesi]);
       func = (props, nm) => {
-        var prop;
-        for (prop in props) {
+        for (var prop in props) {
           res = nm != null ? `${nm}-${prop}` : prop;
           if (vrs.type(props[prop]) === 'object') {
             func(props[prop], res);
@@ -95,57 +75,35 @@
   pen = function (el, ops = {}) {
     if (!(this instanceof pen)) {return new pen(...arguments)};
     if (arguments[0] instanceof pen) {return arguments[0]};
-    if (arguments[0] == null) {console.warn(`argument passed was ${vrs.type(arguments[0])}, returning undefined`);return};
     this.el = arguments[0];
     this.start(arguments[1]);
   };
   pen.handoff = (ps, el) => ps === true ? pen(el) : el;
-  pen.selected = {}; pen.created = {};
   pen.$ = function (el, ps = false) {
-    var selec;
     if (vrs.type(el) === 'string') {
-      selec = document.querySelector(el);
-      pen.selected[`element${vrs.elCount++}`] = selec;
-      return pen.handoff(ps, selec);
+      return pen.handoff(ps, document.querySelector(el));
     } else {
       return el;
     }
   };
   pen.$$ = function (el, ps = false) {
-    var els, ar;
-    els = vrs.slice(document.querySelectorAll(el));
-    ar = [];
+    var els = vrs.slice(document.querySelectorAll(el)), ar = [];
     for (var i = 0, len = els.length; i < len; i++) {
-      pen.selected[`element${vrs.elCount++}`] = el;
-      ar.push(pen.handoff(ps, el));
+      ar.push(pen.handoff(ps, els[i]));
     }
     return ar;
   };
   pen.create = function (el, ps = false) {
-    el = document.createElement(el);
-    pen.created[`element${vrs.elCount++}`] = el;
-    return pen.handoff(ps, el);
+    return pen.handoff(ps, document.createElement(el));
   };
   pen.parse = {
     attrs: vrs.parser(vrs.regs.attr),
     element(str) {
-      var arr, s, e, stTag, attribs, tag, text;
-      [s, e] = vrs.sAS(str, '<', '>');
-      stTag = str.substring(s, e+1);
-
-      if (stTag.match(/<([^\n ]+)>/)) {
-        [s, e] = vrs.sAS(stTag, '<', '>');
-      } else {
-        [s, e] = vrs.sAS(stTag, '<', ' ');
-      }
-      tag = stTag.substring(s+1, e);
-
-      [s, e] = vrs.sAS(stTag, ' ', '>');
-      attribs = stTag.substring(s+1, e);
-
-      [s, e] = vrs.sAS(str, '>', '<');
-      text = str.substring(s+1, e);
-
+      var stTag, tag, attribs, text;
+      stTag = str.substring(str.search(/</), str.search(/>/)+1);
+      tag = stTag.substring(stTag.search(/</)+1, stTag.search(stTag.match(/<([^\n ]+)>/) ? />/ : / /));
+      attribs = stTag.substring(stTag.search(/ /)+1, stTag.search(/>/));
+      text = str.substring(str.search(/>/)+1, str.search(/</));
       return [(attribs!==`<${tag}`?attribs:null),tag,(text!==''?text:null)];
     }
   };
@@ -153,12 +111,8 @@
   pen.ink = pen.prototype = {
     constructor: pen,
     start(ops) {
-      var t;
       this.initOptions(ops);
-      t = vrs.type(this.el);
-      if (t === 'object') {
-        this.partialSetup();
-      } else if (t === 'string') {
+      if (vrs.type(this.el) === 'string') {
         if (this.el.startsWith('<')) {
           var [attrs, tag, text] = pen.parse.element(this.el);
           this.el = document.createElement(tag);
@@ -167,8 +121,8 @@
         } else {
           this.el = pen.$(this.el);
         }
-        this.partialSetup();
       }
+      this.partialSetup();
     },
     initOptions(ops) {
       this.ops = {parseIt: (ops!=null?(ops.parseIt||false):false),
@@ -179,16 +133,19 @@
     },
     toString() {return this.cel.outerHTML},
     partialSetup() {
+      if (this.el == null) {
+        vrs.pErr("Main-arg", "main-argument from pen(...) was "+vrs.type(this.el));
+      }
       var configurable, enumerable;
       configurable = true; enumerable = true;
       Object.defineProperties(this,{
         tag:{get(){return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase()},enumerable},
         cel:{get(){return this.tag==='template'?this.el.content:this.el},enumerable},
         text:{get(){return this.html()},set(str){return this.html(str)},configurable,enumerable},
-        Children:{get(){var children,ar;children=vrs.slice(this.cel.children);ar=[];for(var i=0,len=children.length;i<len;i++){ar.push(pen(children[i]));};return ar;},set(el){return this.append(...el)},configurable,enumerable},
+        Children:{get(){var children=vrs.slice(this.cel.children), ar=[];for(var i=0,len=children.length;i<len;i++){ar.push(pen(children[i]));};return ar;},set(el){return this.append(...el)},configurable,enumerable},
         Parent:{get(){return this.el.parentNode||null},set(el){return this.appendTo(el)},configurable,enumerable},
         Classes:{get(){return vrs.slice(this.el.classList)},set(cls){return this.toggle(cls)},configurable,enumerable},
-        attrs:{get(){var ar,attrs;ar={};attrs=vrs.slice(this.el.attributes);for(var i=0,len=attrs.length;i<len;i++){ar[attrs[i].name]=attrs[i].value;};return ar;},set(obj){return this.attr(obj)},configurable,enumerable},
+        attrs:{get(){var ar={}, attrs=vrs.slice(this.el.attributes);for(var i=0,len=attrs.length;i<len;i++){ar[attrs[i].name]=attrs[i].value;};return ar;},set(obj){return this.attr(obj)},configurable,enumerable},
         selector:{get(){return `${this.tag}${this.attrs.id!= null?`#${this.attrs.id}`:''}${this.attrs.class!=null?`.${this.Classes.join('.')}`:''}`},enumerable},
         size:{get(){return this.el.getBoundingClientRect()},enumerable},
         hidden:{get(){return this.css('display')==='none'},enumerable}});
@@ -217,10 +174,7 @@
     },
 
     html(str, ops) {
-      var parse, app, res, reg, livi;
-      ({parse, app} = this.initOptions(ops));
-      res = parse===true?'innerHTML':'innerText';
-      reg = /input|option/i;
+      var {parse, app} = this.initOptions(ops), res = parse===true?'innerHTML':'innerText', reg = /input|option/i, livi;
       livi = (prop, str) => {
         if (str != null) {
           if (reg.test(this.tag)) {
