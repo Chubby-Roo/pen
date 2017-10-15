@@ -126,7 +126,6 @@
     },
     initOptions(ops) {
       this.ops = {parseIt: (ops!=null?(ops.parseIt||false):false),
-        create: (ops!=null?(ops.create||'child'):'child'),
         app: (ops!=null?(ops.app||false):false),
         parse: (ops!=null?(ops.parse||false):false)};
       return this.ops;
@@ -157,16 +156,16 @@
             return this;
           };
         break;
-
         case this.el instanceof Window:
           this.doc = this.el.document;
         break;
-
-        case this.tag === 'canvas':
+        case this.tag === 'template':
           pen.prototype.clone = function () {
             document.importNode(...arguments);
             return this;
           };
+        break;
+        case this.tag === 'canvas':
           this.ctx = this.context = this.el.getContext('2d');
         break;
       }
@@ -174,25 +173,29 @@
     },
 
     html(str, ops) {
-      var {parse, app} = this.initOptions(ops), res = parse===true?'innerHTML':'innerText', reg = /input|option/i, livi;
-      livi = (prop, str) => {
-        if (str != null) {
-          if (reg.test(this.tag)) {
-            this.attr('value', (app===true?this.el.getAttribute('value')+str:str));
-          } else {
-            this.el[/textarea/.test(this.tag)===true?'innerText':prop] = (app===true?this.el.value+str:str);
-          }
-          return this;
-        } else {
-          return this.el[reg.test(this.tag)||/textarea/.test(this.tag)?'value':prop];
-        }
-      };
-      switch (this.tag) {
-        case 'input':
-          return livi('value', str);
+      if (str != null) {
+        var {parse,app} = this.initOptions(ops),
+        res = parse ? 'innerHTML' : 'innerText';
+        switch (this.tag) {
+          case 'input':
+            this.attr('value', app ? this.el.value+str : str);
           break;
-        default:
-          return livi(res, str);
+          case 'option':
+            this.attr('value', app ? this.el.value+str : str);
+            this.el.innerText = app ? this.el.value+str : str;
+          break;
+          default:
+            this.el[/textarea/i.test(this.tag) ? 'innerText' : res] = app ? this.el.value+str : str;
+        }
+        return this;
+      } else {
+        switch (this.tag) {
+          case 'input': case 'option': case 'textarea':
+            return this.el.value;
+          break;
+          default:
+            return this.el.innerText;
+        }
       }
     },
     attr(attr, value) {
@@ -253,13 +256,7 @@
     create(el, ret) {
       el = pen(el);
       this.append(el);
-      if (ret === 'parent') {
-        return this;
-      } else if (ret === 'child') {
-        return el;
-      } else {
-        return this;
-      }
+      return ret === 'parent' ? this : ret === 'child' ? el : this;
     },
     toggle(...classes) {
       for (var i = 0, len = classes.length; i < len; i++) {
