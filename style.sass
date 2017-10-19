@@ -1,4 +1,4 @@
-$main-color: rgb(82,172,96)
+$main-color: rgb(138,32,70)
 $main-color-lightened: lighten($main-color, 25%)
 $main-color-darkened: darken($main-color, 25%)
 $tran: all 0.2s ease
@@ -10,6 +10,9 @@ $tran: all 0.2s ease
   border: none
   text-decoration: none
   -webkit-appearance: none
+  -moz-appearance: none
+  -o-appearance: none
+  appearance: none
   border-radius: 0
 
 
@@ -54,12 +57,14 @@ body
       color: white
       padding: 5px 0
     .element-selector
-      width: 100vw
+      width: 100%
       background: $main-color
       color: white
       .element-input
-        width: 50vw
-    [class^=selection]
+        width: 50%
+      .element-selector.btn
+        width: 50%
+    .selection-div
       padding: 10px
       color: white
       width: 50vw

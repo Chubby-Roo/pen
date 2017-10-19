@@ -63,10 +63,10 @@
   pen.create = (el,ps) => pen.handoff(document.createElement(el), ps);
   pen.parseElement = (str) => {
     var stTag, tag, attribs, text, ar = [];
-    stTag = str.substring(str.search('<'), str.search('>')+1);
-    tag = stTag.substring(stTag.search('<')+1, stTag.search(stTag.match(/<([^\n ]+)>/) ? '>' : ' '));
-    attribs = stTag.substring(stTag.search(' ')+1, stTag.search('>'));
-    text = str.substring(stTag.length, str.search('</'));
+    stTag = str.substring(str.search(/</), str.search(/>/)+1);
+    tag = stTag.substring(stTag.search(/</)+1, stTag.search(stTag.match(/<([^\n ]+)>/) ? />/ : / /));
+    attribs = stTag.substring(stTag.search(/ /)+1, stTag.search(/>/));
+    text = str.substring(stTag.length, str.search(/<\//));
     ar.push((attribs===`<${tag}`?null:attribs),tag,(text===stTag?null:text===''?null:text));
     return ar;
   };
@@ -89,9 +89,7 @@
     initOptions(ops) {this.ops = {parseIt:(ops!=null?(ops.parseIt||false):false),app:(ops!=null?(ops.app||false):false),parse:(ops!=null?(ops.parse||false):false)};return this.ops},
     toString() {return this.cel.outerHTML},
     partialSetup() {
-      if (this.el == null) {
-        vrs.pErr("Main-arg", "main-argument from pen(...) was "+vrs.type(this.el));
-      }
+      if (this.el == null) {return};
       var configurable = true, enumerable = true;
       Object.defineProperties(this,
         {tag:{get(){return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase()},enumerable},

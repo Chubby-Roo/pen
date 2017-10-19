@@ -49,7 +49,7 @@ pen(document).ready(function() {
   pHead.append(title, styz);
   wrapper.append(selector, relbut);
   selectorBtn.on('click', function(e) {
-    var el = pen.$(selectorInput.text, true);
+    var val = selectorInput.text, el = pen.$(val, true);
     if (el.el != null) {
       selectorInput.html("");
       wrapper.append(new Selar(el).cont);
