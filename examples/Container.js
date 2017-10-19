@@ -20,6 +20,9 @@ Container = class Container {
       return el;
     }
   }
+  create(el, cb) {
+    this.addEl(el, cb);
+  }
   removeEl(selec) {
     this._els[selec].remove();
     delete this._els[selec];

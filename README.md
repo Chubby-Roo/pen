@@ -2,24 +2,18 @@
 
 # Pen
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/Monochromefx/pen.svg)](https://greenkeeper.io/)
+Pen is a rather big API but not too big but only big enough for some *ink*,
+is an api used to manipulate elements and or create.
 
-Pen is a rather big API but not too big but only big enough for some *ink*.
+It is inspired by [jQuery.js](https://jquery.com/) and follows something similar to [umbrella.js](https://umbrellajs.com/).
 
-Pen is an api used to manipulate elements and or create.
-
-It is inspired by [jQuery.js](https://jquery.com/) and follows something similar to [umbrella.js](https://umbrellajs.com/)
-
-The object may look something like this (in v1.5.0 if you're on chrome
-and with the latest version of chrome.)
-
+The object may look something like this:
 ```js
 //I'll be using a p element for this example
 pen: {
   attrs: {id: 'moose'},
-  // events was moved inside the el, because, its easier to manage
+  // events was moved inside the el object, because, its easier to manage
   text: (...),
-  element: 'p#moose'
   el: 'p#moose',
   cel: (...),
   tag: 'p',
@@ -28,22 +22,16 @@ pen: {
 }
 ```
 
-It also supports passing objects but not arrays yet.
-
-But has the same power almost as Umbrella though maybe a bit more but it does not support AJAX as of yet.
-It will be available in the near future if not then oh well
-
 ---
 
-# Documentation and examples
-[Docs](docs)
+[Docs](docs) -- for documentation
+[Examples](examples) -- for examples on how to create things for yourself or how pen can be used
 
 ..:Test:..
 
-
 [selector](tests/selector/)
 
-There's a selector and a simple game in the works.
+There's a selector app that allows you to interact with the webpage itself.
 
 ---
 
