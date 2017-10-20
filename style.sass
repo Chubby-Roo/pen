@@ -26,6 +26,20 @@ body
     color: white
     padding: 5px
     background: $main-color
+    .btn, a
+      float: right
+      display: inline-block
+      transition: $tran
+      padding: 1vh 1vw
+      color: white
+      background: $main-color
+      margin:
+        left: 5px
+        right: 5px
+      &:hover
+        padding: 1vh 3vw
+        background: $main-color-lightened
+        color: white
     .header-title
       font:
         size: 2vmax
@@ -36,7 +50,7 @@ body
     font-size: 2vmin
     color: white
     overflow: auto
-    padding-top: 5vh
+    padding-top: 7vh
     height: 90vh
     .btn, a
       display: inline-block
@@ -60,10 +74,12 @@ body
       width: 100%
       background: $main-color
       color: white
+      padding: 15px 0
       .element-input
         width: 50%
       .element-selector.btn
         width: 50%
+
     .selection-div
       padding: 10px
       color: white

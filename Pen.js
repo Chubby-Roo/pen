@@ -21,17 +21,19 @@
       toString() {return `${this.name}="${this.value}"`}
       static fromString(str) {var [name,value]=str.split('=');return new vrs.attr(name,value.replace(/'|"/g,''))}
     }, parseAttrs (str) {
-      var obj = {}, results = str.match(this.attrReg);
-      if (str == null || (results == null) || (results.length === 0)) {return};
-      for (var i = 0, len = results.length, attr; i < len; i++) {
+      var obj={},results=str.match(this.attrReg);
+      if (str==null||(results==null)||(results.length===0)) {return};
+      for (var i=0,len=results.length,attr;i<len;i++) {
         if (results[i].includes('=')) {
           attr = this.attr.fromString(results[i]);
           obj[attr.name] = attr.value;
         }
       }
-      return Object.keys(obj).length !== 0 ? obj : null;
+      return Object.keys(obj).length!==0?obj:null;
     },
-    pErr (nm, msg) {var er = new Error(msg);er.name = nm; throw er},
+    pErr (nm, msg) {var er = new Error(msg);er.name=nm;throw er},
+    pWar (msg) {console.warn(msg)},
+    pLog (nm, msg) {log(`%c${nm}:\n  %c${msg}`, 'font-style:bold; color:white', 'color:grey')},
     fracture (it, property) {
       var fractured, pz = vrs.type(it.el[property]);
       fractured = (props, nm) => {
@@ -40,7 +42,7 @@
           res = nm != null ? `${nm}-${prop}` : prop;
           if (vrs.type(props[prop]) !== 'object') {
             // if (...) then ... else ...
-            pz === 'function' ? it.el[property](res, props[prop]) : it.el[property][res] = props[prop];
+            pz==='function'?it.el[property](res,props[prop]):it.el[property][res]=props[prop];
           } else {
             fractured(props[prop], res);
           }
@@ -62,18 +64,17 @@
   pen.$$ = (el,ps) => {var els = vrs.slice(document.querySelectorAll(el));for (var i=0,len=els.length;i<len;i++){els[i]=pen.handoff(els[i],ps)};return els};
   pen.create = (el,ps) => pen.handoff(document.createElement(el), ps);
   pen.parseElement = (str) => {
-    var stTag, tag, attribs, text, ar = [];
+    var stTag, tag, attribs, text;
     stTag = str.substring(str.search(/</), str.search(/>/)+1);
     tag = stTag.substring(stTag.search(/</)+1, stTag.search(stTag.match(/<([^\n ]+)>/) ? />/ : / /));
     attribs = stTag.substring(stTag.search(/ /)+1, stTag.search(/>/));
     text = str.substring(stTag.length, str.search(/<\//));
-    ar.push((attribs===`<${tag}`?null:attribs),tag,(text===stTag?null:text===''?null:text));
-    return ar;
+    return [(attribs===`<${tag}`?null:attribs),tag,(text===stTag?null:text===''?null:text)];
   };
   pen.ink = pen.prototype = {
     constructor: pen,
     start(ops) {
-      this.initOptions(ops);
+      this.ops = ops;
       if (vrs.type(this.el) === 'string') {
         if (this.el.startsWith('<')) {
           var [attrs, tag, text] = pen.parseElement(this.el);
@@ -86,7 +87,6 @@
       }
       this.partialSetup();
     },
-    initOptions(ops) {this.ops = {parseIt:(ops!=null?(ops.parseIt||false):false),app:(ops!=null?(ops.app||false):false),parse:(ops!=null?(ops.parse||false):false)};return this.ops},
     toString() {return this.cel.outerHTML},
     partialSetup() {
       if (this.el == null) {return};
@@ -101,8 +101,8 @@
         attrs:{get(){var ar={},attrs=vrs.slice(this.el.attributes);for(var i=0,len=attrs.length;i<len;i++){ar[attrs[i].name]=attrs[i].value};return ar},set(obj){return this.attr(obj)},configurable,enumerable},
         selector:{get(){return `${this.tag}${this.attrs.id!= null?`#${this.attrs.id}`:''}${this.attrs.class!=null?`.${this.Classes.join('.')}`:''}`},enumerable},
         size:{get(){return this.el.getBoundingClientRect()},enumerable},
-        hidden:{get(){return this.css('display')==='none'},enumerable}}
-      );
+        hidden:{get(){return this.css('display')==='none'},enumerable},
+        ops: {get(){return {parseIt:false,app:false,parse:false}},set(ops){return {parseIt:(ops!=null?(ops.parseIt||false):false),app:(ops!=null?(ops.app||false):false),parse:(ops!=null?(ops.parse||false):false)}},enumerable,configurable}});
       this.el.events = {};
       switch (true) {
         case this.el instanceof Document:
@@ -127,7 +127,7 @@
       return this;
     }, html(str, ops) {
       if (str != null) {
-        var {parse,app} = this.initOptions(ops),
+        var {parse,app} = (this.ops = ops!=null?ops:{}),
         res = parse ? 'innerHTML' : 'innerText';
         switch (this.tag) {
           case 'input':
@@ -152,34 +152,23 @@
       }
     }, attr(attr, value) {
       if (attr != null) {
-        if (vrs.type(attr) === 'object') {
-          return vrs.fracture(this, 'setAttribute')(attr);
-        } else if (value != null) {
-          this.el.setAttribute(attr, value);return this;
-        } else {
-          return this.el.getAttribute(attr);
-        }
+        // if typeof attr is an object then call a function to handle objects and call the curried function
+        // else if value isn't null then set the attribute and return 'this' else return the attribute given
+        return vrs.type(attr)==='object'?vrs.fracture(this,'setAttribute')(attr):value!=null?(this.el.setAttribute(attr,value),this):this.el.getAttribute(attr);
       } else {
         return this.attrs;
       }
     }, css(rule, rules) {
       if (rule != null) {
-        if (vrs.type(rule) === 'object') {
-          return vrs.fracture(this,'style')(rule);
-        } else if (rules != null) {
-          rule=rule.replace(/-(\w{1})/g,(whole, dash)=>{return dash.toUpperCase()});
-          this.el.style[rule]=rules;return this;
-        } else {
-          return this.el.style[rule]
-        }
+        return vrs.type(rule)==='object'?vrs.fracture(this,'style')(rule):rules!=null?(this.el.style[rule.replace(/-(\w{1})/g,(whole, dash)=>{return dash.toUpperCase()})]=rules,this):this.el.style[rule];
       } else {
         return this.el.style;
       }
     },
-    on(evtp, cb, cp = false, name) {this.el.events=this.el.events||{};this.el.events[evtp]={capture:cp};this.el.events[evtp][name!=null?name:(cb.name||'func')]=cb;this.el.addEventListener(evtp,cb,cp);return this},
-    off(evtp, cb, name) {this.el.removeEventListener(evtp,(name!=null?this.el.events[evtp][name]:cb));delete this.el.events[evtp][name!=null?name:(cb.name||'func')];return this},
+    on(evtp,cb,cp=false,name) {this.el.events=this.el.events||{};this.el.events[evtp]={capture:cp};this.el.events[evtp][name!=null?name:(cb.name||'func')]=cb;this.el.addEventListener(evtp,cb,cp);return this},
+    off(evtp,cb,name) {this.el.removeEventListener(evtp,(name!=null?this.el.events[evtp][name]:cb));delete this.el.events[evtp][name!=null?name:(cb.name||'func')];return this},
     append(...elements) {
-      if (elements.length === 0) {return};
+      if (elements.length === 0) {vrs.pLog(`Pen-${this.selector}-Append`, 'Argument passed had 0 elements');return};
       for (var i=0,len=elements.length,element;i<len;i++) {
         element = pen.$(elements[i]);
         this.cel.appendChild((element instanceof pen?element.el:element));
@@ -203,10 +192,7 @@
         }
       }
       return false;
-    }, hide() {
-      this.hidden===true?this.css('display',''):this.css('display','none');
-      return this;
-    }
+    }, hide() {this.hidden===true?this.css('display',''):this.css('display','none');return this;}
   };
   pen.tools = vrs;
   window.pDoc = pen(document); window.pWin = pen(window); window.pen = pen;

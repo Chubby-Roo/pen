@@ -39,13 +39,16 @@ pen(document).ready(function() {
   styz = pen("<link rel='stylesheet' href='../../style.css'>");
   wrapper = pen("<div id='wrpr' class='wrapper'>");
   title = pen("<title id='ttl'>").html("Selector");
+  header = pen("<div class='header top free' id='hdr'>");
+  header.create("<span id='hdrTitle' class='header-title'>",'child').html(title.text);
+  header.create("<a href='../../index.html' class='btn'>", 'child').html("Pen");
   relbut = pen("<button id='relbutt' class='reload btn bottom-right free'>").html("Reload Style");
   selector = pen("<div id='selectr' class='element-selector' align='center'>");
   selectorInput = selector.create("<input id='selectrInput' class='element-input input' placeholder='Place selector here.'>", 'child');
   selectorBtn = selector.create("<button id='selectrBtn' class='element-selector btn'>", 'child').html("Submit");
   selector.create("<br>");
   sideMsg = selector.create("<p id='sideInfo' class='side-message'>", 'child');
-  wrapper.appendTo(pBody);
+  pBody.append(header, wrapper);
   pHead.append(title, styz);
   wrapper.append(selector, relbut);
   selectorBtn.on('click', function(e) {
