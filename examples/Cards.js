@@ -1,18 +1,13 @@
-var Card, Cards;
+var Card;
 
-Cards = {};
-
-// Going off of Container.js
 Card = class Card extends Container {
   constructor(title = "I'm a title", message = "I'm a message") {
     super('card', 'cd');
-    this.clsBtn = this.addEl(`<span class='cls-btn'>`).html("X");
-    this.title = this.addEl(`<span class='${this._id}-title'>`).html(title);
-    this.msg = this.addEl(`<span class='${this._id}-msg'>`).html(message);
-    this.clsBtn.on('click', (e) => {
-      this.close();
-    });
-    Cards[this.title.text] = this;
+    this.clsBtn = this.addEl('<span>').attr('class','cls btn').html("X");
+    this.title = this.addEl('<span>').attr('class',`${this.id}-title`).html(title);
+    this.msg = this.addEl('<span>').attr('class',`${this.id}-msg`).html(message);
+    this.clsBtn.on('click', (e) => {this.close()});
+    Card.memory[`${this.title.text}${Object.keys(Card.memory).length}`] = this;
     return this;
   }
   change(typ, data) {
@@ -31,3 +26,4 @@ Card = class Card extends Container {
     return this;
   }
 };
+Card.memory = {};

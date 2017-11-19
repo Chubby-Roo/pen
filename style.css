@@ -88,14 +88,14 @@ body {
         width: 50%; }
       body .wrapper .element-selector .element-selector.btn {
         width: 50%; }
-    body .wrapper .selection-div {
+    body .wrapper .selector {
       padding: 10px;
       color: white;
       width: 50vw;
       background: #8a2046;
       margin: auto;
       margin-top: 10px; }
-      body .wrapper .selection-div * {
+      body .wrapper .selector * {
         display: block;
         margin-top: 5px;
         margin-bottom: 5px; }

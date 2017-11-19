@@ -1,27 +1,56 @@
-var Modal, Modals;
+var Modal;
 
-Modals = {};
-
-// Going off of Container.js
 Modal = class Modal extends Container {
-  constructor(headstr = "I'm a header", bodystr = "I'm a body", footstr = "I'm a footer", id) {
-    id = id || Math.random() * 189416498791;
-    super('modal', 'mdl');
-    this.clsBtn = super.addEl("<span class='cls-btn'>").html('X').on('click', (e) => {
-      this.close();
-    });
-    this.head = super.addEl(`<h2 class='${this._id}-head'>`).html(headstr);
-    this.body = super.addEl(`<p class='${this._id}-body'>`).html(bodystr);
-    this.foot = super.addEl(`<h2 class='${this._id}-foot'>`).html(footstr);
-    Modals[id] = this;
-    return this;
+  constructor (name, img, caption) {
+    super('modal');
+    this.name = name;
+    this.src = img;
+    this.mark = this.create("<img>").attr({src:this.src,id:`${this.id}Mark`,class:`${this.id}-mark`})
+    .on('click', ()=>{this.open()});
+    this.holder = new Container(this.id+'-holder');
+    this.holder.cont.css('display', 'none');
+    this.append(this.holder);
+    this.clsBtn = this.holder.create('<span>').attr({class:`${this.id}-cls btn`,id:`${this.id}ClsBtn`}).html('X')
+    .on('click', ()=>{this.close()}, true);
+    this.img = this.holder.create('<img>').attr({src:this.src,class:`${this.id}-img`,id:`${this.id}Img`});
+    this.innerCaption = this.holder.create('<div>').attr({class:`${this.id}-inner-caption`,id:`${this.id}InnerCaption`});
+    Object.defineProperty(this, 'closed', {get(){return this.holder.cont.css('display')==='none'},enumerable: true});
+    Object.defineProperty(this, 'caption', {get(){return this.innerCaption.text}, enumerable: true});
+    Modal.memory[`${this.name}${Object.keys(Modal.memory).length}`] = this;
+    this.innerCaption.html(caption);
+    return this.closed ? this : (this.close(), this);
   }
-  change (typ, data) {
-    this[typ].html(data);
-    return this;
-  }
-  close () {
-    this.cont.remove();
-    return this;
-  }
-};
+  change(typ, data) {
+		switch (typ) {
+			case 'image': case 'img':
+				this.src = data;
+				this.img.attr('src', this.src);
+        this.mark.attr('src', this.src);
+				break;
+			case 'caption':
+        this.innerCaption.html(data);
+				break;
+			default:
+				log(`Unknown option: ${typ}`);
+		};
+		return this;
+	}
+	deploy(el) {
+  	super.deploy(el);
+		return this;
+	}
+	close() {
+		this.holder.cont.css('display', 'none');
+		return this;
+	}
+	open() {
+		this.holder.cont.css('display', '');
+		return this;
+	}
+	remove(perm = false) {
+		super.remove();
+		if (perm === false){delete Modals[this.name]}
+		return this;
+	}
+}
+Modal.memory = {};

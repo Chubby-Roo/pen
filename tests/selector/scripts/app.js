@@ -1,78 +1,43 @@
-var dir, error, log, Selar, selections;
-({log, error, dir} = console);
-pen.prototype.enter = function(cb) {
-  return this.on('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      return cb(e, this);
-    }
-  });
-};
-selections = {};
-Selar = class Selar extends Container {
-  constructor (el) {
-    if (selections[el.selector] == null) {
-      super('selection-div');
-      el.toggle('selected');
-      this.cont.attr("align", 'center');
-      this.header = this.addEl(`<h4 class='selector-header'>`).html(el.selector);
-      this.highlighter = this.addEl("<button id='highlighter' class='highlighter btn'>Highlight</button>").html('Highlight').on('click', function(e) {
-        el.toggle('selected');
-      });
-      this.changeText = this.addEl("<input id='textChanger' class='text-changer input' placeholder='change the text'>").enter(function(ev, it) {
-        el.html(it.text);
-        it.html("");
-      });
-      this.toggler = this.addEl("<input id='toggler' class='toggler input' placeholder='toggle a class'>").enter(function(ev, it) {
-        el.toggle(it.text);
-        it.html("");
-      });
-      selections[this.header.text] = this;
-      return this;
-    } else {
-      console.warn(el.selector+" already exists.");
-    }
+document.title = 'Selector';
+var styz = pen('<link>').attr({rel:'stylesheet',href:'../../style.css'}),
+wrapper = pen('<div>').attr({id:'wrpr',class:'wrapper'}),
+header = pen('<div>').attr({class:'header top free',id:'hdr'});
+header.create('<span>','child').attr({id:'hdrTitle',class:'header-title'}).html(document.title);
+header.create('<a>', 'child').attr({href:'../../index.html',class:'btn'}).html('Pen');
+
+var relbut = pen('<button>').attr({id:'relbutt',class:'reload btn bottom-right free'}).html('Reload Style')
+.on('mousedown',e=>{styz.remove();styz.appendTo(pHead)});
+selector = new Container('element-selector');
+
+selector.cont.attr('align','center');
+selector.input = selector.create('<input>').attr({id:'selectrInput',class:'element-input input',placeholder:'Place selector here.'})
+.on('keydown',e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    selector.btn.el.click();
   }
-};
+});
+selector.btn = selector.create('<button>').attr({id:'selectrBtn',class:'element-selector btn'}).html('Submit').on('click',e=>{
+  var val = selector.input.text, el = pen.$(val, true),
+  timeout = 750;
+  if (el.el != null) {
+    selector.input.html("");
+    wrapper.append((new Selectionr(el)).cont);
+    setTimeout(()=>{el.toggle('selected')},timeout);
+  } else {
+    selector.sideMsg.html(`Uh, oh. No element was found with '${val}'. Try something else`);
+    setTimeout(()=>{selector.sideMsg.html('')},timeout);
+  }
+});
+selector.create('<br>');
+selector.sideMsg = selector.create('<p>').attr({id:'sideInfo',class:'side-message'});
+
+wrapper.append(selector.cont, relbut);
 pen(document).ready(function() {
-  var freeEls, relbut, selector, selectorBtn, selectorInput, sideMsg, styz, title, wrapper;
-  styz = pen("<link rel='stylesheet' href='../../style.css'>");
-  wrapper = pen("<div id='wrpr' class='wrapper'>");
-  title = pen("<title id='ttl'>").html("Selector");
-  header = pen("<div class='header top free' id='hdr'>");
-  header.create("<span id='hdrTitle' class='header-title'>",'child').html(title.text);
-  header.create("<a href='../../index.html' class='btn'>", 'child').html("Pen");
-  relbut = pen("<button id='relbutt' class='reload btn bottom-right free'>").html("Reload Style");
-  selector = pen("<div id='selectr' class='element-selector' align='center'>");
-  selectorInput = selector.create("<input id='selectrInput' class='element-input input' placeholder='Place selector here.'>", 'child');
-  selectorBtn = selector.create("<button id='selectrBtn' class='element-selector btn'>", 'child').html("Submit");
-  selector.create("<br>");
-  sideMsg = selector.create("<p id='sideInfo' class='side-message'>", 'child');
   pBody.append(header, wrapper);
-  pHead.append(title, styz);
-  wrapper.append(selector, relbut);
-  selectorBtn.on('click', function(e) {
-    var val = selectorInput.text, el = pen.$(val, true);
-    if (el.el != null) {
-      selectorInput.html("");
-      wrapper.append(new Selar(el).cont);
-      setTimeout(function() {el.toggle('selected');}, 1500);
-    } else {
-      sideMsg.html(`Uh, oh. No element was found with '${val}'. Try something else`);
-    }
-  });
-  selectorInput.on('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      selectorBtn.el.click();
-    }
-  });
-  relbut.on('click', function(e) {
-    styz.remove();
-    styz.appendTo(pHead);
-  });
-  freeEls = pen.$$(".free", true);
+  pHead.append(styz);
+  var freeEls = pen.$$(".free");
   for (var i = 0, len = freeEls.length; i < len; i++) {
-    freeEls[i].css("position", "fixed");
+    pen(freeEls[i]).css("position","fixed");
   }
 });

@@ -1,52 +1,39 @@
 var Container;
-
 Container = class Container {
   constructor (cls, id) {
-    id = id || cls.replace(/-(\w{1})/g, (whole, word) => word.toUpperCase());
-    this._id = id;
-    this._class = cls;
-    this._els = {};
-    this.cont = pen(`<div id="${this._id}" class="${this._class}">`);
+    this.cont = pen("<div>").attr({id:id||pen.tools.cc(cls),class:cls});
+    this.els = {};
+    Object.defineProperties(this,{id:{get(){return this.cont.attrs.id},set(str){return this.cont.attr('id',str)},configurable:true,enumerable:true},cls:{get(){return this.cont.attrs.class},set(str){this.cont.attr('class',str);str=camellCase(str);this.id=str;return this},configurable:true,enumerable:true}});
     return this;
   }
-  addEl(el, cb) {
-    el = this.cont.create(el, 'child');
-    if (cb != null) {
-      ret = cb(el);
-      this._els[ret.selector] = ret;
-      return this;
-    } else {
-      this._els[el.selector] = el;
-      return el;
-    }
+  create (el, cb) {
+    el = this.cont.create(el, 'child'); el = cb != null ? cb(el) : el;
+    this.els[el.selector] = el;
+    return cb != null ? this : el;
   }
-  create(el, cb) {
-    this.addEl(el, cb);
+  remove (el, perm = false) {
+    el = el instanceof pen ? el.selector : el;
+    this.els[el].remove();
+    perm ? delete this.els[el] : null;
+    return perm ? this : this.els[el];
   }
-  removeEl(selec) {
-    this._els[selec].remove();
-    delete this._els[selec];
-    return this;
-  }
-  deploy(el) {
+  deploy (el) {
     this.cont.appendTo(el);
     return this;
   }
-  // (optional use), "uObjProp" = "use Object.defineProperty"
-  define(key, prop, uObjProp = false) {
-    if (uObjProp === true) {
-      Object.defineProperty(this, key, prop);
-    } else {
-      this[key] = prop;
+  destory () {
+    this.cont.remove();
+    return this;
+  }
+  toString() {
+    var keys = Object.keys(this.els);
+    return `<Container ${this.cont.selector}${keys.length !== 0 ? `, Els:${keys.length}` : ''}>`;
+  }
+  append(...els) {
+    for (var i = 0, len = els.length; i < len; i++) {
+      els[i] = els[i] instanceof Container ? els[i].cont : els[i];
+      this.cont.append(els[i]);
     }
     return this;
   }
-  // (optional use) structure takes: {"key": prop, "key": prop, ...}
-  defines(...kprops) {
-    for (var kprop in kprops) {
-      //kprop is key + prop
-      this.define(kprop, kprops[kprop]);
-    }
-    return this;
-  }
-}
+};

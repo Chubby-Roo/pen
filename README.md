@@ -39,7 +39,7 @@ There's a selector app that allows you to interact with the webpage itself.
 
 Use git if you have it and clone this repository
 ```batch
-git clone https://github.com/Chubby-Roo/pen/pen.git
+git clone https://github.com/James-Chub-Fox/pen.git
 ```
 Adjust fixes if needed to add features you think need to be in it.
 Then make a pull request.
