@@ -5,10 +5,8 @@ header = pen('<div>').attr({class:'header top free',id:'hdr'});
 header.create('<span>','child').attr({id:'hdrTitle',class:'header-title'}).html(document.title);
 header.create('<a>', 'child').attr({href:'../../index.html',class:'btn'}).html('Pen');
 
-var relbut = pen('<button>').attr({id:'relbutt',class:'reload btn bottom-right free'}).html('Reload Style')
-.on('mousedown',e=>{styz.remove();styz.appendTo(pHead)});
+var relbut = pen('<button>').attr({id:'relbutt',class:'reload btn bottom-right free'}).html('Reload Style'),
 selector = new Container('element-selector');
-
 selector.cont.attr('align','center');
 selector.input = selector.create('<input>').attr({id:'selectrInput',class:'element-input input',placeholder:'Place selector here.'})
 .on('keydown',e=>{
@@ -31,6 +29,8 @@ selector.btn = selector.create('<button>').attr({id:'selectrBtn',class:'element-
 });
 selector.create('<br>');
 selector.sideMsg = selector.create('<p>').attr({id:'sideInfo',class:'side-message'});
+
+relbut.on('mousedown',e=>{styz.remove();styz.appendTo(pHead)}, 'reload');
 
 wrapper.append(selector.cont, relbut);
 pen(document).ready(function() {

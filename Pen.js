@@ -86,7 +86,6 @@
         size:{get(){return this.el.getBoundingClientRect()},enumerable},
         hidden:{get(){return this.css('display')==='none'},enumerable},
         ops: {get(){return {parseIt:false,app:false,parse:false}},set(ops){return {parseIt:(ops!=null?(ops.parseIt||false):false),app:(ops!=null?(ops.app||false):false),parse:(ops!=null?(ops.parse||false):false)}},enumerable,configurable}});
-      this.el.events = {};
       switch (true) {
         case this.el instanceof Document:
           pen.prototype.ready = function () {
@@ -148,7 +147,12 @@
         return this.el.style;
       }
     },
-    on(evtp,cb,cp=false,name) {this.el.events=this.el.events||{};this.el.events[evtp]={capture:cp};this.el.events[evtp][name!=null?name:(cb.name||'func')]=cb;this.el.addEventListener(evtp,cb,cp);return this},
+    on(evtp,cb,cp=false,name) {
+      this.el.events = this.el.events || {};
+      this.el.addEventListener(evtp,cb,cp);
+      this.el.events[evtp]={capture:cp};this.el.events[evtp][name!=null?name:(cb.name||'func')]=cb;
+      return this;
+    },
     off(evtp,cb,name) {this.el.removeEventListener(evtp,(name!=null?this.el.events[evtp][name]:cb));delete this.el.events[evtp][name!=null?name:(cb.name||'func')];return this},
     append(...elements) {
       if (elements.length===0){v.pLog(`Pen-${this.selector}-Append`, 'Argument passed had 0 elements');return};

@@ -19,6 +19,13 @@ Selectionr = class Selectionr extends Container {
       this.toggler = this.create('<input>')
       .attr({id:'toggler',class:'toggler input',placeholder:'toggle a class'})
       .on('keydown',(e)=>{if(e.key.toLowerCase()==='enter'){this.toggle()}});
+
+      var ev = Object.keys(this.elMem.el.events);
+
+      this.eventTracker = this.create('<p>')
+      .attr({id: 'eventTracker',class:'event-tracker'})
+      .html(`This element has: ${ev.length} ${ev.length <= 1 ? 'event' : 'events'}`);
+
       Selectionr.mem[this.header.text] = this;
       return this;
     } else {
