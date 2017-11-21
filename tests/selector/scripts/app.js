@@ -16,28 +16,30 @@ selector.input = selector.create('<input>').attr({id:'selectrInput',class:'eleme
   }
 });
 selector.btn = selector.create('<button>').attr({id:'selectrBtn',class:'element-selector btn'}).html('Submit').on('click',e=>{
-  var val = selector.input.text, el = pen.$(val, true),
-  timeout = 750;
-  if (el.el != null) {
-    selector.input.html("");
-    wrapper.append((new Selectionr(el)).cont);
-    setTimeout(()=>{el.toggle('selected')},timeout);
-  } else {
-    selector.sideMsg.html(`Uh, oh. No element was found with '${val}'. Try something else`);
+  var val = selector.input.text,
+  timeout = 1750;
+  if (val.length === 0) {
+    selector.sideMsg.html(`Try putting in some text next time XwX`);
     setTimeout(()=>{selector.sideMsg.html('')},timeout);
+  } else {
+    var el = pen.$(val, true);
+    if (el.el != null) {
+      selector.input.html("");
+      wrapper.append((new Selectionr(el)).cont);
+      setTimeout(()=>{el.toggle('selected')},timeout);
+    } else {
+      selector.sideMsg.html(`Uh, oh. No element was found with '${val}'. Try something else`);
+      setTimeout(()=>{selector.sideMsg.html('')},timeout);
+    }
   }
 });
 selector.create('<br>');
 selector.sideMsg = selector.create('<p>').attr({id:'sideInfo',class:'side-message'});
 
-relbut.on('mousedown',e=>{styz.remove();styz.appendTo(pHead)}, 'reload');
+relbut.on('click',e=>{styz.remove();styz.appendTo(pHead)}, 'reload');
 
 wrapper.append(selector.cont, relbut);
 pen(document).ready(function() {
   pBody.append(header, wrapper);
   pHead.append(styz);
-  var freeEls = pen.$$(".free");
-  for (var i = 0, len = freeEls.length; i < len; i++) {
-    pen(freeEls[i]).css("position","fixed");
-  }
 });

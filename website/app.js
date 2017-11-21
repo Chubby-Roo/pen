@@ -8,6 +8,7 @@ header.create("<a href='tests/selector/index.html' class='btn'>", 'child').html(
 header.create("<a href='https://github.com/Chubby-Roo/pen/' class='btn'>", 'child').html("Github");
 
 pen(document).ready(function() {
+  var ms;
   wrapper.append(txt);
   pHead.append(styz);
   pBody.append(header, wrapper);
@@ -16,10 +17,6 @@ pen(document).ready(function() {
   }).then((text) => {
     txt.html(ms.render(text),{parse: true});
   });
-  freeEls = pen.$$(".free");
-  for (var i = 0, len = freeEls.length; i < len; i++) {
-    pen(freeEls[i]).css("position", "fixed");
-  }
   ms = markdownit({
     highlight: function(str, lang) {
       var __;

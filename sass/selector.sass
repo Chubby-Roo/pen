@@ -1,0 +1,28 @@
+.selector
+  padding: 10px
+  color: white
+  width: 50vw
+  background: $main-color
+  margin: auto
+  margin-top: 10px
+  &:hover, &:focus
+    .selector-closer
+      padding: 0 10
+      opacity: 1
+      &:hover, &:focus
+        background: rgb(164,57,131)
+
+  &-header
+    font-size: 25px
+
+  .selector-closer
+    opacity: 0
+    float: right
+    transition: $tran
+
+  .btn
+    display: block
+    margin: 5px 0
+
+  input
+    margin: 5px 10px

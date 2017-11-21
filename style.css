@@ -95,10 +95,25 @@ body {
       background: #6454c7;
       margin: auto;
       margin-top: 10px; }
-      body .wrapper .selector * {
+      body .wrapper .selector:hover .selector-closer, body .wrapper .selector:focus .selector-closer {
+        padding: 0 10;
+        opacity: 1; }
+        body .wrapper .selector:hover .selector-closer:hover, body .wrapper .selector:hover .selector-closer:focus, body .wrapper .selector:focus .selector-closer:hover, body .wrapper .selector:focus .selector-closer:focus {
+          background: #a43983; }
+      body .wrapper .selector-header {
+        font-size: 25px; }
+      body .wrapper .selector .selector-closer {
+        opacity: 0;
+        float: right;
+        transition: all 0.2s ease; }
+      body .wrapper .selector .btn {
         display: block;
-        margin-top: 5px;
-        margin-bottom: 5px; }
+        margin: 5px 0; }
+      body .wrapper .selector input {
+        margin: 5px 10px; }
+
+.free {
+  position: fixed; }
 
 .top {
   top: 0; }
