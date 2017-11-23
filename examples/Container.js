@@ -3,7 +3,18 @@ Container = class Container {
   constructor (cls, id) {
     this.cont = pen("<div>").attr({id:id||pen.tools.cc(cls),class:cls});
     this.els = {};
-    Object.defineProperties(this,{id:{get(){return this.cont.attrs.id},set(str){return this.cont.attr('id',str)},configurable:true,enumerable:true},cls:{get(){return this.cont.attrs.class},set(str){this.cont.attr('class',str);str=camellCase(str);this.id=str;return this},configurable:true,enumerable:true}});
+    Object.defineProperties(this,{
+      id:{
+        get(){return this.cont.attr('id')},
+        set(str){return this.cont.attr('id',str)},
+        configurable:true,enumerable:true
+      },
+      cls:{
+        get(){return this.cont.attr('id')},
+        set(str){this.cont.attr('class',str);str=pen.tools.cc(str);this.id=str;return this},
+        configurable:true,enumerable:true
+      }
+    });
     return this;
   }
   create (el, cb) {

@@ -8,7 +8,7 @@ Selectionr = class Selectionr extends Container {
       this.cont.attr('align','center');
       this.header = this.create('<h4>').attr('class',`${this.id}-header`).html(el.selector);
       this.closer = this.header.create('<span>','child')
-      .attr('class', `${this.id}-closer`).html("X")
+      .attr('class', `${this.id}-closer`).html('X')
       .on('click', ()=>this.close());
 
       this.highlighter = this.create('<button>')
@@ -26,7 +26,7 @@ Selectionr = class Selectionr extends Container {
       if (this.elMem.el.events != null) {
         var ev = Object.keys(this.elMem.el.events),
         len = ev.length <= 1;
-        
+
         this.eventTracker = this.create('<pre>')
         .attr({id: 'eventTracker',class:'event-tracker'})
         .html(`This element has: ${ev.length} event${len ? '' : 's'}.\n.:Type${len ? '' : 's'}:.\n${ev.join(', ')}`);
@@ -53,12 +53,12 @@ Selectionr = class Selectionr extends Container {
   }
   changeText(){
     this.elMem.html(this.textChanger.text);
-    this.textChanger.html("");
+    this.textChanger.html('');
     return this;
   }
   toggle(){
     this.elMem.toggle(this.toggler.text);
-    this.toggler.html("");
+    this.toggler.html('');
     return this;
   }
   click(){

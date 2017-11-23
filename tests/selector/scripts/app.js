@@ -24,7 +24,7 @@ selector.btn = selector.create('<button>').attr({id:'selectrBtn',class:'element-
   } else {
     var el = pen.$(val, true);
     if (el.el != null) {
-      selector.input.html("");
+      selector.input.html('');
       wrapper.append((new Selectionr(el)).cont);
       setTimeout(()=>{el.toggle('selected')},timeout);
     } else {

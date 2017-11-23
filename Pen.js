@@ -2,25 +2,38 @@
   var v, pen;
   v = {
     attrReg:/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi,
-    cc(a){return a.replace(/(?:_|-| )(\w)/g,(c,d)=>d.toUpperCase())},
-    slice(a){return Array.prototype.slice.call(a)},
-    type: (function () {
+    cc (str) {
+      return str.replace(/(?:_|-| )(\w)/g,(c,d)=>d.toUpperCase());
+    }, slice (arg) {
+      return Array.prototype.slice.call(arg);
+    }, type: (function () {
       var cls2Typ = {},
       names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
-      for(let i=0,len=names.length;i<len;i++){cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase()}
-      return (a) => cls2Typ[Object.prototype.toString.call(a)]||'object';
-    }()),
-    random(a){return a[Math.floor(Math.random()*a.length)]},
-    check(a,b){return this.type(a)==='string'?new RegExp(a,(b||'gi')):a},
-    parse(a){
-      var dt={},res=a.match(this.attrReg);
+      for (let i = 0, len = names.length; i < len; i++) {
+        cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase();
+      }
+      return (obj) => cls2Typ[Object.prototype.toString.call(obj)]||'object';
+    }()), random (arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }, check (reg, flg) {
+      return this.type(reg)==='string'?new RegExp(reg,(flg||'gi')):reg;
+    }, parse (str) {
+      var data = {}, res = str.match(this.attrReg);
       if (a==null||(res==null)||(res.length===0)){return}
-      for (var i=0,len=res.length,f,l;i<len;i++){if (res[i].includes('=')){[f,l]=res[i].split('=');dt[f]=l.replace(/"|'/g, '')}}
-      return Object.keys(dt).length!==0?dt:null;
-    },
-    pErr(a,b){var c=new Error(b);c.name=a;throw c},
-    pLog(a,b){console.log(`%c${a}:\n  %c${b}`,'font-style:bold; color:white','color:grey')},
-    fracture (it, propz, props, nm) {
+      for (var i = 0, len = res.length, f, l; i < len; i++) {
+        if (res[i].includes('=')) {
+          [f, l] = res[i].split('=');
+          data[f] = l.replace(/"|'/g, '');
+        }
+      }
+      return Object.keys(dt).length !== 0 ? dt : null;
+    }, pErr (name, msg) {
+      msg = new Error(msg);
+      msg.name = name;
+      throw c;
+    }, pLog (name, msg) {
+      console.log(`%c${a}:\n  %c${b}`,'font-style:bold; color:white','color:grey');
+    }, fracture (it, propz, props, nm) {
       var pz = this.type(it.el[propz]), res;
       for (var prop in props) {
         res = nm != null ? `${nm}-${prop}` : prop;
@@ -51,10 +64,10 @@
     this.el = el;
     this.start(ops);
   };
-  pen.handoff=(a,b=false)=>b?pen(a):a;
-  pen.$=(a,b)=>v.type(a)==='string'?pen.handoff(document.querySelector(a),b):a;
-  pen.$$=(a)=>document.querySelectorAll(a);
-  pen.create=(a,b)=>pen.handoff(document.createElement(a),b);
+  pen.handoff=(el, pr = false) => pr ? pen(el) : el;
+  pen.$ = (el, pr) => v.type(a) === 'string' ? pen.handoff(document.querySelector(el),pr):el;
+  pen.$$ = (el) => document.querySelectorAll(el);
+  pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
   pen.fn = pen.prototype = {
     constructor: pen,
     start(ops) {
@@ -74,18 +87,75 @@
     partialSetup() {
       if (this.el == null) {return};
       var configurable = true, enumerable = true;
-      Object.defineProperty(this,'tag',{get(){return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase()},enumerable});
+      Object.defineProperty(this,'tag',{
+        get () {
+          return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase();
+        }, enumerable
+      });
       this.el = this.tag === 'template' ? this.el.content : this.el;
-      Object.defineProperties(this,
-        {text:{get(){return this.html()},set(str){return this.html(str)},configurable,enumerable},
-        Children:{get(){var children=v.slice(this.el.children);for(var i=0,len=children.length;i<len;i++){children[i]=pen(children[i])};return children},set(el){return this.append(...el)},configurable,enumerable},
-        Parent:{get(){return this.el.parentNode||null},set(el){return this.appendTo(el)},configurable,enumerable},
-        Classes:{get(){return v.slice(this.el.classList)},set(cls){return this.toggle(cls)},configurable,enumerable},
-        attrs:{get(){var ar={},attrs=v.slice(this.el.attributes);for(var i=0,len=attrs.length;i<len;i++){ar[attrs[i].name]=attrs[i].value};return ar},set(obj){return this.attr(obj)},configurable,enumerable},
-        selector:{get(){return `${this.tag}${this.attrs.id!= null?`#${this.attrs.id}`:''}${this.attrs.class!=null?`.${this.Classes.join('.')}`:''}`},enumerable},
-        size:{get(){return this.el.getBoundingClientRect()},enumerable},
-        hidden:{get(){return this.css('display')==='none'},enumerable},
-        ops: {get(){return {parseIt:false,app:false,parse:false}},set(ops){return {parseIt:(ops!=null?(ops.parseIt||false):false),app:(ops!=null?(ops.app||false):false),parse:(ops!=null?(ops.parse||false):false)}},enumerable,configurable}});
+      Object.defineProperties(this,{
+        text: {
+          get () {
+            return this.html();
+          }, set (str) {
+            return this.html(str);
+          }, configurable,enumerable
+        }, Children: {
+          get () {
+            var children = v.slice(this.el.children);
+            for (var i = 0, len = children.length; i < len; i++) {
+              children[i] = pen(children[i]);
+            }
+            return children;
+          }, set (el) {
+            return this.append(...el);
+          }, configurable,enumerable
+        }, Parent: {
+          get () {
+            return this.el.parentNode||null;
+          }, set (el) {
+            return this.appendTo(el);
+          }, configurable,enumerable
+        }, Classes: {
+          get () {
+            return v.slice(this.el.classList);
+          }, set (cls) {
+            return this.toggle(cls);
+          }, configurable,enumerable
+        }, attrs: {
+          get () {
+            var ars = {}, attrs = v.slice(this.el.attributes);
+            for(var i = 0, len = attrs.length; i < len; i++){
+              ar[attrs[i].name]=attrs[i].value;
+            }
+            return ars;
+          }, set (obj) {
+            return this.attr(obj);
+          }, configurable,enumerable
+        }, selector: {
+          get () {
+            return `${this.tag}${this.attrs.id!= null?`#${this.attrs.id}`:''}${this.attrs.class!=null?`.${this.Classes.join('.')}`:''}`;
+          }, enumerable
+        }, size: {
+          get () {
+            return this.el.getBoundingClientRect();
+          }, enumerable
+        }, hidden: {
+          get () {
+            return this.css('display') === 'none';
+          }, enumerable
+        }, ops: {
+          get () {
+            return {parseIt:false, app:false, parse:false};
+          }, set (ops) {
+            return {
+              parseIt:(ops!=null?(ops.parseIt||false):false),
+              app:(ops!=null?(ops.app||false):false),
+              parse:(ops!=null?(ops.parse||false):false)
+            };
+          }, enumerable,configurable
+        }
+      });
       switch (true) {
         case this.el instanceof Document:
           pen.prototype.ready = function () {
@@ -107,7 +177,7 @@
         break;
       }
       return this;
-    }, html(str, ops) {
+    }, html (str, ops) {
       if (str != null) {
         var {parse,app} = (this.ops = ops!=null?ops:{}),
         res = parse ? 'innerHTML' : 'innerText';
@@ -132,43 +202,92 @@
             return this.el.innerText;
         }
       }
-    }, attr(attr, value) {
+    }, attr (attr, value) {
       if (attr != null) {
         // if typeof attr is an object then call a function to handle objects and call the curried function
         // else if value isn't null then set the attribute and return 'this' else return the attribute given
-        return v.type(attr)==='object'?v.fracture(this,'setAttribute',attr):value!=null?(this.el.setAttribute(attr,value),this):this.el.getAttribute(attr);
+        switch (true) {
+          case v.type(attr) === 'object':
+            return v.fracture(this, 'setAttribute', attr);
+
+          case value != null:
+            this.el.setAttribute(attr, value);
+            return this;
+
+          default:
+            return this.el.getAttribute(attr);
+        }
       } else {
         return this.attrs;
       }
-    }, css(rule, rules) {
+    }, css (rule, rules) {
       if (rule != null) {
-        return v.type(rule)==='object'?v.fracture(this,'style',rule):rules!=null?(this.el.style[v.cc(rule)]=rules,this):this.el.style[rule];
+        switch (true) {
+          case v.type(rule) === 'object':
+            return v.fracture(this, 'style', rule);
+
+          case rules != null:
+            this.el.style[v.cc(rule)] = rules;
+            return this;
+
+          default:
+            return this.el.style[rule];
+        }
       } else {
         return this.el.style;
       }
-    },
-    on(evtp,cb,cp=false,name) {
+    }, on (evtp, cb, cp, name) {
+      cp = cp || false;
       this.el.events = this.el.events || {};
-      this.el.addEventListener(evtp,cb,cp);
-      this.el.events[evtp]={capture:cp};this.el.events[evtp][name!=null?name:(cb.name||'func')]=cb;
+      this.el.addEventListener(evtp, cb, cp);
+      this.el.events[evtp] = {capture:cp};
+      this.el.events[evtp][name!=null?name:(cb.name||'func')] = cb;
       return this;
-    },
-    off(evtp,cb,name) {this.el.removeEventListener(evtp,(name!=null?this.el.events[evtp][name]:cb));delete this.el.events[evtp][name!=null?name:(cb.name||'func')];return this},
-    append(...elements) {
-      if (elements.length===0){v.pLog(`Pen-${this.selector}-Append`, 'Argument passed had 0 elements');return};
+    }, off (evtp, cb, name) {
+      this.el.removeEventListener(evtp, (name!=null?this.el.events[evtp][name]:cb));
+      delete this.el.events[evtp][name!=null?name:(cb.name||'func')];
+      return this;
+    }, append (...elements) {
+      if (elements.length === 0) {
+        v.pLog(`Pen-${this.selector}-Append`, 'Argument passed had 0 elements');
+        return;
+      }
       for (var i=0,len=elements.length,element;i<len;i++) {
         element = pen.$(elements[i]);
-        this.el.appendChild((element instanceof pen?element.el:element));
+        this.el.appendChild((element instanceof pen ? element.el : element));
       }
       return this;
-    },
-    appendTo(el){pen(el).append(this);return this},
-    remove(){this.Parent != null ? this.Parent.removeChild(this.el) : null},
-    $(qur){return pen.handoff(this.el.querySelector(qur),this.ops.parseIt)},
-    $$(qur){return this.el.querySelectorAll(qur)},
-    create(el,ret){el=pen(el);this.append(el);return ret==='parent'?this:ret==='child'?el:this},
-    toggle(...classes){for(var i=0,len=classes.length;i<len;i++){this.el.classList.toggle(classes[i])};return this},
-    hasClass(cls){for(var i=0,len=this.Classes.length;i<len;i++){if(this.Classes[i]===cls){return true}};return false}
+    }, appendTo (el) {
+      pen(el).append(this);
+      return this;
+    }, remove () {
+      if (this.Parent != null) {
+        this.Parent.removeChild(this.el);
+      } else {
+        console.warn("Couldn't remove "+this);
+      }
+      return this;
+    }, $ (qur) {
+      return pen.handoff(this.el.querySelector(qur), this.ops.parseIt);
+    }, $$ (qur) {
+      return this.el.querySelectorAll(qur);
+    }, create (el, ret) {
+      el = pen(el);
+      this.append(el);
+      return ret === 'parent' ? this : ret === 'child' ? el : this
+    }, toggle (...classes) {
+      for (var i = 0, len = classes.length; i < len; i++) {
+        this.el.classList.toggle(classes[i]);
+      };
+      return this;
+    }, hasClass (cls) {
+      for(var i = 0, len = this.Classes.length; i < len; i++) {
+        if(this.Classes[i] === cls) {
+          return true;
+        }
+      }
+      return false;
+    }
   };
   pen.tools = v;
   window.pen = pen; window.pDoc = pen(document); window.pWin = pen(window);

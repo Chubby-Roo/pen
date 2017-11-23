@@ -1,31 +1,30 @@
-document.title = "Pen";
-var styz = pen("<link rel='stylesheet' href='style.css' id='sty'>"),
-wrapper = pen("<div id='wrpr' class='wrapper' align='center'>"),
-txt = pen("<pre id='test-dummy-text'>"),
-header = pen("<div class='header top free' id='hdr'>");
-header.create("<span id='hdrTitle' class='header-title'>",'child').html(document.title);
-header.create("<a href='tests/selector/index.html' class='btn'>", 'child').html("Selector");
-header.create("<a href='https://github.com/Chubby-Roo/pen/' class='btn'>", 'child').html("Github");
+document.title = 'Pen';
+var styz = pen('<link>').attr({rel:'stylesheet',href:'style.css'}),
+wrapper = pen('<div>').attr({id:'wrpr',class:'wrapper',align:'center'}),
+txt = pen('<pre>').attr({id:'test-dummy-text'}), ms,
+header = pen('<div>').attr({class:'header top free',id:'hdr'});
+header.create('<span>','child').attr({id:'hdrTitle',class:'header-title'}).html(document.title);
+header.create('<a>', 'child').attr({href:'tests/selector/index.html',class:'btn'}).html('Selector');
+header.create('<a>', 'child').attr({href:'https://github.com/James-Chub-Fox/pen/',class:'btn'}).html('Github');
+ms = markdownit({
+  highlight: function(str, lang) {
+    var __;
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return `<pre class='hljs'><code>${(hljs.highlight(lang, str, true).value)}</code></pre>`;
+      } catch (__) {}
+    }
+    return `<pre class='hljs'><code>${ms.utils.escapeHtml(str)}</code></pre>`;
+  }
+});
 
 pen(document).ready(function() {
-  var ms;
   wrapper.append(txt);
   pHead.append(styz);
   pBody.append(header, wrapper);
-  fetch("https://raw.githubusercontent.com/Chubby-Roo/pen/master/README.md").then((resp) => {
+  fetch('https://raw.githubusercontent.com/Chubby-Roo/pen/master/README.md').then((resp) => {
     return resp.text();
   }).then((text) => {
     txt.html(ms.render(text),{parse: true});
-  });
-  ms = markdownit({
-    highlight: function(str, lang) {
-      var __;
-      if (lang && hljs.getLanguage(lang)) {
-        try {
-          return `<pre class='hljs'><code>${(hljs.highlight(lang, str, true).value)}</code></pre>`;
-        } catch (__) {}
-      }
-      return `<pre class='hljs'><code>${ms.utils.escapeHtml(str)}</code></pre>`;
-    }
   });
 });
