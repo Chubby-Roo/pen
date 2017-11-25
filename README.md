@@ -53,8 +53,8 @@ It's much slower than: **pen("&lt;p&gt;").attr('id', 'someID');**
 ---
 
 ## Raw, Production Development links
-[Raw](https://raw.githubusercontent.com/Chubby-Roo/pen/master/Pen.js)
+[Raw](https://raw.githubusercontent.com/James-Chub-Fox/pen/master/Pen.js) | [min](https://raw.githubusercontent.com/James-Chub-Fox/pen/master/Pen.min.js)
 
-[production](https://cdn.rawgit.com/Chubby-Roo/pen/master/Pen.js)
+[production](https://cdn.rawgit.com/James-Chub-Fox/pen/master/Pen.js) | [min](https://cdn.rawgit.com/James-Chub-Fox/pen/22799a23/Pen.min.js)
 
-[development](https://rawgit.com/Chubby-Roo/pen/master/Pen.js)
+[development](https://rawgit.com/James-Chub-Fox/pen/master/Pen.js) | [min](https://rawgit.com/James-Chub-Fox/pen/master/Pen.min.js)

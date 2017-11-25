@@ -65,7 +65,7 @@
     this.start(ops);
   };
   pen.handoff=(el, pr = false) => pr ? pen(el) : el;
-  pen.$ = (el, pr) => v.type(a) === 'string' ? pen.handoff(document.querySelector(el),pr):el;
+  pen.$ = (el, pr) => v.type(el) === 'string' ? pen.handoff(document.querySelector(el),pr):el;
   pen.$$ = (el) => document.querySelectorAll(el);
   pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
   pen.fn = pen.prototype = {
