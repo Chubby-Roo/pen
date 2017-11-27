@@ -1,5 +1,5 @@
 (function () {
-  var v, pen;
+  let v, pen;
   v = {
     attrReg:/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi,
     cc (str) {
@@ -9,7 +9,7 @@
     }, type: (function () {
       var cls2Typ = {},
       names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
-      for (let i = 0, len = names.length; i < len; i++) {
+      for (var i = 0, len = names.length; i < len; i++) {
         cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase();
       }
       return (obj) => cls2Typ[Object.prototype.toString.call(obj)]||'object';
@@ -19,14 +19,14 @@
       return this.type(reg)==='string'?new RegExp(reg,(flg||'gi')):reg;
     }, parse (str) {
       var data = {}, res = str.match(this.attrReg);
-      if (a==null||(res==null)||(res.length===0)){return}
+      if (res==null||(res.length===0)){return}
       for (var i = 0, len = res.length, f, l; i < len; i++) {
         if (res[i].includes('=')) {
           [f, l] = res[i].split('=');
           data[f] = l.replace(/"|'/g, '');
         }
       }
-      return Object.keys(dt).length !== 0 ? dt : null;
+      return Object.keys(data).length !== 0 ? data : null;
     }, pErr (name, msg) {
       msg = new Error(msg);
       msg.name = name;
@@ -126,7 +126,7 @@
           get () {
             var ars = {}, attrs = v.slice(this.el.attributes);
             for(var i = 0, len = attrs.length; i < len; i++){
-              ar[attrs[i].name]=attrs[i].value;
+              ars[attrs[i].name]=attrs[i].value;
             }
             return ars;
           }, set (obj) {
