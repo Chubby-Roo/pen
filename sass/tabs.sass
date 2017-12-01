@@ -1,0 +1,28 @@
+.tabs
+
+  &-cont
+    width: 100%
+    background: $main-color
+
+    .tabs-content textarea
+      width: 96vw
+      margin-left: 3px
+      height: 86vh
+      background: transparent
+
+    .tabs-display
+      height: 25px
+      overflow: hidden
+      width: 100%
+      background: darken($main-color, 25%)
+
+      .tabs-tab
+        user-select: none
+        padding: 5px 10px
+        background: darken($main-color, 30%)
+        display: inline-block
+        overflow: hidden
+        margin-right: 5px
+        transition: $tran
+        &:hover, &:focus
+          background: lighten($main-color, 20%)

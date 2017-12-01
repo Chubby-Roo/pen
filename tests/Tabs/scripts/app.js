@@ -1,4 +1,4 @@
-var tabDebug, tb, keys;
+let tabDebug, tb, keys;
 
 tb = new Tabs();
 

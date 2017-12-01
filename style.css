@@ -4,10 +4,6 @@
   outline: none;
   border: none;
   text-decoration: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  -o-appearance: none;
-  appearance: none;
   border-radius: 0; }
 
 ::-webkit-scrollbar {
@@ -78,7 +74,11 @@ body {
       background: #312675;
       text-align: center;
       color: white;
-      padding: 5px 0; }
+      padding: 5px 0;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      -o-appearance: none;
+      appearance: none; }
     body .wrapper .element-selector {
       width: 100%;
       background: #6454c7;
@@ -101,16 +101,18 @@ body {
         body .wrapper .selector:hover .selector-closer:hover, body .wrapper .selector:hover .selector-closer:focus, body .wrapper .selector:focus .selector-closer:hover, body .wrapper .selector:focus .selector-closer:focus {
           background: #a43983; }
       body .wrapper .selector-header {
-        font-size: 25px; }
+        font-size: 1.9vmax; }
       body .wrapper .selector .selector-closer {
         opacity: 0;
         float: right;
         transition: all 0.2s ease; }
       body .wrapper .selector .btn {
         display: block;
-        margin: 5px 0; }
+        margin: 5px 0;
+        font-size: 1.5vmax; }
       body .wrapper .selector input {
-        margin: 5px 10px; }
+        margin: 5px 10px;
+        font-size: 1.9vmax; }
 
 .free {
   position: fixed; }
