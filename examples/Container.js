@@ -1,6 +1,6 @@
-var Container;
+let Container;
 Container = class Container {
-  constructor (cls, id) {
+  constructor (cls, id, attrs) {
     this.cont = pen("<div>").attr({class:cls,id:id||pen.tools.cc(cls)});
     this.els = {};
     Object.defineProperties(this,{
@@ -14,6 +14,7 @@ Container = class Container {
         configurable:true,enumerable:true
       }
     });
+    if(attrs != null){this.cont.attr(attrs)}
     return this;
   }
   create (el, cb) {

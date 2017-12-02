@@ -1,28 +1,39 @@
-.tabs
+.tabs-cont
 
-  &-cont
-    width: 100%
-    background: $main-color
-
-    .tabs-content textarea
-      width: 96vw
-      margin-left: 3px
-      height: 86vh
+  .tabs-display
+    background: transparentize($main-color, .5)
+    textarea
       background: transparent
-
-    .tabs-display
-      height: 25px
-      overflow: hidden
       width: 100%
-      background: darken($main-color, 25%)
+      height: 85vh
+      color: white
 
-      .tabs-tab
-        user-select: none
-        padding: 5px 10px
-        background: darken($main-color, 30%)
-        display: inline-block
-        overflow: hidden
+  .tabs
+    overflow-y: hidden
+    background: transparentize($main-color, 0.5)
+    height: 25px
+    width: 100%
+
+    .tabs-tab
+      user-select: none
+      padding: 5px 10px
+      background: lighten($main-color, 5%)
+      display: inline-block
+      transition: $tran
+      overflow: hidden
+      margin-right: 5px
+      &:hover
+        background: lighten($main-color, 15%)
+        padding: 5px 15px
+
+      .tabs-tab-title
+        font-weight: bold
         margin-right: 5px
+
+      .cls-btn
+        font-size: 15px
+        background: transparent
         transition: $tran
-        &:hover, &:focus
-          background: lighten($main-color, 20%)
+        padding: 0 5px
+        &:hover
+          background: red

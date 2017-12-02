@@ -1,14 +1,13 @@
-document.title = 'Pen';
-var styz = pen('<link>').attr({rel:'stylesheet',href:'style.css'}),
+let styz = pen('<link>').attr({rel:'stylesheet',href:'style.css'}),
 wrapper = pen('<div>').attr({id:'wrpr',class:'wrapper',align:'center'}),
 txt = pen('<pre>').attr({id:'test-dummy-text'}), ms,
 header = new Header('Pen');
 header.link('Selector','tests/selector/index.html')
+.link('Tabs', 'tests/Tabs/index.html')
 .link('Github','https://github.com/James-Chub-Fox/pen/');
 
 ms = markdownit({
-  highlight: function(str, lang) {
-    var __;
+  highlight (str,lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
         return `<pre class='hljs'><code>${(hljs.highlight(lang, str, true).value)}</code></pre>`;

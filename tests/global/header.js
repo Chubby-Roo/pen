@@ -39,4 +39,4 @@ Header = class Header extends Container {
         return this;
     }
   }
-}
+};
