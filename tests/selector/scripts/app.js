@@ -5,20 +5,20 @@ Selectionr = class Selectionr extends Container {
       super('selector');
       this.elMem = el;
       this.cont.attr('align','center');
-      this.header = this.create('<h4>').attr('class',`${this.id}-header`).html(el.selector);
+      this.header = this.elm('<h4>').attr('class',`${this.id}-header`).html(el.selector);
       this.closer = this.header.create('<span>','child')
       .attr('class', `${this.id}-closer`).html('X')
       .on('click', ()=>this.close());
 
-      this.highlighter = this.create('<button>')
+      this.highlighter = this.elm('<button>')
       .attr({id:'highlighter',class:'highlighter btn'})
       .html('Highlight').on('mousedown',()=>this.select());
 
-      this.textChanger = this.create('<input>')
+      this.textChanger = this.elm('<input>')
       .attr({id:'textChanger',class:'text-changer input',placeholder:'change the text'})
       .on('keydown',(e)=>{if(e.key.toLowerCase()==='enter'){this.changeText()}});
 
-      this.toggler = this.create('<input>')
+      this.toggler = this.elm('<input>')
       .attr({id:'toggler',class:'toggler input',placeholder:'toggle a class'})
       .on('keydown',(e)=>{if(e.key.toLowerCase()==='enter'){this.toggle()}});
 
@@ -26,16 +26,16 @@ Selectionr = class Selectionr extends Container {
         var ev = Object.keys(this.elMem.el.events),
         len = ev.length <= 1;
 
-        this.eventTracker = this.create('<pre>')
+        this.eventTracker = this.elm('<pre>')
         .attr({id: 'eventTracker',class:'event-tracker'})
         .html(`This element has: ${ev.length} event${len ? '' : 's'}.\n.:Type${len ? '' : 's'}:.\n${ev.join(', ')}`);
         if (ev.includes('click')) {
-          this.clicker = this.create('<button>')
+          this.clicker = this.elm('<button>')
           .attr({id:'clicker',class:'clicker btn'})
           .html('Click').on('mousedown',()=>this.click());
         }
       } else {
-        this.eventNon = this.create('<p>')
+        this.eventNon = this.elm('<p>')
         .attr({id: 'eventNon',class:'event-non'})
         .html('This element has no events attached to it.');
       }
@@ -83,7 +83,7 @@ header.link('Pen','../../index.html')
 
 selector.cont.attr('align','center');
 
-selector.input = selector.create('<input>').attr({id:'selectrInput',class:'element-input input',placeholder:'Place selector here.'})
+selector.input = selector.elm('<input>').attr({id:'selectrInput',class:'element-input input',placeholder:'Place selector here.'})
 .on('keydown',e=>{
   if(e.key==='Enter'){
     e.preventDefault();
@@ -91,7 +91,7 @@ selector.input = selector.create('<input>').attr({id:'selectrInput',class:'eleme
   }
 });
 
-selector.btn = selector.create('<button>').attr({id:'selectrBtn',class:'element-selector btn'}).html('Submit').on('click',e=>{
+selector.btn = selector.elm('<button>').attr({id:'selectrBtn',class:'element-selector btn'}).html('Submit').on('click',e=>{
   let val = selector.input.text,
   timeout = 1750;
   if (val.length === 0) {
@@ -110,14 +110,17 @@ selector.btn = selector.create('<button>').attr({id:'selectrBtn',class:'element-
   }
 });
 
-selector.create('<br>');
-selector.sideMsg = selector.create('<p>').attr({id:'sideInfo',class:'side-message'});
+selector.elm('<br>');
+selector.sideMsg = selector.elm('<p>').attr({id:'sideInfo',class:'side-message'});
 
 relbut.on('click',e=>{styz.remove();styz.appendTo(pHead)}, 'reload');
 
 wrapper.append(selector.cont, relbut);
 
-pen(document).ready(function() {
+pDoc.ready(function() {
   pBody.append(header.cont, wrapper);
   pHead.append(styz);
+  let rando = ['.reload','.header-title'];
+  selector.input.html(pen.tools.random(rando));
+  selector.btn.el.click();
 });

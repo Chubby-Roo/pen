@@ -58,8 +58,8 @@ Tabs = class Tabs extends Container {
   constructor(defaultAction) {
     super('tabs-cont');
     this.default = defaultAction != null ? defaultAction : null;
-    this.tabDisp = this.create('<div>').attr({id:'tabs',class:'tabs'});
-    this.pane = this.create('<div>').attr({id:'tabsDisplay',class:'tabs-display'});
+    this.tabDisp = this.elm('<div>').attr({id:'tabs',class:'tabs'});
+    this.pane = this.elm('<div>').attr({id:'tabsDisplay',class:'tabs-display'});
     this.tabDisp.on('dblclick',()=>{this.activateDefaultAction()});
     this.tabs = {};
     return this;

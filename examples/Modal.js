@@ -5,15 +5,15 @@ Modal = class Modal extends Container {
     super('modal');
     this.name = name;
     this.src = img;
-    this.mark = this.create("<img>").attr({src:this.src,id:`${this.id}Mark`,class:`${this.id}-mark`})
+    this.mark = this.elm("<img>").attr({src:this.src,id:`${this.id}Mark`,class:`${this.id}-mark`})
     .on('click', ()=>{this.open()});
     this.holder = new Container(this.id+'-holder');
     this.holder.cont.css('display', 'none');
     this.append(this.holder);
-    this.clsBtn = this.holder.create('<span>').attr({class:`${this.id}-cls btn`,id:`${this.id}ClsBtn`}).html('X')
+    this.clsBtn = this.holder.elm('<span>').attr({class:`${this.id}-cls btn`,id:`${this.id}ClsBtn`}).html('X')
     .on('click', ()=>{this.close()}, true);
-    this.img = this.holder.create('<img>').attr({src:this.src,class:`${this.id}-img`,id:`${this.id}Img`});
-    this.innerCaption = this.holder.create('<div>').attr({class:`${this.id}-inner-caption`,id:`${this.id}InnerCaption`});
+    this.img = this.holder.elm('<img>').attr({src:this.src,class:`${this.id}-img`,id:`${this.id}Img`});
+    this.innerCaption = this.holder.elm('<div>').attr({class:`${this.id}-inner-caption`,id:`${this.id}InnerCaption`});
     Object.defineProperty(this, 'closed', {get(){return this.holder.cont.css('display')==='none'},enumerable: true});
     Object.defineProperty(this, 'caption', {get(){return this.innerCaption.text}, enumerable: true});
     Modal.memory[`${this.name}${Object.keys(Modal.memory).length}`] = this;

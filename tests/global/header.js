@@ -4,7 +4,7 @@ Header = class Header extends Container {
   constructor (title) {
     title = (title || 'Pen');
     super('header top free', 'hdr');
-    this.titleM = this.create('<span>').attr({id:'hdrTitle',class:'header-title'})
+    this.titleM = this.elm('<span>').attr({id:'hdrTitle',class:'header-title'})
     .html(title); if(document!=null){document.title=title}
     Object.defineProperty(this, 'title', {get(){
         return this.titleM.text;
@@ -34,7 +34,7 @@ Header = class Header extends Container {
       break;
 
       default:
-        link = this.create('<a>').attr({class:'btn',href}).html(name);
+        link = this.elm('<a>').attr({class:'btn',href}).html(name);
         this.links[link.text] = link;
         return this;
     }
