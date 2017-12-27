@@ -68,6 +68,17 @@
   pen.$ = (el, pr) => v.type(el) === 'string' ? pen.handoff(document.querySelector(el),pr):el;
   pen.$$ = (el) => document.querySelectorAll(el);
   pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
+  pen.all = (arr, action, ...data) => {
+    for (var i = 0, len = arr.length; i < len; i++) {
+      arr[i][action](...data);
+    }
+  }
+  pen.display  = (selec, data) => {
+    var el = pen.$(selec, true),
+    text = el.text;
+    text = text.replace(/-([^\n]*?)-/g,(dart,word)=>data[word]);
+    el.html(text);
+  }
   pen.fn = pen.prototype = {
     constructor: pen,
     start(ops) {
@@ -180,7 +191,8 @@
     }, html (str, ops) {
       if (str != null) {
         var {parse,app} = (this.ops = ops!=null?ops:{}),
-        res = parse ? 'innerHTML' : 'innerText';
+        res = parse ? 'innerHTML' : 'innerText',
+        res2 = /textarea/i.test(this.tag) ? 'innerText' : res;
         switch (this.tag) {
           case 'input':
             this.el.value = app ? this.el.value+str : str;
@@ -190,7 +202,7 @@
             this.el.innerText = app ? this.el.value+str : str;
           break;
           default:
-            this.el[/textarea/i.test(this.tag) ? 'innerText' : res] = app ? this.el.value+str : str;
+            this.el[res2] = app ? this.el[res2]+str : str;
         }
         return this;
       } else {
