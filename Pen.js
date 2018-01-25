@@ -1,28 +1,30 @@
 (function () {
   let v, pen;
   v = {
-    attrReg:/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi,
     cc (str) {
-      return str.replace(/(?:_|-| )(\w)/g,(c,d)=>d.toUpperCase());
+      return str.replace(/(?:_|-| )(\w)/g, (whole,letter)=>letter.toUpperCase());
     }, slice (arg) {
       return Array.prototype.slice.call(arg);
     }, type: (function () {
-      var cls2Typ = {},
-      names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
-      for (var i = 0, len = names.length; i < len; i++) {
-        cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase();
-      }
-      return (obj) => cls2Typ[Object.prototype.toString.call(obj)]||'object';
+      let cls2Typ = {},
+      names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'],
+      i = 0, len = names.length;
+      for (;i<len;i++) cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase();
+      return (obj) => cls2Typ[Object.prototype.toString.call(obj)] || 'object';
     }()), random (arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }, check (reg, flg) {
-      return this.type(reg)==='string'?new RegExp(reg,(flg||'gi')):reg;
+      return this.type(reg) === 'string' ? new RegExp(reg,(flg||'gi')) : reg;
     }, parse (str) {
-      var data = {}, res = str.match(this.attrReg);
-      if (res==null||(res.length===0)){return}
-      for (var i = 0, len = res.length, f, l; i < len; i++) {
+      let data = {},
+      res = str.match(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi),
+      i = 0, f, l;
+      if (res==null||(res.length===0)) return;
+      let len = res.length;
+      for (; i < len; i++) {
         if (res[i].includes('=')) {
-          [f, l] = res[i].split('=');
+          f = res[i].substring(0, res[i].search(/=/));
+          l = res[i].substring(res[i].search(/=/)+1);
           data[f] = l.replace(/"|'/g, '');
         }
       }
@@ -69,9 +71,7 @@
   pen.$$ = (el) => document.querySelectorAll(el);
   pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
   pen.all = (arr, action, ...data) => {
-    for (var i = 0, len = arr.length; i < len; i++) {
-      arr[i][action](...data);
-    }
+    for (var i = 0, len = arr.length; i < len; i++) arr[i][action](...data);
   }
   pen.display  = (selec, data) => {
     var el = pen.$(selec, true),
@@ -303,7 +303,7 @@
   };
   pen.tools = v;
   window.pen = pen; window.pDoc = pen(document); window.pWin = pen(window);
-  if (document.body != null) {
+  if (document.body) {
     window.body = document.body; window.head = document.head;
     window.pHead = pen(head); window.pBody = pen(body);
   } else {
