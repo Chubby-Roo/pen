@@ -299,8 +299,6 @@
         }
       }
       return false;
-    }, genCss () {
-      return `${this.selector} {}`;
     }
   };
   pen.tools = v;
