@@ -2,40 +2,48 @@ let Container;
 
 Container = class Container {
   constructor (cls, id, attrs) {
-    this.cont = pen("<div>").attr({class:cls, id:(id||pen.tools.cc(cls))})
-    this.els = {};
-    Object.defineProperties(this, {
-      id: {get(){return this.cont.attr('id')},
-        set(str){this.cont.attr('id',str)},
-        configurable:!0,enumerable:!0},
-      class: {get(){return this.cont.attr('class')},
-        set(str){this.cont.attr('class',str)},
-        configurable:!0,enumerable:!0},
-      childrenCount: {get(){return this.cont.Children.length},enumerable:!0}
-    });
+    id = id || pen.tools.cc(cls);
+    if (id.length === 0) {id = pen.tools.cc(cls)}
+    this.cont = pen("<div>").attr({class:cls, id});
     if (attrs != null) this.cont.attr(attrs);
     return this;
+  }
+
+  get id () {
+    return this.cont.attr('id');
+  }
+
+  set id (x) {
+    this.cont.attr('id', x);
+  }
+
+  get class () {
+    return this.cont.attr('class');
+  }
+
+  set class (x) {
+    this.cont.attr('class', x);
+  }
+
+  get children () {
+    return this.cont.Children;
+  }
+
+  get length () {
+    return this.children.length;
   }
 
   elm (el) {
     let args = arguments;
     switch (pen.tools.type(args[1])) {
-      case 'function':
-        el = this.cont.create(el, 'child'); el = args[1] != null ? args[1](el) : el;
-        this.els[el.selector] = el;
-        return args[1] != null ? this : el;
-
       case 'boolean':
-        el = el instanceof pen ? el.selector : el;
-        this.els[el].remove();
-        args[1] ? delete this.els[el] : null;
-        return args[1] ? this : this.els[el];
-
+        el.remove();
+        return args[1] ? this : el;
       default:
-        el = this.cont.create(el, 'child'); el = args[1] != null ? args[1](el) : el;
-        this.els[el.selector] = el;
+        el = this.cont.create(el, 'child');
+        el = args[1] != null ? args[1](el) : el;
         return args[1] != null ? this : el;
-    };
+    }
   }
 
   desODroy (el) {
@@ -52,15 +60,14 @@ Container = class Container {
   }
 
   toString() {
-    var keys = Object.keys(this.els);
-    return `<Container ${this.cont.selector}${keys.length !== 0 ? `, Els:${keys.length}` : ''}>`;
+    return `<Container ${this.cont.selector}${this.length !== 0 ? `, Els: ${this.length}` : ''}>`;
   }
 
   append(...els) {
-    for (var i = 0, len = els.length; i < len; i++) {
-      els[i] = els[i] instanceof Container ? els[i].cont : els[i];
-      this.cont.append(els[i]);
-    }
+    els.forEach(el => {
+      el = el instanceof Container ? el.cont : el;
+      this.cont.append(el);
+    });
     return this;
   }
 }

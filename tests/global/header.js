@@ -6,37 +6,67 @@ Header = class Header extends Container {
     super('header top free', 'hdr');
     this.titleM = this.elm('<span>').attr({id:'hdrTitle',class:'header-title'})
     .html(title); if(document!=null){document.title=title}
-    Object.defineProperty(this, 'title', {get(){
-        return this.titleM.text;
-      }, set(str){
-        this.titleM.html(str);
-        document.title(str);
-      },
-      configurable:!0, enumerable: !0});
-    this.links = {};
+    this.links = [];
+    return this;
+  }
+
+  get title () {
+    return this.titleM.text;
+  }
+
+  set title (x) {
+    this.titleM.html(x);
+    document.title(x);
+    return this;
+  }
+
+  get length () {
+    return this.links.length;
+  }
+
+  search (options, fn) {
+    if (options.type == null) {options.type = "name"}
+    return this.links.filter(link => {
+      if (link[options.type] === options.data) {
+        if (fn != null) {fn(link.el)}
+        return fn != null ? this : link;
+      }
+    }).pop();
+  }
+
+  remove (options, multi) {
+    this.search(options).el.remove();
+    this.links.splice(this.search(options).id, (multi || 1));
+    return this;
+  }
+
+  removeAll () {
+    this.links = [];
+    return this;
+  }
+
+  switcher (name, href) {
+    let link;
+    switch (true) {
+      case name.endsWith('del'):
+        name = name.split(/[\ ,]/).pop();
+        this.remove({type:'name',data:name});
+        if (pen.tools.type(href) === 'boolean') {return href ? this : link}
+        break;
+      default:
+        link = this.elm('<a>').attr({class:'btn',href}).html(name);
+        this.links.push({name,href,el:link,id:this.length});
+        return this;
+    }
     return this;
   }
 
   link (name, href) {
-    var link;
-    switch (true) {
-      case name.endsWith('del'):
-        name = name.split(/ |,/)[0];
-        link = this.links[name];
-        delete this.links[name];
-        if (pen.tools.type(href) === 'boolean') {
-          if (href) {
-            return this;
-          } else {
-            return link;
-          }
-        }
-      break;
-
-      default:
-        link = this.elm('<a>').attr({class:'btn',href}).html(name);
-        this.links[link.text] = link;
-        return this;
+    if (pen.tools.type(name) === 'array') {
+      name.forEach(link => this.switcher(link.name, link.href));
+    } else {
+      this.switcher(name, href);
     }
+    return this;
   }
 };
