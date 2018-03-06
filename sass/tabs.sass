@@ -1,7 +1,7 @@
 .tabs-cont
 
   .tabs-display
-    background: transparentize($main-color, .5)
+    background: transparentize($mColor, .5)
     textarea
       background: transparent
       width: 100%
@@ -10,20 +10,20 @@
 
   .tabs
     overflow-y: hidden
-    background: transparentize($main-color, 0.5)
+    background: transparentize($mColor, 0.5)
     height: 25px
     width: 100%
 
     .tabs-tab
       user-select: none
       padding: 5px 10px
-      background: lighten($main-color, 5%)
+      background: lighten($mColor, 5%)
       display: inline-block
       transition: $tran
       overflow: hidden
       margin-right: 5px
       &:hover
-        background: lighten($main-color, 15%)
+        background: lighten($mColor, 15%)
         padding: 5px 15px
 
       .tabs-tab-title

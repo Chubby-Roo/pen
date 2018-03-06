@@ -1,23 +1,25 @@
 .selector
   padding: 10px
   color: white
-  width: 50vw
-  background: $main-color
-  margin: auto
-  margin-top: 10px
+  width: 40vw
+  background: $mColor
+  margin: 10px 5px
+  display: inline-block
+  height: 200px
+  overflow: auto
   &:hover, &:focus
     .selector-closer
-      padding: 0 10
+      padding: 0 10px
       opacity: 1
       &:hover, &:focus
-        background: rgb(164,57,131)
+        background: $mColor-Light
 
   &-header
-    font-size: 1.9vmax
+    font-size: 1.5vmax
 
   &-closer
-    opacity: 0
     float: right
+    opacity: 0
     transition: $tran
 
   .btn

@@ -9,51 +9,73 @@
 ::-webkit-scrollbar {
   width: 5px; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(219, 133, 169, 0.5); }
+    background: rgba(108, 219, 115, 0.5); }
   ::-webkit-scrollbar-corner, ::-webkit-scrollbar-resizer {
-    background: #4b162c; }
+    background: #0e3a11; }
 
 ::-mdn-scrollbar {
   width: 5px; }
   ::-mdn-scrollbar-thumb {
-    background: rgba(219, 133, 169, 0.5); }
+    background: rgba(108, 219, 115, 0.5); }
   ::-mdn-scrollbar-corner, ::-mdn-scrollbar-resizer {
-    background: #4b162c; }
+    background: #0e3a11; }
 
 ::-moz-scrollbar {
   width: 5px; }
   ::-moz-scrollbar-thumb {
-    background: rgba(219, 133, 169, 0.5); }
+    background: rgba(108, 219, 115, 0.5); }
   ::-moz-scrollbar-corner, ::-moz-scrollbar-resizer {
-    background: #4b162c; }
+    background: #0e3a11; }
 
 ::-o-scrollbar {
   width: 5px; }
   ::-o-scrollbar-thumb {
-    background: rgba(219, 133, 169, 0.5); }
+    background: rgba(108, 219, 115, 0.5); }
   ::-o-scrollbar-corner, ::-o-scrollbar-resizer {
-    background: #4b162c; }
+    background: #0e3a11; }
+
+.context-menu {
+  border: solid 2px #6cdb73;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 15px;
+  overflow: hidden;
+  width: 20%;
+  z-index: 2000;
+  box-shadow: 15px 15px 25px rgba(0, 0, 0, 0.5); }
+  .context-menu .ctxMenu-btn {
+    color: white;
+    padding: 5px 10px;
+    width: 100%;
+    display: inline-block;
+    background: transparent;
+    transition: all 0.2s ease; }
+    .context-menu .ctxMenu-btn:hover {
+      background: rgba(39, 161, 47, 0.8); }
+  .context-menu .ctxMenu-break {
+    border: solid 0.5px #6cdb73;
+    border-radius: 50%;
+    width: 50%; }
 
 body {
   font-family: Arial;
-  background: #4b162c; }
+  background: #0e3a11; }
   body .header {
     width: 100vw;
     color: white;
     padding: 5px;
-    background: #ad3366; }
+    background: #27a12f; }
     body .header .btn, body .header a {
       float: right;
       display: inline-block;
       transition: all 0.2s ease;
       padding: 1vh 1vw;
       color: white;
-      background: #ad3366;
+      background: #27a12f;
       margin-left: 5px;
       margin-right: 5px; }
       body .header .btn:hover, body .header a:hover {
         padding: 1vh 3vw;
-        background: #db85a9;
+        background: #6cdb73;
         color: white; }
     body .header .header-title {
       font-size: 2vmax;
@@ -70,15 +92,15 @@ body {
       transition: all 0.2s ease;
       padding: 2vh 2vw;
       color: white;
-      background: #ad3366;
+      background: #27a12f;
       margin-left: 5px;
       margin-right: 5px; }
       body .wrapper .btn:hover, body .wrapper a:hover {
         padding: 2vh 4vw;
-        background: #db85a9;
+        background: #6cdb73;
         color: white; }
     body .wrapper .input {
-      background: #4b162c;
+      background: #0e3a11;
       text-align: center;
       color: white;
       padding: 5px 0;
@@ -87,7 +109,7 @@ body {
       -o-appearance: none;
       appearance: none; }
     body .wrapper .tabs-cont .tabs-display {
-      background: rgba(173, 51, 102, 0.5); }
+      background: rgba(39, 161, 47, 0.5); }
       body .wrapper .tabs-cont .tabs-display textarea {
         background: transparent;
         width: 100%;
@@ -95,19 +117,19 @@ body {
         color: white; }
     body .wrapper .tabs-cont .tabs {
       overflow-y: hidden;
-      background: rgba(173, 51, 102, 0.5);
+      background: rgba(39, 161, 47, 0.5);
       height: 25px;
       width: 100%; }
       body .wrapper .tabs-cont .tabs .tabs-tab {
         user-select: none;
         padding: 5px 10px;
-        background: #c13972;
+        background: #2cb635;
         display: inline-block;
         transition: all 0.2s ease;
         overflow: hidden;
         margin-right: 5px; }
         body .wrapper .tabs-cont .tabs .tabs-tab:hover {
-          background: #cf5d8d;
+          background: #43d14c;
           padding: 5px 15px; }
         body .wrapper .tabs-cont .tabs .tabs-tab .tabs-tab-title {
           font-weight: bold;
@@ -121,7 +143,7 @@ body {
             background: red; }
     body .wrapper .element-selector {
       width: 100%;
-      background: #ad3366;
+      background: #27a12f;
       color: white;
       padding: 15px 0; }
       body .wrapper .element-selector .element-input {
@@ -131,20 +153,22 @@ body {
     body .wrapper .selector {
       padding: 10px;
       color: white;
-      width: 50vw;
-      background: #ad3366;
-      margin: auto;
-      margin-top: 10px; }
+      width: 40vw;
+      background: #27a12f;
+      margin: 10px 5px;
+      display: inline-block;
+      height: 200px;
+      overflow: auto; }
       body .wrapper .selector:hover .selector-closer, body .wrapper .selector:focus .selector-closer {
-        padding: 0 10;
+        padding: 0 10px;
         opacity: 1; }
         body .wrapper .selector:hover .selector-closer:hover, body .wrapper .selector:hover .selector-closer:focus, body .wrapper .selector:focus .selector-closer:hover, body .wrapper .selector:focus .selector-closer:focus {
-          background: #a43983; }
+          background: #6cdb73; }
       body .wrapper .selector-header {
-        font-size: 1.9vmax; }
+        font-size: 1.5vmax; }
       body .wrapper .selector-closer {
-        opacity: 0;
         float: right;
+        opacity: 0;
         transition: all 0.2s ease; }
       body .wrapper .selector .btn {
         display: block;
@@ -190,15 +214,15 @@ body {
   overflow-x: auto;
   font-family: mono !important;
   padding: 0.5vw;
-  color: #f8e7ee;
+  color: #d3f4d5;
   text-align: left;
-  background: #371020;
+  background: #09260b;
   border-radius: 1vw; }
   .hljs-comment, .hljs-quote {
-    color: rgba(193, 57, 114, 0.5);
+    color: rgba(44, 182, 53, 0.5);
     font-style: italic; }
   .hljs-doctag, .hljs-keyword, .hljs-formula {
-    color: #c13972;
+    color: #2cb635;
     font-weight: bold;
     font-style: italic; }
   .hljs-section, .hljs-name, .hljs-selector-tag, .hljs-deletion, .hljs-subst {

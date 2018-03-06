@@ -1,8 +1,7 @@
-let styz, wrapper, relbut, selector, header, rando;
+let styz, wrapper, selector, header, rando, menu;
 
-styz = pen('<link>').attr({rel:'stylesheet',href:'../../style.css'});
-wrapper = pen('<div>').attr({id:'wrpr',class:'wrapper'});
-relbut = pen('<button>').attr({id:'relbutt',class:'reload btn bottom-right free'}).html('Reload Style');
+styz = pen('<link rel="stylesheet" href="../../style.css">');
+wrapper = pen('<div id="wrpr" class="wrapper">');
 selector = new Container('element-selector');
 header = new Header('Selector');
 header.link([
@@ -10,11 +9,44 @@ header.link([
     name:'Pen',
     href:'../../index.html'
   }, {
-    name:'Tabs',
-    href:'../Tabs/index.html'
-  }, {
     name: 'Github',
     href: 'https://github.com/Krorenshima/pen/'
+  }
+]);
+menu = new ContextMenu();
+menu.checkFor('selector', {
+  typ: 'btn',
+  name: 'Close',
+  act (e) {
+    let target = pen(e.target);
+    Selectionr.remove('_id', +target.attr('id'));
+  }
+});
+menu.create([
+  {
+    typ: 'btn',
+    name: 'Back',
+    act () {
+      window.history.back();
+    }
+  }, {
+    typ: 'btn',
+    name: 'Forward',
+    act () {
+      window.history.forward();
+    }
+  }, {
+    typ: 'btn',
+    name: 'Reload',
+    act () {
+      window.location.reload();
+    }
+  }, {typ:'break'}, {
+    typ: 'btn',
+    name: 'Reload Style',
+    act () {
+      styz.remove().appendTo(pHead);
+    }
   }
 ]);
 
@@ -50,12 +82,10 @@ selector.btn = selector.elm('<button>').attr({id:'selectrBtn',class:'element-sel
 selector.elm('<br>');
 selector.sideMsg = selector.elm('<p>').attr({id:'sideInfo',class:'side-message'});
 
-relbut.on('click',e=>{styz.remove();styz.appendTo(pHead)}, 'reload');
+wrapper.append(selector.cont);
 
-wrapper.append(selector.cont, relbut);
-
-pBody.append(header.cont, wrapper);
+pBody.append(menu.cont, header.cont, wrapper);
 pHead.append(styz);
-rando = ['.reload','.header-title'];
+rando = ['.header-title', 'a.btn[href]'];
 selector.input.html(pen.tools.random(rando));
 selector.btn.el.click();
