@@ -49,6 +49,12 @@ menu.create([
     act () {
       styz.remove().appendTo(pHead);
     }
+  }, {typ:'break'}, {
+    typ: 'btn',
+    name: 'View Page Source',
+    act () {
+      window.location = `view-source:${window.location.href}`;
+    }
   }
 ]);
 

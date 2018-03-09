@@ -1,83 +1,92 @@
 (function () {
 let v, pen;
 v = {
-  cc (str) {
-    return str.replace(/(?:_|-| )(\w)/g, (whole,letter)=>letter.toUpperCase());
+  cc (x) {
+    return x.replace(/[_\- ](\w)/g, (whole, letter)=>letter.toUpperCase());
   }, slice (arg) {
-    return Array.prototype.slice.call(arg);
-  }, type: (function () {
+    return [].slice.call(arg);
+  }, type: ((function () {
     let cls2Typ = {},
-    names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'],
-    i = 0, len = names.length;
-    for (;i<len;i++) cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase();
-    return (obj) => cls2Typ[Object.prototype.toString.call(obj)] || 'object';
-  }()), random (arr) {
+    names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
+    for (let i = 0, len = names.length; i < len; i++) cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase();
+    return (obj) => cls2Typ[({}).toString.call(obj)] || 'object';
+  })()), empty (arg) {
+    switch (this.type(arg)) {
+      case 'array':
+      case 'string':
+        return arg.length === 0;
+
+      case 'object':
+        if (Object.keys != null) {
+          return Object.keys(arg).length === 0 && arg.constructor === Object;
+        } else {
+          for (let prop in arg) {
+            if (arg.hasOwnProperty(prop))
+              return false;
+          }
+          return JSON.stringify(arg) === JSON.stringify({});
+        }
+        break;
+
+      case 'regexp':
+        return arg.source.length === 0;
+    }
+  }, random (arr) {
     return arr[Math.floor(Math.random() * arr.length)];
   }, check (reg, flg) {
-    return this.type(reg) === 'string' ? new RegExp(reg,(flg||'gi')) : reg;
+    return this.type(reg) === 'string' ? new RegExp(reg, (flg || 'gi')) : reg;
   }, parse (str) {
     let data = {},
-    res = str.match(/([^\n\ ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi),
-    i = 0, f, l;
-    if (res==null||(res.length===0)) return;
-    let len = res.length;
-    for (; i < len; i++) {
+    res = str.match(/([^\n ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi);
+    if (res == null || (this.empty(res))) {return}
+    for (let i = 0, len = res.length, f, l; i < len; i++) {
       if (res[i].includes('=')) {
         f = res[i].substring(0, res[i].search(/=/));
         l = res[i].substring(res[i].search(/=/)+1);
-        data[f] = l.replace(/"|'/g, '');
+        data[f] = l.replace(/["']/g, '');
       }
     }
-    return Object.keys(data).length !== 0 ? data : null;
-  }, pErr (name, msg) {
-    msg = new Error(msg);
-    msg.name = name;
-    throw c;
-  }, pLog (name, msg) {
-    console.log(`%c${a}:\n  %c${b}`,'font-style:bold; color:white','color:grey');
+    return !this.empty(data) ? data : null;
   }, fracture (it, propz, props, nm) {
-    var pz = this.type(it.el[propz]), res;
-    for (var prop in props) {
+    let pz = this.type(it.el[propz]), res, prop;
+    for (prop in props) {
       res = nm != null ? `${nm}-${prop}` : prop;
       if (this.type(props[prop]) === 'object') {
         this.fracture(it, propz, props[prop], res);
       } else {
-        if (pz === 'function') {
+        if (pz === 'function')
           it.el[propz](res, props[prop]);
-        } else {
+        else
           it.el[propz][res] = props[prop];
-        }
       }
     }
     return it;
-  },
-  parseEl(str){
-    var stTag, tag, attribs, text;
+  }, parseEl (str) {
+    let stTag, tag, attribs, text;
     stTag = str.substring(str.search(/</), str.search(/>/)+1);
     tag = stTag.substring(stTag.search(/</)+1, stTag.search(stTag.match(/<([^\n ]+)>/) ? />/ : / /));
     attribs = stTag.substring(stTag.search(/ /)+1, stTag.search(/>/));
     text = str.substring(stTag.length, str.search(/<\//));
-    return [(attribs===`<${tag}`?null:attribs),tag,(text===stTag?null:text===''?null:text)];
+    return [(attribs===`<${tag}`?null:attribs), tag, (text===stTag ? null : this.empty(text) ? null : text)];
   }
 };
-pen = function (el, ops={}) {
-  if (!(this instanceof pen)) {return new pen(...arguments)};
-  if (el instanceof pen) {return el};
+
+pen = function (el, ops = {}) {
+  if (!(this instanceof pen)) {return new pen(...arguments)}
+  if (el instanceof pen) {return el}
   this.el = el;
   this.start(ops);
-};
-pen.handoff=(el, pr = false) => pr ? pen(el) : el;
-pen.$ = (el, pr) => v.type(el) === 'string' ? pen.handoff(document.querySelector(el),pr):el;
+}
+pen.handoff = (el, pr = !1) => pr ? pen(el) : el;
+pen.$ = (el, pr) => v.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el;
 pen.$$ = (el) => document.querySelectorAll(el);
 pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
 pen.all = (arr, action, ...data) => {
-  for (var i = 0, len = arr.length; i < len; i++) arr[i][action](...data);
+  for (let i = 0, len = arr.length; i < len; i++) arr[i][action](...data);
 }
-pen.display  = (selec, data) => {
-  var el = pen.$(selec, true),
-  text = el.text;
-  text = text.replace(/-([^\n]*?)-/g,(dart,word)=>data[word]);
-  el.html(text);
+pen.display = (select, data) => {
+  let el = pen.$(selec, true);
+  el.text = el.text.replace(/-([^\n]*?)-/g, (whole, word) => data[word]);
 }
 pen.fn = pen.prototype = {
   constructor: pen,
@@ -266,7 +275,7 @@ pen.fn = pen.prototype = {
       v.pLog(`Pen-${this.selector}-Append`, 'Argument passed had 0 elements');
       return;
     }
-    for (var i=0,len=elements.length,element;i<len;i++) {
+    for (var i = 0,len = elements.length, element; i < len; i++) {
       element = pen.$(elements[i]);
       this.el.appendChild((element instanceof pen ? element.el : element));
     }
@@ -302,7 +311,7 @@ pen.fn = pen.prototype = {
     }
     return false;
   }
-};
+}
 pen.tools = v;
 window.pen = pen; window.pDoc = pen(document); window.pWin = pen(window);
 if (document.body) {
