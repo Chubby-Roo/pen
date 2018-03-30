@@ -45,7 +45,7 @@ ContextMenu = class ContextMenu extends Container {
   }
 
   create (typ, name, act) {
-    let typdef = pen.tools.type(typ);
+    let typdef = pen.type(typ);
     if (typdef === 'array') {
       typ.forEach(dt => this.switcher(dt.typ, dt.name, dt.act));
     } else if (typdef === 'object') {

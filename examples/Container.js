@@ -2,8 +2,8 @@ let Container;
 
 Container = class Container {
   constructor (cls, id, attrs) {
-    id = id || pen.tools.cc(cls);
-    if (id.length === 0) {id = pen.tools.cc(cls)}
+    id = id || pen.cc(cls);
+    if (id.length === 0) {id = pen.cc(cls)}
     this.cont = pen("<div>").attr({class:cls, id});
     if (attrs != null) this.cont.attr(attrs);
     return this;
@@ -35,7 +35,7 @@ Container = class Container {
 
   elm (el) {
     let args = arguments;
-    switch (pen.tools.type(args[1])) {
+    switch (pen.type(args[1])) {
       case 'boolean':
         el.remove();
         return args[1] ? this : el;

@@ -87,5 +87,5 @@ wrapper.append(selector.cont);
 pBody.append(menu.cont, header.cont, wrapper);
 pHead.append(styz);
 rando = ['.header-title', 'a.btn[href]'];
-selector.input.html(pen.tools.random(rando));
+selector.input.html(pen.random(rando));
 selector.btn.el.click();

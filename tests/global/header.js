@@ -51,7 +51,7 @@ Header = class Header extends Container {
       case name.endsWith('del'):
         name = name.split(/[\ ,]/).pop();
         this.remove({type:'name',data:name});
-        if (pen.tools.type(href) === 'boolean') {return href ? this : link}
+        if (pen.type(href) === 'boolean') {return href ? this : link}
         break;
       default:
         link = this.elm('<a>').attr({class:'btn',href}).html(name);
@@ -62,7 +62,7 @@ Header = class Header extends Container {
   }
 
   link (name, href) {
-    if (pen.tools.type(name) === 'array') {
+    if (pen.type(name) === 'array') {
       name.forEach(link => this.switcher(link.name, link.href));
     } else {
       this.switcher(name, href);
