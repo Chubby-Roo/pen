@@ -6,41 +6,45 @@ Selectionr = class Selectionr extends Container {
       super('selector', '', {align: 'center', "data-id": Selectionr.mem.length});
       this._id = Selectionr.mem.length;
       this.elMem = el;
-      this.header = this.elm('<h4>').attr('class',`${this.id}-header`).html(el.selector);
-      this.closer = this.header.create('<span>','child')
-      .attr('class', `${this.id}-closer`).html('X')
-      .on('click', ()=> this.close());
 
-      this.highlighter = this.elm('<button>')
-      .attr({id:'highlighter',class:'highlighter btn'})
-      .html('Highlight').on('mouseup',()=>this.select());
+      this.create('<h4>', 'header', true).then((el) => {
+        el.attr('class',`${this.id}-header`).html(el.selector);
+        this.closer el.create('<span>').attr('class', `${this.id}-closer`)
+        .html('X').on('click', ()=> this.close());
+      });
 
-      this.textChanger = this.elm('<input>')
-      .attr({id:'textChanger',class:'text-changer input',placeholder:'change the text'})
-      .on('keydown',(e)=>{if(e.key==='Enter'){this.changeText()}});
+      this.create('<button>', 'highlighter', true).then((el) => {
+        el.attr({id:'highlighter',class:'highlighter btn'})
+        .html('Highlight').on('mouseup',()=>this.select());
+      });
 
-      this.toggler = this.elm('<input>')
-      .attr({id:'toggler',class:'toggler input',placeholder:'toggle a class'})
-      .on('keydown',(e)=>{if(e.key==='Enter'){this.toggle()}});
+      this.create('<input>', 'textChanger', true).then((el) => {
+        el.attr({id:'textChanger',class:'text-changer input',placeholder:'change the text'})
+        .on('keydown',(e)=>{if(e.key==='Enter'){this.changeText()}});
+      });
 
-      if (this.elMem.el.events != null) {
-        var ev = Object.keys(this.elMem.el.events),
-        len = ev.length <= 1,
-        determ = len ? '' : 's';
+      this.create('<input>', 'toggler', true).then((el) => {
+        el.attr({id:'toggler',class:'toggler input',placeholder:'toggle a class'})
+        .on('keydown',(e)=>{if(e.key==='Enter'){this.toggle()}});
+      });
 
-        this.eventTracker = this.elm('<pre>')
-        .attr({id: 'eventTracker',class:'event-tracker'})
-        .html(`This element has: ${ev.length} event${determ}.\n.:Type${determ}:.\n${ev.join(', ')}`);
-        if (ev.includes('click')) {
-          this.clicker = this.elm('<button>')
-          .attr({id:'clicker',class:'clicker btn'})
-          .html('Click').on('mousedown',()=>this.click());
+      this.create('<pre>', 'eventTron', true).then((el) => {
+        if (this.elMem.el.events != null) {
+          let ev = Object.keys(this.elMem.el.events), len = ev.length <= 1, determ = len ? '' : 's';
+          el.attr({id:'eventTracker',class:'event-tracker'})
+          .html(`This element has: ${ev.length} event${determ}.\n.:Type${determ}:.\n${ev.join(', ')}`);
+          if (ev.includes('click')) {
+            this.create('<button>', 'clicker', true).then((el) => {
+              el.attr({id:'clicker',class:'clicker btn'})
+              .html('Click').on('mousedown',()=>this.click());
+            });
+          }
+        } else {
+          el.attr({id: 'eventNon',class:'event-non'})
+          .html('This element has no events attached to it.');
         }
-      } else {
-        this.eventNon = this.elm('<p>')
-        .attr({id: 'eventNon',class:'event-non'})
-        .html('This element has no events attached to it.');
-      }
+        return el;
+      });
       this.select();
       Selectionr.mem.push(this);
       return this;

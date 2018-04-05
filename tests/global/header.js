@@ -4,8 +4,10 @@ Header = class Header extends Container {
   constructor (title) {
     title = (title || 'Pen');
     super('header top free', 'hdr');
-    this.titleM = this.elm('<span>').attr({id:'hdrTitle',class:'header-title'})
-    .html(title); if(document!=null){document.title=title}
+    this.create('<span>', 'titleM', true).then((el) => {
+      el.attr({id:'hdrTitle',class:'header-title'})
+      .html(title); if(document!=null){document.title=title}
+    });
     this.links = [];
     return this;
   }

@@ -41,7 +41,7 @@ pen.parse = (str) => {
   for (let i = 0, len = res.length, lock; i < len; i++) {
     lock = res[i];
     if (lock.includes('=')) {
-      data[(lock.substring(0, lock.search(/=/)))] = (lock.substring(lock.search(/=/)+1)).replace(/["']/g, '');
+      data[(lock.substr(0, lock.search(/=/)))] = (lock.substr(lock.search(/=/)+1)).replace(/["']/g, '');
     }
   }
   return (!pen.empty(data) ? data : null);
@@ -53,21 +53,18 @@ pen.fracture = (it, propz, props, nm) => {
     if (pen.type(props[prop]) === 'object') {
       pen.fracture(it, propz, props[prop], res);
     } else {
-      if (pz === 'function')
-        it.el[propz](res, props[prop]);
-      else
-        it.el[propz][res] = props[prop];
+      pz === 'function' ? it.el[propz](res, props[prop]) : [res] = props[prop];
     }
   }
   return it;
 }
 pen.parseEl = (str) => {
   let stTag, tag, attribs, text;
-  stTag = str.substring(str.search(/</), str.search(/>/)+1);
-  tag = stTag.substring(stTag.search(/</)+1, stTag.search(stTag.match(/<([^\n ]+)>/) ? />/ : / /));
-  attribs = stTag.substring(stTag.search(/ /)+1, stTag.search(/>/));
-  text = str.substring(stTag.length, str.search(/<\//));
-  return [(attribs===`<${tag}`?null:attribs), tag, (text===stTag ? null : this.empty(text) ? null : text)];
+  stTag = str.substr(str.search(/</), str.search(/>/)+1);
+  tag = stTag.substr(stTag.search(/</)+1, stTag.search(stTag.match(/<([^\n ]+)>/) ? />/ : / /)-1);
+  attribs = stTag.substr(stTag.search(/ /)+1, stTag.search(/>/));
+  text = str.substr(stTag.length, str.search(/<\//));
+  return [(attribs===`<${tag}`?null:attribs), tag, (text===stTag ? null : pen.empty(text) ? null : text)];
 }
 pen.handoff = (el, pr = !1) => (pr ? pen(el) : el);
 pen.$ = (el, pr) => (pen.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el);
@@ -168,15 +165,15 @@ pen.fn = pen.prototype = {
   },
 
   get selector () {
-    let attrs = pen.slice(this.el.attributes), str = '', ostr;
-    for (let i = 0, len = attrs.length, attr; i < len; i++) {
-      attr = attrs[i];
-      if (/class|id|style/i.test(attr.value)) {
-        str += `[${attr.name}="${attr.value}"]`;
+    let attrs = this.attrs, str = '', attrN,
+    id = this.attr('id') != null ? `#${this.attr('id')}` : '',
+    cls = this.attr('class') != null ? `.${this.classes.join('.')}` : '';
+    for (attrN in attrs) {
+      if (!/class|id|style/i.test(attrN)) {
+        str += `[${attrN}="${attrs[attrN]}"]`;
       }
     }
-    ostr = `${this.tag}${(this.attrs.id!= null?`#${this.attrs.id}`:'')}${(this.attrs.class!=null?`.${this.classes.join('.')}`:'')}${(!pen.empty(str) ? str : '')}`;
-    return ostr;
+    return `${this.tag}${id}${cls}${(pen.empty(str) ? '' : str)}`;
   },
 
   get size () {
@@ -279,7 +276,7 @@ pen.fn = pen.prototype = {
     if (pen.empty(elements)) {
       throw new Error(`No elements passed`);
     }
-    for (var i = 0,len = elements.length, element; i < len; i++) {
+    for (let i = 0,len = elements.length, element; i < len; i++) {
       element = pen.$(elements[i]);
       this.el.appendChild((element instanceof pen ? element.el : element));
     }
@@ -309,17 +306,13 @@ pen.fn = pen.prototype = {
     return ret === 'parent' ? this : ret === 'child' ? el : this
   },
   toggle (...classes) {
-    for (var i = 0, len = classes.length; i < len; i++) {
+    for (let i = 0, len = classes.length; i < len; i++) {
       this.el.classList.toggle(classes[i]);
     };
     return this;
   },
   hasClass (cls) {
-    for(var i = 0, len = this.Classes.length; i < len; i++) {
-      if(this.Classes[i] === cls) {
-        return true;
-      }
-    }
+    for (let i = 0, len = this.classes.length; i < len; i++) {if (this.classes[i] === cls) {return true}}
     return false;
   }
 }
