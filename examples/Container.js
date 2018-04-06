@@ -1,20 +1,54 @@
 let Container;
 
-Container = class Container extends pen {
+Container = class Container {
   constructor (cls, id, attrs) {
-    id = id || pen.tools.cc(cls);
-    if (id.length === 0) id = pen.tools.cc(cls);
-    super(`<div class="${cls}" id="${id}">`);
+    id = id || pen.cc(cls);
+    if (id.length === 0) id = pen.cc(cls);
+    this.cont = pen(`<div class="${cls}" id="${id}">`);
     if (attrs != null) this.cont.attr(attrs);
     this.els = [];
     return this;
   }
 
-  get id () {return this.el.attr('id')}
-  set id (x) {this.el.attr('id', x)}
-  get class () {return this.el.attr('class')}
-  set class (x) {this.el.attr('class', x)}
+  get id () {return this.cont.attr('id')}
+  set id (x) {this.cont.attr('id', x)}
+  get class () {return this.cont.attr('class')}
+  set class (x) {this.cont.attr('class', x)}
   get length () {return this.els.length}
+
+  _setup (el) {
+    let it = this;
+    el = this.cont.create(el, 'child');
+    el._document = function (name) {
+      if (!pen.empty(name)) {
+        it.els.push({name:name,id:it.length,el:el,initiated:!1});
+        for (let i = 0, len = it.els.length; i < len; i++) {it.initiate(it.els[i])}
+        delete this._document;
+        delete this._nDocument;
+      } else {
+        console.warn("Must not be an empty string");
+      }
+    }
+    el._nDocument = function () {
+      delete this._document;
+      delete this._nDocument;
+    }
+    return el;
+  }
+
+  _cre (el) {
+    if (pen.type(el) === 'array') {
+      let arr = [];
+      for (let i = 0, len = el.length; i < len; i++) {
+        arr.push(this._setup(el[i]));
+      }
+      return arr;
+    } else {
+      el = this.cont.create(el, 'child');
+      this._setup(el);
+      return el;
+    }
+  }
 
   initiate (info) {
     if (!info.initiated) {
@@ -24,37 +58,19 @@ Container = class Container extends pen {
     return info;
   }
 
-  create (el, name, prom = !1) {
-    if (name == null) {
-      throw new Error("You must name the element");
-    }
-    name = pen.tools.cc(name);
+  create (el, prom = !1) {
     switch (prom) {
       case true:
         return new Promise((res, rej) => {
           try {
-            el = this.cont.create(el, 'child');
-            if (pen.type(name) === 'boolean') {
-              if (!name) {
-                this.els.push({name:name,id:this.length,el:el,initiated:!1});
-                for (let i = 0, len = this.els.length; i < len; i++) {this.initiate(this.els[i])}
-              }
-            }
-            res(el);
+            res(this._cre(el));
           } catch (err) {
             rej(err);
           }
         });
         break;
       default:
-        el = this.cont.create(el, 'child');
-        if (pen.type(name) === 'boolean') {
-          if (!name) {
-            this.els.push({name:name,id:this.length,el:el,initiated:!1});
-            for (let i = 0, len = this.els.length; i < len; i++) {this.initiate(this.els[i])}
-          }
-        }
-        return el;
+        return this._cre(el);
     }
   }
 
@@ -96,8 +112,8 @@ Container = class Container extends pen {
 
   desODroy (el) {
     switch (el != null) {
-      case true: this.cont.appendTo(el); break;
-      default: this.cont.remove();
+      case true: this.el.appendTo(el); break;
+      default: this.el.remove();
     }
     return this;
   }
@@ -109,8 +125,22 @@ Container = class Container extends pen {
   append (...els) {
     for (let i = 0, len = els.length; i < len; i++) {
       els[i] = els[i] instanceof Container ? els[i].cont : els[i];
-      this.el.append(els[i]);
+      this.cont.append(els[i]);
     }
+    return this;
+  }
+
+  appendTo (el) {
+    this.cont.appendTo(el);
+    return this;
+  }
+
+  defineProp (name, obj) {
+    Object.defineProperty(this, name, obj);
+    return this;
+  }
+  defineProps (obj) {
+    Object.defineProperties(this, obj);
     return this;
   }
 }
