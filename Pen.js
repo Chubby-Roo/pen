@@ -53,7 +53,7 @@ pen.fracture = (it, propz, props, nm) => {
     if (pen.type(props[prop]) === 'object') {
       pen.fracture(it, propz, props[prop], res);
     } else {
-      pz === 'function' ? it.el[propz](res, props[prop]) : [res] = props[prop];
+      pz === 'function' ? it.el[propz](res, props[prop]) : it.el[propz][res] = props[prop];
     }
   }
   return it;
