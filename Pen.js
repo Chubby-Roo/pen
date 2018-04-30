@@ -9,6 +9,12 @@ pen = function (el, ops = {}) {
 }
 pen.cc = (x) => x.replace(/[_\- ](\w)/g, (whole, letter) => letter.toUpperCase());
 pen.slice = (x) => ([]).slice.call(x);
+pen.pipeline = (arg, ...fns) => {
+  for (let i = 0, len = fns.length; i < len; i++) {
+    arg = fns[i](arg);
+  }
+  return arg;
+}
 pen.type = ((function () {
   let cls2Typ = {},
   names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
@@ -128,8 +134,9 @@ pen.fn = pen.prototype = {
   },
 
   get children () {
-    let children = pen.slice(this.el.children);
-    for (let i = 0, len = children.length; i < len; i++) {
+    let children = pen.slice(this.el.children),
+    i = 0, len = children.length;
+    for (; i < len; i++) {
       children[i] = pen(children[i]);
     }
     return children;
@@ -197,30 +204,15 @@ pen.fn = pen.prototype = {
   },
 
   html (str, ops) {
-    if (str != null) {
-      let {parse,app} = (this.ops = ops!=null?ops:{}),
-      res = parse ? 'innerHTML' : 'innerText',
-      res2 = /textarea/i.test(this.tag) ? 'innerText' : res;
-      switch (this.tag) {
-        case 'input':
-          this.el.value = app ? this.el.value+str : str;
-        break;
-        case 'option':
-          this.el.value = app ? this.el.value+str : str;
-          this.el.innerText = app ? this.el.value+str : str;
-        break;
-        default:
-          this.el[res2] = app ? this.el[res2]+str : str;
-      }
+    let {parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops;
+    let res = this.tag === 'input' || this.tag === 'option' ? 'value' : (parse ? 'innerHTML' : 'innerText');
+    if (!pen.pipeline(arguments, pen.slice, pen.empty)) {
+      res2 = app ? this.el[res]+str : str;
+      this.el[res] = res2;
+      if (this.tag === 'option') {this.el.innerHTML = this.el[res]}
       return this;
     } else {
-      switch (this.tag) {
-        case 'input': case 'option': case 'textarea':
-          return this.el.value;
-        break;
-        default:
-          return this.el.innerText;
-      }
+      return this.el[res];
     }
   },
   attr (attr, value) {
