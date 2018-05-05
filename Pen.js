@@ -44,10 +44,11 @@ pen.parse = (str) => {
   let data = {},
   res = str.match(/([^\n ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi);
   if (res == null || (pen.empty(res))) {return null}
-  for (let i = 0, len = res.length, lock; i < len; i++) {
+  for (let i = 0, len = res.length, lock, eqalPos; i < len; i++) {
     lock = res[i];
     if (lock.includes('=')) {
-      data[(lock.substr(0, lock.search(/=/)))] = (lock.substr(lock.search(/=/)+1)).replace(/["']/g, '');
+      eqalPos = lock.search(/=/);
+      data[(lock.substr(0, eqalPos))] = (lock.substr(eqalPos+1)).replace(/["']/g, '');
     }
   }
   return (!pen.empty(data) ? data : null);
@@ -66,11 +67,16 @@ pen.fracture = (it, propz, props, nm) => {
 }
 pen.parseEl = (str) => {
   let stTag, tag, attribs, text;
+
   stTag = str.substr(str.search(/</), str.search(/>/)+1);
   tag = stTag.substr(stTag.search(/</)+1, stTag.search(stTag.match(/<([^\n ]+)>/) ? />/ : / /)-1);
   attribs = stTag.substr(stTag.search(/ /)+1, stTag.search(/>/));
   text = str.substr(stTag.length, str.search(/<\//));
-  return [(attribs===`<${tag}`?null:attribs), tag, (text===stTag ? null : pen.empty(text) ? null : text)];
+
+  attribs = attribs === `<${tag}` ? null : attribs;
+  text = text === stTag ? null : !pen.empty(text) ? text : null;
+
+  return {attrs: attribs, tag, text};
 }
 pen.handoff = (el, pr = !1) => (pr ? pen(el) : el);
 pen.$ = (el, pr) => (pen.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el);
@@ -86,10 +92,15 @@ pen.display = (selec, data) => {
 pen.start = (it) => {
   if (pen.type(it.el) === 'string') {
     if (it.el.startsWith('<')) {
-      let [attrs, tag, text] = pen.parseEl(it.el);
-      it.el = pen.create(tag);
-      if (attrs != null) {let omage = pen.parse(attrs); if (omage != null) {it.attr(omage)}};
-      if (text != null && (text.length !== 0)) {it.html(text, {parse:true})};
+      let data = pen.parseEl(it.el);
+      it.el = pen.create(data.tag);
+      if (data.attrs != null) {
+        let omage = pen.parse(data.attrs);
+        if (omage != null) {it.attr(omage)}
+      }
+      if (data.text != null && (!pen.empty(data.text))) {
+        it.html(text, {parse:!0})
+      }
     } else {
       it.el = pen.$(it.el);
     }
@@ -123,7 +134,7 @@ pen.fn = pen.prototype = {
   constructor: pen,
   toString() {return this.el.outerHTML},
   get tag () {
-    return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase();
+    return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase(); //whythisisneededisbecausewebkitforsafarisucksandiossucks
   },
 
   get text () {
