@@ -69,7 +69,7 @@ pen.parseEl = (str) => {
   let stTag, tag, attribs, text;
 
   stTag = str.substr(str.search(/</), str.search(/>/)+1);
-  tag = stTag.substr(stTag.search(/</)+1, stTag.search(stTag.match(/<([^\n ]+)>/) ? />/ : / /)-1);
+  tag = stTag.substr(stTag.search(/</)+1, stTag.search((/<([^\n ]+)>/).test(stTag) ? />/ : / /)-1);
   attribs = stTag.substr(stTag.search(/ /)+1, stTag.search(/>/));
   text = str.substr(stTag.length, str.search(/<\//));
 
@@ -132,7 +132,7 @@ pen.start = (it) => {
 }
 pen.fn = pen.prototype = {
   constructor: pen,
-  toString() {return this.el.outerHTML},
+  toString() {return this.selector},
   get tag () {
     return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase(); //whythisisneededisbecausewebkitforsafarisucksandiossucks
   },
@@ -203,13 +203,14 @@ pen.fn = pen.prototype = {
   },
 
   get ops () {
-    return {parseIt:(this.cusOps.parseIt || false), app:(this.cusOps.app || false), parse:(this.cusOps.parse || false)};
+    return {parseIt:(this.cusOps.parseIt || !1), app:(this.cusOps.app || !1), parse:(this.cusOps.parse || !1)};
   },
   set ops (ops) {
+    let res = ops != null;
     this.cusOps = {
-      parseIt:(ops!=null?(ops.parseIt||false):false),
-      app:(ops!=null?(ops.app||false):false),
-      parse:(ops!=null?(ops.parse||false):false)
+      parseIt:(res?(ops.parseIt||!1):!1),
+      app:(res?(ops.app||!1):!1),
+      parse:(res?(ops.parse||!1):!1)
     }
     return this.cusOps;
   },
