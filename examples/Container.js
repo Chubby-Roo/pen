@@ -2,6 +2,12 @@ let Container;
 
 Container = class Container {
   constructor (cls, id, attrs) {
+    /*
+    * The start of the container, just sets up the basic needs for container creation and storage.
+    * @type {?string}, @type {?string}, @type {object}
+    * Passing in the first two arguments are strings, the first is necessary for it automatically appends a class
+    * to the element, the second isn't a requirement for it CamelCases the first argument if it detects \s|_|-
+    */
     id = id || pen.cc(cls);
     if (id.length === 0) id = pen.cc(cls);
     this.cont = pen(`<div class="${cls}" id="${id}">`);
@@ -59,18 +65,16 @@ Container = class Container {
   }
 
   create (el, prom = !1) {
-    switch (prom) {
-      case true:
-        return new Promise((res, rej) => {
-          try {
-            res(this._cre(el));
-          } catch (err) {
-            rej(err);
-          }
-        });
-        break;
-      default:
-        return this._cre(el);
+    if (prom) {
+      return new Promise((res, rej) => {
+        try {
+          res(this._cre(el));
+        } catch (err) {
+          rej(err);
+        }
+      });
+    } else {
+      return this._cre(el);
     }
   }
 
@@ -135,12 +139,8 @@ Container = class Container {
     return this;
   }
 
-  defineProp (name, obj) {
-    Object.defineProperty(this, name, obj);
-    return this;
-  }
-  defineProps (obj) {
-    Object.defineProperties(this, obj);
-    return this;
+  // EXPERIMENTAL: This will probably be removed but allows creation of elements even easier
+  builder (str) {
+
   }
 }
