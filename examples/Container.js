@@ -1,7 +1,7 @@
 let Container;
 
 Container = class Container {
-  constructor (cls, id, attrs) {
+  constructor (cls, id, elm, attrs) {
     /*
     * The start of the container, just sets up the basic needs for container creation and storage.
     * @type {?string}, @type {?string}, @type {object}
@@ -10,7 +10,7 @@ Container = class Container {
     */
     id = id || pen.cc(cls);
     if (id.length === 0) id = pen.cc(cls);
-    this.cont = pen(`<div class="${cls}" id="${id}">`);
+    this.cont = pen(`<${elm == null ? 'div' : elm} class="${cls}" id="${id}">`);
     if (attrs != null) this.cont.attr(attrs);
     this.els = [];
     return this;
@@ -28,9 +28,10 @@ Container = class Container {
     el._document = function (name) {
       if (!pen.empty(name)) {
         it.els.push({name:name,id:it.length,el:el,initiated:!1});
-        for (let i = 0, len = it.els.length; i < len; i++) {it.initiate(it.els[i])}
+        it.els.forEach(el => it.initiate(el));
         delete this._document;
         delete this._nDocument;
+        return this;
       } else {
         console.warn("Must not be an empty string");
       }
@@ -38,16 +39,14 @@ Container = class Container {
     el._nDocument = function () {
       delete this._document;
       delete this._nDocument;
+      return this;
     }
-    return el;
   }
 
   _cre (el) {
     if (pen.type(el) === 'array') {
       let arr = [];
-      for (let i = 0, len = el.length; i < len; i++) {
-        arr.push(this._setup(el[i]));
-      }
+      el.forEach(elr => arr.push(this._setup(elr)));
       return arr;
     } else {
       el = this.cont.create(el, 'child');
@@ -65,17 +64,7 @@ Container = class Container {
   }
 
   create (el, prom = !1) {
-    if (prom) {
-      return new Promise((res, rej) => {
-        try {
-          res(this._cre(el));
-        } catch (err) {
-          rej(err);
-        }
-      });
-    } else {
-      return this._cre(el);
-    }
+    return prom ? (new Promise((res, rej) => try {res(this._cre(el))} catch (err) {rej(err)})) : this._cre(el);
   }
 
   find (type, data, prom = !1) {
@@ -87,12 +76,7 @@ Container = class Container {
       }
     }
     if (prom) {
-      return new Promise((res, rej) => {
-        if (info != null)
-          res(info);
-        else
-          rej(new Error("Could not find "+data));
-      });
+      return new Promise((res, rej) => info != null ? res(info) : rej(new Error(`Couldn't find ${data}`)));
     } else {
       return info != null ? info : null;
     }
@@ -107,10 +91,7 @@ Container = class Container {
       });
     } else {
       let info = this.find(type, data, false);
-      if (info != null)
-        this.els.splice(info.id, 1);
-      else
-        throw new Error("Could not remove "+data);
+      info != null ? this.els.splice(info.id, 1) : throw new Error(`Couldn't remove ${data}`);
     }
   }
 
@@ -127,20 +108,12 @@ Container = class Container {
   }
 
   append (...els) {
-    for (let i = 0, len = els.length; i < len; i++) {
-      els[i] = els[i] instanceof Container ? els[i].cont : els[i];
-      this.cont.append(els[i]);
-    }
+    els.forEach(el => el = el instanceof Container ? el.cont : el;this.cont.append(el));
     return this;
   }
 
   appendTo (el) {
     this.cont.appendTo(el);
     return this;
-  }
-
-  // EXPERIMENTAL: This will probably be removed but allows creation of elements even easier
-  builder (str) {
-
   }
 }
