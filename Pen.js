@@ -1,26 +1,46 @@
+/*
+Author: Krorenshima
+1 developer, 1 purpose
+Pen allows for DOM Traversal and manipulation
+*/
+
 (function () {
 let pen;
 
+
+// the main start of pen, everything from here or it's helper fn's make pen possible
 pen = function (el, ops = {}) {
+  // so you won't have to initialize every time with "new (...)"
   if (!(this instanceof pen)) {return new pen(...arguments)}
+  // if it's the same then no need to reprocess it
   if (el instanceof pen) {return el}
   this.el = el;
   pen.start(this);
 }
+// cc, camel case, removes spaces, dashes and lowerdashes through Regexp's
 pen.cc = (x) => x.replace(/[_\- ](\w)/g, (whole, letter) => letter.toUpperCase());
+// slices any array like objects
 pen.slice = (x) => ([]).slice.call(x);
+
+// a pipeline like fn that takes one argument and an array of functions
+// arg: string, fns: [arg1[arg2[arg3[arg4[...]]]]]
 pen.pipeline = (arg, ...fns) => {
   for (let i = 0, len = fns.length; i < len; i++) {
     arg = fns[i](arg);
   }
   return arg;
 }
+
+// gives out the typeof a variable better than the actual keyword built in to js
+// obj = anything passed
 pen.type = ((function () {
   let cls2Typ = {},
   names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
   for (let i = 0, len = names.length; i < len; i++) cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase();
   return (obj) => cls2Typ[({}).toString.call(obj)] || 'object';
 })());
+
+// checks if array's, strings, objects or regular expression's are empty
 pen.empty = (arg) => {
   switch (pen.type(arg)) {
     case 'array':
@@ -30,7 +50,7 @@ pen.empty = (arg) => {
       if (Object.keys != null) {
         return Object.keys(arg).length === 0 && arg.constructor === Object;
       } else {
-        for (let prop in arg) {if (arg.hasOwnProperty(prop)) {return false}}
+        for (let prop in arg) {if (arg.hasOwnProperty(prop)) {return !1}}
         return JSON.stringify(arg) === JSON.stringify({});
       }
       break;
@@ -38,13 +58,26 @@ pen.empty = (arg) => {
       return arg.source.length === 0;
   }
 }
+
+// randomizes choice within an array passed
 pen.random = (x) => x[Math.floor(Math.random() * x.length)];
-pen.check = (reg, flg) => (pen.type(reg) === 'string' ? new RegExp(reg, (flg||'gi')) : reg);
+
+// checks if and converts a string into a regular expression
+pen.check = (reg, flg) => ('string' === pen.type(reg) ? new RegExp(reg, (flg||'gi')) : reg);
+
+/**
+Parses any string passed through, it's what makes:
+'<p class="pen" id="whatnot">some text</p>' -> 'class: "pen", id:"whatnot"',
+possible for pen through a carfully made regular expression
+*/
 pen.parse = (str) => {
   let data = {},
   res = str.match(/([^\n ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi);
+
+  // checks to see if res is either null or empty else return nothing and stop parsing
   if (res == null || (pen.empty(res))) {return null}
   for (let i = 0, len = res.length, lock, eqalPos; i < len; i++) {
+    // changes substrings 'name=content' into object format: name:"content"
     lock = res[i];
     if (lock.includes('=')) {
       eqalPos = lock.search(/=/);
@@ -53,6 +86,17 @@ pen.parse = (str) => {
   }
   return (!pen.empty(data) ? data : null);
 }
+
+/*
+* A recursive function that takes in a "this" object and 2 objects containing information
+* basically makes css and attribute parsing possible for whenever you want to set
+* stuff like this for css:
+* {background: 'rgb(255,155,155)', font: {family: 'Arial', weight: 'bold'}}
+* into:
+* background: rgb(255,155,155);
+* font-family: Arial;
+* font-weight: bold;
+*/
 pen.fracture = (it, propz, props, nm) => {
   let pz = pen.type(it.el[propz]), res, prop;
   for (prop in props) {
@@ -65,6 +109,9 @@ pen.fracture = (it, propz, props, nm) => {
   }
   return it;
 }
+
+// Allows <(...) (...)>(...)</(...)> to be possible
+// tag = (...), attrs = {...}, text = (...)
 pen.parseEl = (str) => {
   let stTag, tag, attribs, text;
 
@@ -78,10 +125,17 @@ pen.parseEl = (str) => {
 
   return {attrs: attribs, tag, text};
 }
+
+// Basically auto parses whatever is passed and hands it off
 pen.handoff = (el, pr = !1) => (pr ? pen(el) : el);
+
+// $, I think you may already know
 pen.$ = (el, pr) => (pen.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el);
+// $$, same here
 pen.$$ = el => document.querySelectorAll(el);
+// base creates elements
 pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
+
 pen.all = (arr, action, ...data) => {
   for (let i = 0, len = arr.length; i < len; i++) {arr[i][action](...data)}
 }
@@ -134,7 +188,9 @@ pen.fn = pen.prototype = {
   constructor: pen,
   toString() {return this.selector},
   get tag () {
-    return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase(); //whythisisneededisbecausewebkitforsafarisucksandiossucks
+    // Why this is like this because IOS or "Safari" for does not parse certain element tags
+    // fitting because apple is like the stone age of tech
+    return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase();
   },
 
   get text () {
@@ -144,6 +200,9 @@ pen.fn = pen.prototype = {
     return this.html(x);
   },
 
+  // CHILDREN
+  // getter, grabs all the child elements, parses and allows easy access to change and manipulate
+  // setter, appends anything that is passed as an array or singularity
   get children () {
     let children = pen.slice(this.el.children),
     i = 0, len = children.length;
@@ -157,6 +216,9 @@ pen.fn = pen.prototype = {
     return this;
   },
 
+  // PARENT
+  // getter, easily displays the parent node
+  // setter, sets the parent
   get parent () {
     return this.el.parentNode || null;
   },
@@ -164,6 +226,9 @@ pen.fn = pen.prototype = {
     return this.appendTo(el);
   },
 
+  // CLASSES
+  // get, shows all the classes
+  // set, sets all the classes passed within array or singularity
   get classes () {
     return pen.slice(this.el.classList);
   },
@@ -187,7 +252,7 @@ pen.fn = pen.prototype = {
     id = this.attr('id') != null ? `#${this.attr('id')}` : '',
     cls = this.attr('class') != null ? `.${this.classes.join('.')}` : '';
     for (attrN in attrs) {
-      if (!/class|id|style/i.test(attrN)) {
+      if (!(/class|id|style/i).test(attrN)) {
         str += `[${attrN}="${attrs[attrN]}"]`;
       }
     }
@@ -264,7 +329,7 @@ pen.fn = pen.prototype = {
     }
   },
   on (evtp, cb, cp, name) {
-    cp = cp || false;
+    cp = cp || !1;
     this.el.events = this.el.events || {};
     this.el.addEventListener(evtp, cb, cp);
     this.el.events[evtp] = {capture:cp};
@@ -277,12 +342,9 @@ pen.fn = pen.prototype = {
     return this;
   },
   append (...elements) {
-    if (pen.empty(elements)) {
-      throw new Error(`No elements passed`);
-    }
-    for (let i = 0,len = elements.length, element; i < len; i++) {
-      element = pen.$(elements[i]);
-      this.el.appendChild((element instanceof pen ? element.el : element));
+    for (let i = 0, len = elements.length, el; i < len; i++) {
+      el = pen.$(elements[i]);
+      this.el.appendChild((el instanceof pen ? el.el : el));
     }
     return this;
   },
@@ -291,10 +353,19 @@ pen.fn = pen.prototype = {
     return this;
   },
   remove () {
-    if (this.parent != null) {
-      this.parent.removeChild(this.el);
+    args = pen.slice(arguments);
+    if ('boolean' === pen.type(args[0])) {
+      if (args[0]) {
+        if (this.parent != null)
+          this.parent.removeChild(this.el);
+        else
+          throw new Error("This element has no parent");
+      }
     } else {
-      throw new Error(`Couldn't remove ${this}`);
+      for (let i = 0, len = args.length, el; i < len; i++) {
+        el = pen.$(args[i]);
+        this.el.removeChild((el instanceof pen ? el.el : el));
+      }
     }
     return this;
   },
@@ -310,14 +381,12 @@ pen.fn = pen.prototype = {
     return ret === 'parent' ? this : ret === 'child' ? el : this
   },
   toggle (...classes) {
-    for (let i = 0, len = classes.length; i < len; i++) {
-      this.el.classList.toggle(classes[i]);
-    };
+    classes.forEach(cls => this.el.classList.toggle(cls));
     return this;
   },
   hasClass (cls) {
     for (let i = 0, len = this.classes.length; i < len; i++) {if (this.classes[i] === cls) {return true}}
-    return false;
+    return !1;
   }
 }
 window.pen = pen; window.pDoc = pen(document); window.pWin = pen(window);

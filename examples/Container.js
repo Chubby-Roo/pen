@@ -2,7 +2,7 @@ let Container;
 
 Container = class Container {
   constructor (cls, id, elm, attrs) {
-    /*
+    /**
     * The start of the container, just sets up the basic needs for container creation and storage.
     * @type {?string}, @type {?string}, @type {object}
     * Passing in the first two arguments are strings, the first is necessary for it automatically appends a class
