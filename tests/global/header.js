@@ -4,7 +4,8 @@ Header = class Header extends Container {
   constructor (title) {
     title = (title || 'Pen');
     super('header top free', 'hdr');
-    this.create('<span>', 'titleM', true).then((el) => {
+    this.create('<span>', !0).then((el) => {
+      el._document('titleM');
       el.attr({id:'hdrTitle',class:'header-title'})
       .html(title); if(document!=null){document.title=title}
     });
@@ -37,7 +38,7 @@ Header = class Header extends Container {
   }
 
   remove (options, multi) {
-    this.search(options).el.remove();
+    this.search(options).el.remove(!0);
     this.links.splice(this.search(options).id, (multi || 1));
     return this;
   }
@@ -49,14 +50,14 @@ Header = class Header extends Container {
 
   switcher (name, href) {
     let link;
-    switch (true) {
+    switch (!0) {
       case name.endsWith('del'):
         name = name.split(/[\ ,]/).pop();
         this.remove({type:'name',data:name});
         if (pen.type(href) === 'boolean') {return href ? this : link}
         break;
       default:
-        link = this.elm('<a>').attr({class:'btn',href}).html(name);
+        link = this.create('<a>', !1).attr({class:'btn', href}).html(name);
         this.links.push({name,href,el:link,id:this.length});
         return this;
     }
@@ -64,10 +65,19 @@ Header = class Header extends Container {
   }
 
   link (name, href) {
-    if (pen.type(name) === 'array') {
-      name.forEach(link => this.switcher(link.name, link.href));
-    } else {
-      this.switcher(name, href);
+    pen.type(name) === 'array' ? name.forEach(link => this.switcher(link.name, link.href)) : this.switcher(name, href);
+    return this;
+  }
+
+  // EXPERIMENTAL: This will probably be removed but allows creation of elements even easier
+  builder (...strs) {
+    let reg = /^([^\n]*?)\|([^\n]*?)$/i;
+    for (let i = 0, len = strs.length, str; i < len; i++) {
+      str = strs[i];
+      if (reg.test(str)) {
+        let res = [].slice.call(reg.exec(str)).slice(1);
+        this.link(res[0], res[1]);
+      }
     }
     return this;
   }

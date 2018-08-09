@@ -364,6 +364,7 @@ pen.fn = pen.prototype = {
     } else {
       for (let i = 0, len = args.length, el; i < len; i++) {
         el = pen.$(args[i]);
+        if (el == null) {throw new Error(`Couldn't find ${args[i]}`)}
         this.el.removeChild((el instanceof pen ? el.el : el));
       }
     }
