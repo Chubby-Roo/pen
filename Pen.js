@@ -31,6 +31,15 @@ pen.pipeline = (arg, ...fns) => {
   return arg;
 }
 
+// Same as pen.pipeline but only for pen functions
+pen.penpip = (arg, ...strs) => {
+  let res;
+  for (let i = 0, len = strs.length; i < len; i++) {
+    res = pen[strs[i]](arg);
+  }
+  return res;
+}
+
 // gives out the typeof a variable better than the actual keyword built in to js
 // obj = anything passed
 pen.type = ((function () {
