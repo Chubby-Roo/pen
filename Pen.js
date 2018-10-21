@@ -15,7 +15,7 @@ pen = function (el, ops = {}) {
   // if it's the same then no need to reprocess it
   if (el instanceof pen) {return el}
   this.el = el;
-  pen.start(this);
+  pen.start.call(this);
 }
 // cc, camel case, removes spaces, dashes and lowerdashes through Regexp's
 pen.cc = (x) => x.replace(/[_\- ](\w)/g, (whole, letter) => letter.toUpperCase());
@@ -23,10 +23,13 @@ pen.cc = (x) => x.replace(/[_\- ](\w)/g, (whole, letter) => letter.toUpperCase()
 pen.slice = (x) => ([]).slice.call(x);
 
 // a pipeline like fn that takes one argument and an array of functions
+// finds them either if directly passed or string from WINDOW
 // arg: string, fns: [arg1[arg2[arg3[arg4[...]]]]]
 pen.pipeline = (arg, ...fns) => {
   for (let i = 0, len = fns.length; i < len; i++) {
-    arg = fns[i](arg);
+    if (pen.type(fns[i]) === 'string') {
+      arg = window[fns[i]](arg);
+    } else {arg = fns[i](arg);}
   }
   return arg;
 }
@@ -106,17 +109,17 @@ pen.parse = (str) => {
 * font-family: Arial;
 * font-weight: bold;
 */
-pen.fracture = (it, propz, props, nm) => {
-  let pz = pen.type(it.el[propz]), res, prop;
+pen.fracture = function (propz, props, nm) {
+  let pz = pen.type(this.el[propz]), res, prop;
   for (prop in props) {
     res = nm != null ? `${nm}-${prop}` : prop;
     if (pen.type(props[prop]) === 'object') {
-      pen.fracture(it, propz, props[prop], res);
+      pen.fracture.call(this, propz, props[prop], res);
     } else {
-      pz === 'function' ? it.el[propz](res, props[prop]) : it.el[propz][res] = props[prop];
+      pz === 'function' ? this.el[propz](res, props[prop]) : this.el[propz][res] = props[prop];
     }
   }
-  return it;
+  return this;
 }
 
 // Allows <(...) (...)>(...)</(...)> to be possible
@@ -152,43 +155,43 @@ pen.display = (selec, data) => {
   let el = pen.$(selec, true);
   el.text = el.text.replace(/-([^\n]*?)-/g, (whole, word) => data[word]);
 }
-pen.start = (it) => {
-  if (pen.type(it.el) === 'string') {
-    if (it.el.startsWith('<')) {
-      let data = pen.parseEl(it.el);
-      it.el = pen.create(data.tag);
+pen.start = function () {
+  if (pen.type(this.el) === 'string') {
+    if (this.el.startsWith('<')) {
+      let data = pen.parseEl(this.el);
+      this.el = pen.create(data.tag);
       if (data.attrs != null) {
         let omage = pen.parse(data.attrs);
-        if (omage != null) {it.attr(omage)}
+        if (omage != null) {this.attr(omage)}
       }
       if (data.text != null && (!pen.empty(data.text))) {
-        it.html(text, {parse:!0})
+        this.html(text, {parse:!0})
       }
     } else {
-      it.el = pen.$(it.el);
+      this.el = pen.$(this.el);
     }
   }
-  if (it.el == null) {return};
-  it.el = it.tag === 'template' ? it.el.content : it.el;
-  it.cusOps = {};
+  if (this.el == null) {return};
+  this.el = this.tag === 'template' ? this.el.content : this.el;
+  this.cusOps = {};
   switch (true) {
-    case it.el instanceof Document:
+    case this.el instanceof Document:
       pen.prototype.ready = function () {
-        it.on('DOMContentLoaded', ...arguments);
-        return it;
+        this.on('DOMContentLoaded', ...arguments);
+        return this;
       };
     break;
-    case it.el instanceof Window:
-      it.doc = it.el.document;
+    case this.el instanceof Window:
+      this.doc = this.el.document;
     break;
-    case it.tag === 'template':
+    case this.tag === 'template':
       pen.prototype.clone = function () {
         document.importNode(...arguments);
-        return it;
+        return this;
       };
     break;
-    case it.tag === 'canvas':
-      it.ctx = it.context = it.el.getContext('2d');
+    case this.tag === 'canvas':
+      this.ctx = this.context = this.el.getContext('2d');
     break;
   }
   return this;
@@ -223,6 +226,26 @@ pen.fn = pen.prototype = {
   set children (els) {
     this.append(...els);
     return this;
+  },
+
+  // OFFSET - Singular
+  // getter, grabs the offset height, width, left and top into an object
+  get offset () {
+    return {
+      left: this.el.offsetLeft,
+      top: this.el.offsetTop,
+      width: this.el.offsetWidth,
+      height: this.el.offsetHeight
+    };
+  },
+
+  // CENTER - Singular
+  // gets the calculated center of an element
+  get center () {
+    return {
+      x: this.offset.left + this.offset.width / 2,
+      y: this.offset.top + this.offset.height / 2
+    };
   },
 
   // PARENT
@@ -290,8 +313,9 @@ pen.fn = pen.prototype = {
   },
 
   html (str, ops) {
-    let {parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops;
-    let res = this.tag === 'input' || this.tag === 'option' ? 'value' : (parse ? 'innerHTML' : 'innerText');
+    let parse, app, res;
+    ({parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops);
+    res = this.tag === 'input' || this.tag === 'option' ? 'value' : (parse ? 'innerHTML' : 'innerText');
     if (!pen.pipeline(arguments, pen.slice, pen.empty)) {
       res2 = app ? this.el[res]+str : str;
       this.el[res] = res2;
@@ -307,7 +331,7 @@ pen.fn = pen.prototype = {
       // else if value isn't null then set the attribute and return 'this' else return the attribute given
       switch (true) {
         case pen.type(attr) === 'object':
-          return pen.fracture(this, 'setAttribute', attr);
+          return pen.fracture.call(this, 'setAttribute', attr);
 
         case value != null:
           this.el.setAttribute(attr, value);
@@ -324,7 +348,7 @@ pen.fn = pen.prototype = {
     if (rule != null) {
       switch (true) {
         case pen.type(rule) === 'object':
-          return pen.fracture(this, 'style', rule);
+          return pen.fracture.call(this, 'style', rule);
 
         case rules != null:
           this.el.style[pen.cc(rule)] = rules;
