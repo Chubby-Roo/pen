@@ -1,4 +1,4 @@
-![pen](https://github.com/Krorenshima/pen-web/blob/master/logo.png)
+![pen](logo.png)
 
 # Pen
 
