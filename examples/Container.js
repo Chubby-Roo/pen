@@ -29,23 +29,26 @@ Container = class Container {
   set class (x) {this.cont.attr('class', x)}
   get length () {return this.els.length}
 
+  static deleteDocs(el) {
+    delete this._document;
+    delete this._nDocument;
+  }
+
   _setup (el) {
-    let it = this;
+    let it = this, delet;
     el = this.cont.create(el, 'child');
     el._document = function (name) {
       if (!pen.empty(name)) {
         it.els.push({name:name,id:it.length,el:el,initiated:!1});
         for (let i = 0, len = it.els.length, el; i < len; i++) {el = it.els[i]; it.initiate(el)}
-        delete this._document;
-        delete this._nDocument;
+        Container.deleteDocs(this);
         return this;
       } else {
         console.warn("Must not be an empty string");
       }
     }
     el._nDocument = function () {
-      delete this._document;
-      delete this._nDocument;
+      Container.deleteDocs(this);
       return this;
     }
   }
