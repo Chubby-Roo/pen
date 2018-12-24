@@ -389,11 +389,14 @@ pen.fn = pen.prototype = {
     return this;
   },
   insert (boa = !0, ref, ...els) {
-    let r = boa?ref:ref.nextSibling;
+    ref = pen(ref);
+    let r = boa?ref.el:ref.siblings.next;
     for (let i = 0, len = els.length, el; i < len; i++) {
       el = pen.$(els[i]);
-      ref.parentNode.insertBefore((el instanceof pen ? el.el : el), r);
+      console.log(el);
+      ref.parent.insertBefore((el instanceof pen ? el.el : el), r);
     }
+    return this;
   },
   append (...elements) {
     for (let i = 0, len = elements.length, el; i < len; i++) {
