@@ -144,7 +144,14 @@ pen.handoff = (el, pr = !1) => (pr ? pen(el) : el);
 // $, I think you may already know
 pen.$ = (el, pr) => (pen.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el);
 // $$, same here
-pen.$$ = el => document.querySelectorAll(el);
+pen.$$ = (el, pr) => {
+  let res = pen.type(el) === 'string' ? document.querySelectorAll(el) : el,
+  arr = [];
+  for (let i = 0, len = res.length; i < len; i++) {
+    arr.push(pen.handoff(res[i], pr));
+  }
+  return arr;
+}
 // base creates elements
 pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
 
@@ -312,6 +319,13 @@ pen.fn = pen.prototype = {
     return this.cusOps;
   },
 
+  get siblings () {
+    return {
+      next: this.el.nextSibling,
+      previous: this.el.previousSibling
+    };
+  },
+
   html (str, ops) {
     let parse, app, res;
     ({parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops);
@@ -374,6 +388,13 @@ pen.fn = pen.prototype = {
     delete this.el.events[evtp][name!=null?name:(cb.name||'func')];
     return this;
   },
+  insert (boa = !0, ref, ...els) {
+    let r = boa?ref:ref.nextSibling;
+    for (let i = 0, len = els.length, el; i < len; i++) {
+      el = pen.$(els[i]);
+      ref.parentNode.insertBefore((el instanceof pen ? el.el : el), r);
+    }
+  },
   append (...elements) {
     for (let i = 0, len = elements.length, el; i < len; i++) {
       el = pen.$(elements[i]);
@@ -403,11 +424,21 @@ pen.fn = pen.prototype = {
     }
     return this;
   },
-  $ (qur) {
-    return pen.handoff(this.el.querySelector(qur), this.ops.parseIt);
+  $ (qur, pIt) {
+    op = pIt != null ? pIt : this.ops.parseIt;
+    return pen.handoff(this.el.querySelector(qur), op);
   },
-  $$ (qur) {
-    return this.el.querySelectorAll(qur);
+  $$ (qur, pIt) {
+    op = pIt != null ? pIt : this.ops.parseIt;
+    if (op) {
+      let res = this.el.querySelectorAll(qur), arr = [];
+      for (let i = 0, len = res.length; i < len; i++) {
+        arr.push(pen.handoff(res[i], op));
+      }
+      return arr;
+    } else {
+      return this.el.querySelectorAll(qur);
+    }
   },
   create (el, ret) {
     el = pen(el);
