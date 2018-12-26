@@ -326,6 +326,10 @@ pen.fn = pen.prototype = {
     };
   },
 
+  clone (deep = !0, pn = !0) {
+    return pen.handoff(this.el.cloneNode(deep), pn);
+  },
+
   html (str, ops) {
     let parse, app, res;
     ({parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops);
@@ -393,7 +397,6 @@ pen.fn = pen.prototype = {
     let r = boa?ref.el:ref.siblings.next;
     for (let i = 0, len = els.length, el; i < len; i++) {
       el = pen.$(els[i]);
-      console.log(el);
       ref.parent.insertBefore((el instanceof pen ? el.el : el), r);
     }
     return this;
