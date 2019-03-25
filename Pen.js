@@ -1,473 +1,331 @@
-/*
-Author: Krorenshima
+/**
+Defines pen.
+
 1 developer, 1 purpose
-Pen allows for DOM Traversal and manipulation
+@author Krorenshima
+@link https://cdn.jsdelivr.net/gh/Krorenshima/Pen@master/Pen.js
+@since 3.26.17
 */
 
 (function () {
-let pen;
-
-
-// the main start of pen, everything from here or it's helper fn's make pen possible
-pen = function (el, ops = {}) {
-  // so you won't have to initialize every time with "new (...)"
-  if (!(this instanceof pen)) {return new pen(...arguments)}
-  // if it's the same then no need to reprocess it
-  if (el instanceof pen) {return el}
-  this.el = el;
-  pen.start.call(this);
-}
-// cc, camel case, removes spaces, dashes and lowerdashes through Regexp's
-pen.cc = (x) => x.replace(/[_\- ](\w)/g, (whole, letter) => letter.toUpperCase());
-// slices any array like objects
-pen.slice = (x) => ([]).slice.call(x);
-
-// a pipeline like fn that takes one argument and an array of functions
-// finds them either if directly passed or string from WINDOW
-// arg: string, fns: [arg1[arg2[arg3[arg4[...]]]]]
-pen.pipeline = (arg, ...fns) => {
-  for (let i = 0, len = fns.length; i < len; i++) {
-    if (pen.type(fns[i]) === 'string') {
-      arg = window[fns[i]](arg);
-    } else {arg = fns[i](arg);}
+  let pen;
+  pen = function (el, ops = {}) {
+    if (!(this instanceof pen)) {return new pen(el, ops)}
+    if (el instanceof pen) {return el}
+    this.el = el;
+    pen.start.call(this);
   }
-  return arg;
-}
-
-// Same as pen.pipeline but only for pen functions
-pen.penpip = (arg, ...strs) => {
-  let res;
-  for (let i = 0, len = strs.length; i < len; i++) {
-    res = pen[strs[i]](arg);
+  pen.cc = (x) => x.replace(/[_\- ](\w)/g, (whole, letter) => letter.toUpperCase());
+  pen.slice = (x) => ([]).slice.call(x);
+  pen.pipeline = (arg, pn = !1, ...fns) => {
+    for (let fn of fns) {
+      arg = pen.type(fn) === 'string' ? (pn ? pen : window)[fn](arg) : fn(arg);
+    }
+    return arg;
   }
-  return res;
-}
-
-// gives out the typeof a variable better than the actual keyword built in to js
-// obj = anything passed
-pen.type = ((function () {
-  let cls2Typ = {},
-  names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
-  for (let i = 0, len = names.length; i < len; i++) cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase();
-  return (obj) => cls2Typ[({}).toString.call(obj)] || 'object';
-})());
-
-// checks if array's, strings, objects or regular expression's are empty
-pen.empty = (arg) => {
-  switch (pen.type(arg)) {
-    case 'array':
-    case 'string':
-      return arg.length === 0;
-    case 'object':
-      if (Object.keys != null) {
-        return Object.keys(arg).length === 0 && arg.constructor === Object;
-      } else {
-        for (let prop in arg) {if (arg.hasOwnProperty(prop)) {return !1}}
-        return JSON.stringify(arg) === JSON.stringify({});
+  pen.type = ((function () {
+    let cls2Typ = {}, names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
+    for (let i = 0, len = names.length; i< len; i++) {cls2Typ[`[object ${names[i]}]`] = names[i].toLowerCase()}
+    return (obj) => cls2Typ[({}).toString.call(obj)] || 'object';
+  })());
+  pen.empty = (arg) => {
+    switch (pen.type(arg)) {
+      case 'array': case 'string': return arg.length === 0;
+      case 'object':
+        if (Object.keys != null) {
+          return Object.keys(arg).length === 0 && arg.constructor === Object;
+        } else {
+          for (let prop in arg) {if (arg.hasOwnProperty(prop)) {return !1}}
+          return JSON.stringify(arg) === "{}";
+        }
+      case 'regexp': return arg.source.length === 0;
+      default: console.error('Unknown type || cannot calculate size');
+    }
+  }
+  pen.random = (x) => x[Math.floor(Math.random() * x.length)];
+  pen.check = (reg, flg = 'gi') => ('string' === pen.type(reg) ? new RegExp(reg, flg) : reg);
+  pen.parse = (str) => {
+    let data = {},
+    res = str.match(/([^\n ]*?)=(['"]([^\n'"]*?)['"]|(true|false|yes|no))/gi);
+    if (res == null || (pen.empty(res))) {return null}
+    for (let i = 0, len = res.length, lock, eqalPos; i < len; i++) {
+      lock = res[i];
+      if (lock.includes('=')) {
+        eqalPos = lock.search(/=/);
+        data[(lock.substr(0, eqalPos))] = (lock.substr(eqalPos+1)).replace(/["']/g, '');
       }
-      break;
-    case 'regexp':
-      return arg.source.length === 0;
-  }
-}
-
-// randomizes choice within an array passed
-pen.random = (x) => x[Math.floor(Math.random() * x.length)];
-
-// checks if and converts a string into a regular expression
-pen.check = (reg, flg) => ('string' === pen.type(reg) ? new RegExp(reg, (flg||'gi')) : reg);
-
-/**
-Parses any string passed through, it's what makes:
-'<p class="pen" id="whatnot">some text</p>' -> 'class: "pen", id:"whatnot"',
-possible for pen through a carfully made regular expression
-*/
-pen.parse = (str) => {
-  let data = {},
-  res = str.match(/([^\n ]*?)=(['"]([^\n'"]*?)['"]|(true|false))/gi);
-
-  // checks to see if res is either null or empty else return nothing and stop parsing
-  if (res == null || (pen.empty(res))) {return null}
-  for (let i = 0, len = res.length, lock, eqalPos; i < len; i++) {
-    // changes substrings 'name=content' into object format: name:"content"
-    lock = res[i];
-    if (lock.includes('=')) {
-      eqalPos = lock.search(/=/);
-      data[(lock.substr(0, eqalPos))] = (lock.substr(eqalPos+1)).replace(/["']/g, '');
     }
+    return (!pen.empty(data) ? data : null);
   }
-  return (!pen.empty(data) ? data : null);
-}
-
-/*
-* A recursive function that takes in a "this" object and 2 objects containing information
-* basically makes css and attribute parsing possible for whenever you want to set
-* stuff like this for css:
-* {background: 'rgb(255,155,155)', font: {family: 'Arial', weight: 'bold'}}
-* into:
-* background: rgb(255,155,155);
-* font-family: Arial;
-* font-weight: bold;
-*/
-pen.fracture = function (propz, props, nm) {
-  let pz = pen.type(this.el[propz]), res, prop;
-  for (prop in props) {
-    res = nm != null ? `${nm}-${prop}` : prop;
-    if (pen.type(props[prop]) === 'object') {
-      pen.fracture.call(this, propz, props[prop], res);
-    } else {
-      pz === 'function' ? this.el[propz](res, props[prop]) : this.el[propz][res] = props[prop];
+  pen.fracture = function (propz, props, nm) {
+    let pz = pen.type(this.el[propz]), res, prop;
+    for (prop in props) {
+      res = nm != null ? `${nm}-${prop}` : prop;
+      if ('object' === pen.type(props[prop])) {
+        pen.fracture.call(this, propz, props[prop], res);
+      } else {
+        pz === 'function' ? this.el[propz](res, props[prop]) : this.el[propz][res] = props[prop];
+      }
     }
+    return this;
   }
-  return this;
-}
+  pen.parseEl = (str, nmthd = !1) => {
+    if (nmthd) {
+      let dt = (new window.DOMParser()).parseFromString(str, 'text/html').body.children;
+      dt = pen.slice(dt); dt = dt.length === 1 ? dt[0] : dt;
+      return dt;
+    }
+    let stTag, tag, attribs, text;
 
-// Allows <(...) (...)>(...)</(...)> to be possible
-// tag = (...), attrs = {...}, text = (...)
-pen.parseEl = (str) => {
-  let stTag, tag, attribs, text;
+    stTag = str.substr(str.search(/</), str.search(/>/)+1);
+    tag = stTag.substr(stTag.search(/</)+1, stTag.search((/<([^\n ]+)>/).test(stTag) ? />/ : / /)-1);
+    attribs = stTag.substr(stTag.search(/ /)+1, stTag.search(/>/));
+    text = str.substr(stTag.length, str.search(/<\//));
 
-  stTag = str.substr(str.search(/</), str.search(/>/)+1);
-  tag = stTag.substr(stTag.search(/</)+1, stTag.search((/<([^\n ]+)>/).test(stTag) ? />/ : / /)-1);
-  attribs = stTag.substr(stTag.search(/ /)+1, stTag.search(/>/));
-  text = str.substr(stTag.length, str.search(/<\//));
-
-  attribs = attribs === `<${tag}` ? null : attribs;
-  text = text === stTag ? null : !pen.empty(text) ? text : null;
-
-  return {attrs: attribs, tag, text};
-}
-
-// Basically auto parses whatever is passed and hands it off
-pen.handoff = (el, pr = !1) => (pr ? pen(el) : el);
-
-// $, I think you may already know
-pen.$ = (el, pr) => (pen.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el);
-// $$, same here
-pen.$$ = (el, pr) => {
-  let res = pen.type(el) === 'string' ? document.querySelectorAll(el) : el,
-  arr = [];
-  for (let i = 0, len = res.length; i < len; i++) {
-    arr.push(pen.handoff(res[i], pr));
+    attribs = attribs === `<${tag}` ? null : attribs;
+    text = text === stTag ? null : !pen.empty(text) ? text : null;
+    return {attrs: attribs, tag, text};
   }
-  return arr;
-}
-// base creates elements
-pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
-
-pen.all = (arr, action, ...data) => {
-  for (let i = 0, len = arr.length; i < len; i++) {arr[i][action](...data)}
-}
-pen.display = (selec, data) => {
-  let el = pen.$(selec, true);
-  el.text = el.text.replace(/-([^\n]*?)-/g, (whole, word) => data[word]);
-}
-pen.start = function () {
-  if (pen.type(this.el) === 'string') {
-    if (this.el.startsWith('<')) {
+  pen.handoff = (el, pr = !1) => pr ? pen(el) : el;
+  pen.$ = (el, pr) => pen.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el;
+  pen.$$ = (el, pr) => {
+    let res = pen.type(el) === 'string' ? document.querySelectorAll(el) : el;
+    for (let i = 0, len = res.length; i < len; i++) {
+      res[i] = pen.handoff(res[i], pr);
+    }
+    return res;
+  }
+  pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
+  pen.all = (arr, action, ...dt) => {for (let i = 0, len = arr; i < len; i++) {arr[i][action](...dt)}}
+  pen.display = (selec, data) => {
+    let el = pen.$(selec, !0);
+    el.text = el.text.replace(/-([^\n]*?)/g, (whole, word) => data[word]);
+  }
+  pen.start = function () {
+    if (pen.type(this.el) === 'string') {
       let data = pen.parseEl(this.el);
       this.el = pen.create(data.tag);
-      if (data.attrs != null) {
-        let omage = pen.parse(data.attrs);
-        if (omage != null) {this.attr(omage)}
-      }
-      if (data.text != null && (!pen.empty(data.text))) {
-        this.html(text, {parse:!0})
-      }
+      if (data.attrs != null) {let omage = pen.parse(data.attrs);if (omage != null) {this.attr(omage)}}
+      if (data.text != null && (!pen.empty(data.text))) {this.html(text, {parse: !0})}
     } else {
       this.el = pen.$(this.el);
     }
-  }
-  if (this.el == null) {return};
-  this.el = this.tag === 'template' ? this.el.content : this.el;
-  this.cusOps = {};
-  switch (true) {
-    case this.el instanceof Document:
-      pen.prototype.ready = function () {
-        this.on('DOMContentLoaded', ...arguments);
-        return this;
-      };
-    break;
-    case this.el instanceof Window:
-      this.doc = this.el.document;
-    break;
-    case this.tag === 'template':
-      pen.prototype.clone = function () {
-        document.importNode(...arguments);
-        return this;
-      };
-    break;
-    case this.tag === 'canvas':
-      this.ctx = this.context = this.el.getContext('2d');
-    break;
-  }
-  return this;
-}
-pen.fn = pen.prototype = {
-  constructor: pen,
-  toString() {return this.selector},
-  get tag () {
-    // Why this is like this because IOS or "Safari" for does not parse certain element tags
-    // fitting because apple is like the stone age of tech
-    return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase();
-  },
-
-  get text () {
-    return this.html();
-  },
-  set text (x) {
-    return this.html(x);
-  },
-
-  // CHILDREN
-  // getter, grabs all the child elements, parses and allows easy access to change and manipulate
-  // setter, appends anything that is passed as an array or singularity
-  get children () {
-    let children = pen.slice(this.el.children),
-    i = 0, len = children.length;
-    for (; i < len; i++) {
-      children[i] = pen(children[i]);
+    if (this.el == null) {console.warn("Was not able to recieve data.");return}
+    this.el = this.tag === 'template' ? this.el.content : this.el;
+    this.cusOps = {}
+    switch (!0) {
+      case this.el instanceof Document:
+        pen.prototype.ready = function () {
+          this.on('DOMContentLoaded', ...arguments);
+          return this;
+        }
+      break;
+      case this.el instanceof Window:
+        this.doc = this.el.document;
+      break;
+      case this.tag === 'template':
+        pen.prototype.clone = function () {
+          document.importNode(...arguments);
+          return this;
+        }
+      break;
+      case this.tag === 'canvas':
+        this.ctx = this.context = this.el.getContext('2d');
+      break;
     }
-    return children;
-  },
-  set children (els) {
-    this.append(...els);
     return this;
-  },
+  }
+  pen.fn = pen.prototype = {
+    constructor: pen,
+    toString() {return this.selector},
+    get tag () {return (this.el.tagname||'UNPARSED-OR-IOS-ELEMENT').toLowerCase()},
 
-  // OFFSET - Singular
-  // getter, grabs the offset height, width, left and top into an object
-  get offset () {
-    return {
-      left: this.el.offsetLeft,
-      top: this.el.offsetTop,
-      width: this.el.offsetWidth,
-      height: this.el.offsetHeight
-    };
-  },
+    get text () {return this.html()},
+    set text (x) {this.html(x)},
 
-  // CENTER - Singular
-  // gets the calculated center of an element
-  get center () {
-    return {
-      x: this.offset.left + this.offset.width / 2,
-      y: this.offset.top + this.offset.height / 2
-    };
-  },
+    get children () {let children = pen.slice(this.el.children);for (let i = 0, len = children.length; i < len; i++) {children[i] = pen(children[i])}return children},
+    set children (els) {if (pen.type(els) !== 'array') {throw new Error("Must be an array.")}this.append(...els)},
 
-  // PARENT
-  // getter, easily displays the parent node
-  // setter, sets the parent
-  get parent () {
-    return this.el.parentNode || null;
-  },
-  set parent (el) {
-    return this.appendTo(el);
-  },
+    get offset () {return {left: this.el.offsetLeft, top: this.el.offsetTop, width: this.el.offsetWidth, height: this.el.offsetHeight}},
 
-  // CLASSES
-  // get, shows all the classes
-  // set, sets all the classes passed within array or singularity
-  get classes () {
-    return pen.slice(this.el.classList);
-  },
-  set classes (cls) {
-    return this.toggle(cls);
-  },
+    get center () {return {x: this.offset.left + this.offset.width / 2, y: this.offset.top + this.offset.height / 2}},
 
-  get attrs () {
-    let ars = {}, attrs = pen.slice(this.el.attributes);
-    for (let i = 0, len = attrs.length; i < len; i++) {
-      ars[attrs[i].name] = attrs[i].value;
-    }
-    return ars;
-  },
-  set attrs (obj) {
-    return this.attr(obj);
-  },
+    get parent () {return this.el.parentNode || null},
+    set parent (x) {this.appendTo(x)},
 
-  get selector () {
-    let attrs = this.attrs, str = '', attrN,
-    id = this.attr('id') != null ? `#${this.attr('id')}` : '',
-    cls = this.attr('class') != null ? `.${this.classes.join('.')}` : '';
-    for (attrN in attrs) {
-      if (!(/class|id|style/i).test(attrN)) {
-        str += `[${attrN}="${attrs[attrN]}"]`;
+    get classes () {return pen.slice(this.el.classList)},
+    set classes (x) {return this.toggle(x)},
+
+    get attrs () {
+      let ars = {}, attrs = pen.slice(this.el.attributes);
+      for (let ar of attrs) {ars[ar.name] = ar.value}
+      return ars;
+    },
+    set attrs (obj) {this.attr(obj)},
+
+    get selector () {
+      let attrs = this.attrs, str = '', attrN,
+      id = this.attr('id') != null ? `#${this.attr('id')}` : '',
+      cls = this.attr('class') != null ? `.${this.classes.join('.')}` : '';
+      for (attrN in attrs) {if (!(/class|id|style/i).test(attrN)) {str += `[${attrN}="${attrs[attrN]}"]`}}
+      return `${this.tag}${id}${cls}${(pen.empty(str) ? '' : str)}`;
+    },
+
+    get size () {return this.el.getBoundingClientRect()},
+
+    get hidden () {return this.css('display') === 'none'},
+
+    get ops () {return {parseIt:(this.cusOps.parseIt || !1), app:(this.cusOps.app || !1), parse:(this.cusOps.parse || !1)}},
+    set ops (ops) {
+      let res = ops != null;
+      this.cusOps = {parseIt:(res?(ops.parseIt||!1):!1),app:(res?(ops.app||!1):!1),parse:(res?(ops.parse||!1):!1)}
+      return this.cusOps;
+    },
+
+    get siblings () {return {next: this.el.nextSibling, previous: this.el.previousSibling}},
+
+    clone (deep = !0, pn) {
+      return pen.handoff(this.el.cloneNode(deep), pn);
+    },
+    html (str, ops) {
+      let parse, app, res;
+      ({parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops);
+      res = this.tag === 'input' || this.tag === 'option' ? 'value' : (parse ? 'innerHTML' : 'innerText');
+      if (!pen.pipeline(arguments, pen.slice, pen.empty)) {
+        res2 = app ? this.el[res]+str : str;
+        this.el[res] = res2;
+        if (this.tag === 'option') {this.el.innerHTML = this.el[res]}
+        return this;
+      } else {
+        return this.el[res];
       }
-    }
-    return `${this.tag}${id}${cls}${(pen.empty(str) ? '' : str)}`;
-  },
-
-  get size () {
-    return this.el.getBoundingClientRect();
-  },
-
-  get hidden () {
-    return this.css('display') === 'none';
-  },
-
-  get ops () {
-    return {parseIt:(this.cusOps.parseIt || !1), app:(this.cusOps.app || !1), parse:(this.cusOps.parse || !1)};
-  },
-  set ops (ops) {
-    let res = ops != null;
-    this.cusOps = {
-      parseIt:(res?(ops.parseIt||!1):!1),
-      app:(res?(ops.app||!1):!1),
-      parse:(res?(ops.parse||!1):!1)
-    }
-    return this.cusOps;
-  },
-
-  get siblings () {
-    return {
-      next: this.el.nextSibling,
-      previous: this.el.previousSibling
-    };
-  },
-
-  clone (deep = !0, pn = !0) {
-    return pen.handoff(this.el.cloneNode(deep), pn);
-  },
-
-  html (str, ops) {
-    let parse, app, res;
-    ({parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops);
-    res = this.tag === 'input' || this.tag === 'option' ? 'value' : (parse ? 'innerHTML' : 'innerText');
-    if (!pen.pipeline(arguments, pen.slice, pen.empty)) {
-      res2 = app ? this.el[res]+str : str;
-      this.el[res] = res2;
-      if (this.tag === 'option') {this.el.innerHTML = this.el[res]}
+    },
+    attr (attr, value) {
+      if (attr != null) {
+        switch (true) {
+          case pen.type(attr) === 'object':
+            return pen.fracture.call(this, 'setAttribute', attr);
+          case pen.type(value) === 'boolean':
+            this.el.removeAttribute(attr);
+            return this;
+          case value != null:
+            this.el.setAttribute(attr, value);
+            return this;
+          default:
+            return this.el.getAttribute(attr);
+        }
+      } else {
+        return this.attrs;
+      }
+    },
+    css (rule, rules) {
+      if (rule != null) {
+        switch (true) {
+          case pen.type(rule) === 'object':
+            return pen.fracture.call(this, 'style', rule);
+          case rules != null:
+            this.el.style[pen.cc(rule)] = rules;
+            return this;
+          default:
+            return this.el.style[rule];
+        }
+      } else {
+        return this.el.style;
+      }
+    },
+    on (evtp, cb, cp, name) {
+      cp = cp || !1;
+      this.el.events = this.el.events || {};
+      this.el.addEventListener(evtp, cb, cp);
+      this.el.events[evtp] = {capture:cp};
+      this.el.events[evtp][name!=null?name:(cb.name||'func')] = cb;
       return this;
-    } else {
-      return this.el[res];
-    }
-  },
-  attr (attr, value) {
-    if (attr != null) {
-      // if typeof attr is an object then call a function to handle objects and call the curried function
-      // else if value isn't null then set the attribute and return 'this' else return the attribute given
-      switch (true) {
-        case pen.type(attr) === 'object':
-          return pen.fracture.call(this, 'setAttribute', attr);
-
-        case value != null:
-          this.el.setAttribute(attr, value);
-          return this;
-
-        default:
-          return this.el.getAttribute(attr);
+    },
+    off (evtp, cb, name) {
+      this.el.removeEventListener(evtp, (name!=null?this.el.events[evtp][name]:cb));
+      delete this.el.events[evtp][name!=null?name:(cb.name||'func')];
+      return this;
+    },
+    insert (boa = !0, ref, ...els) {
+      ref = !(ref instanceof pen) ? pen(ref) : ref;
+      let r = pen.type(boa) === 'string' ? (boa === 'before'?ref.el:ref.siblings.next) : (boa?ref.el:ref.siblings.next);
+      for (let i = 0, len = els.length, el; i < len; i++) {
+        el = pen.$(els[i]);
+        ref.parent.insertBefore((el instanceof pen ? el.el : el), r);
       }
-    } else {
-      return this.attrs;
-    }
-  },
-  css (rule, rules) {
-    if (rule != null) {
-      switch (true) {
-        case pen.type(rule) === 'object':
-          return pen.fracture.call(this, 'style', rule);
-
-        case rules != null:
-          this.el.style[pen.cc(rule)] = rules;
-          return this;
-
-        default:
-          return this.el.style[rule];
+      return this;
+    },
+    append (...elements) {
+      for (let i = 0, len = elements.length, el; i < len; i++) {
+        el = pen.$(elements[i]);
+        this.el.appendChild((el instanceof pen ? el.el : el));
       }
-    } else {
-      return this.el.style;
-    }
-  },
-  on (evtp, cb, cp, name) {
-    cp = cp || !1;
-    this.el.events = this.el.events || {};
-    this.el.addEventListener(evtp, cb, cp);
-    this.el.events[evtp] = {capture:cp};
-    this.el.events[evtp][name!=null?name:(cb.name||'func')] = cb;
-    return this;
-  },
-  off (evtp, cb, name) {
-    this.el.removeEventListener(evtp, (name!=null?this.el.events[evtp][name]:cb));
-    delete this.el.events[evtp][name!=null?name:(cb.name||'func')];
-    return this;
-  },
-  insert (boa = !0, ref, ...els) {
-    ref = pen(ref);
-    let r = boa?ref.el:ref.siblings.next;
-    for (let i = 0, len = els.length, el; i < len; i++) {
-      el = pen.$(els[i]);
-      ref.parent.insertBefore((el instanceof pen ? el.el : el), r);
-    }
-    return this;
-  },
-  append (...elements) {
-    for (let i = 0, len = elements.length, el; i < len; i++) {
-      el = pen.$(elements[i]);
-      this.el.appendChild((el instanceof pen ? el.el : el));
-    }
-    return this;
-  },
-  appendTo (el) {
-    pen(el).append(this);
-    return this;
-  },
-  remove () {
-    args = pen.slice(arguments);
-    if ('boolean' === pen.type(args[0])) {
-      if (args[0]) {
-        if (this.parent != null)
-          this.parent.removeChild(this.el);
-        else
-          throw new Error("This element has no parent");
+      return this;
+    },
+    appendTo (el) {
+      pen(el).append(this);
+      return this;
+    },
+    remove () {
+      args = pen.slice(arguments);
+      if ('boolean' === pen.type(args[0])) {
+        if (args[0]) {
+          if (this.parent != null)
+            this.parent.removeChild(this.el);
+          else
+            throw new Error("This element has no parent");
+        }
+      } else {
+        for (let el of args) {
+          if (pen.type(el) === 'object' && el instanceof pen) {
+            el.remove(!0);
+          } else {
+            el = pen.$(el);
+            if (el == null) {throw new Error(`Couldn't find ${el}`)}
+            this.el.removeChild((el instanceof pen ? el.el : el));
+          }
+        }
       }
-    } else {
-      for (let i = 0, len = args.length, el; i < len; i++) {
-        el = pen.$(args[i]);
-        if (el == null) {throw new Error(`Couldn't find ${args[i]}`)}
-        this.el.removeChild((el instanceof pen ? el.el : el));
+      return this;
+    },
+    $ (qur, pIt) {
+      op = pIt != null ? pIt : this.ops.parseIt;
+      return pen.handoff(this.el.querySelector(qur), op);
+    },
+    $$ (qur, pIt) {
+      op = pIt != null ? pIt : this.ops.parseIt;
+      if (op) {
+        let res = this.el.querySelectorAll(qur), arr = [];
+        for (let i = 0, len = res.length; i < len; i++) {
+          arr.push(pen.handoff(res[i], op));
+        }
+        return arr;
+      } else {
+        return this.el.querySelectorAll(qur);
       }
+    },
+    create (el, ret) {
+      el = pen(el);
+      this.append(el);
+      return ret === 'parent' ? this : ret === 'child' ? el : this
+    },
+    toggle (...classes) {
+      classes.forEach(cls => this.el.classList.toggle(cls));
+      return this;
+    },
+    hasClass (cls) {
+      for (let i = 0, len = this.classes.length; i < len; i++) {if (this.classes[i] === cls) {return true}}
+      return !1;
     }
-    return this;
-  },
-  $ (qur, pIt) {
-    op = pIt != null ? pIt : this.ops.parseIt;
-    return pen.handoff(this.el.querySelector(qur), op);
-  },
-  $$ (qur, pIt) {
-    op = pIt != null ? pIt : this.ops.parseIt;
-    if (op) {
-      let res = this.el.querySelectorAll(qur), arr = [];
-      for (let i = 0, len = res.length; i < len; i++) {
-        arr.push(pen.handoff(res[i], op));
-      }
-      return arr;
-    } else {
-      return this.el.querySelectorAll(qur);
-    }
-  },
-  create (el, ret) {
-    el = pen(el);
-    this.append(el);
-    return ret === 'parent' ? this : ret === 'child' ? el : this
-  },
-  toggle (...classes) {
-    classes.forEach(cls => this.el.classList.toggle(cls));
-    return this;
-  },
-  hasClass (cls) {
-    for (let i = 0, len = this.classes.length; i < len; i++) {if (this.classes[i] === cls) {return true}}
-    return !1;
   }
-}
-window.pen = pen; window.pDoc = pen(document); window.pWin = pen(window);
-if (document.body) {
-  window.body = document.body; window.head = document.head;
-  window.pHead = pen(head); window.pBody = pen(body);
-} else {
-  document.addEventListener('DOMContentLoaded',()=>{
+  window.pen = pen; window.pDoc = pen(document); window.pWin = pen(window);
+  if (document.body) {
     window.body = document.body; window.head = document.head;
     window.pHead = pen(head); window.pBody = pen(body);
-  }, {once:true});
-}
-}).call(this);
+  } else {
+    document.addEventListener('DOMContentLoaded',()=>{
+      window.body = document.body; window.head = document.head;
+      window.pHead = pen(head); window.pBody = pen(body);
+    }, {once:true});
+  }
+})(this);
