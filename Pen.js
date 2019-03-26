@@ -138,7 +138,7 @@ Defines pen.
   pen.fn = pen.prototype = {
     constructor: pen,
     toString() {return this.selector},
-    get tag () {return (this.el.tagname||'UNPARSED-OR-IOS-ELEMENT').toLowerCase()},
+    get tag () {return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase()},
 
     get text () {return this.html()},
     set text (x) {this.html(x)},
