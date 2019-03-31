@@ -103,10 +103,14 @@ Defines pen.
   }
   pen.start = function () {
     if (pen.type(this.el) === 'string') {
-      let data = pen.parseEl(this.el);
-      this.el = pen.create(data.tag);
-      if (data.attrs != null) {let omage = pen.parse(data.attrs);if (omage != null) {this.attr(omage)}}
-      if (data.text != null && (!pen.empty(data.text))) {this.html(text, {parse: !0})}
+      if (!this.el.includes('<')) {
+        this.el = pen.$(this.el);
+      } else {
+        let data = pen.parseEl(this.el);
+        this.el = pen.create(data.tag);
+        if (data.attrs != null) {let omage = pen.parse(data.attrs);if (omage != null) {this.attr(omage)}}
+        if (data.text != null && (!pen.empty(data.text))) {this.html(text, {parse: !0})}
+      }
     } else {
       this.el = pen.$(this.el);
     }
@@ -263,6 +267,8 @@ Defines pen.
       return this;
     },
     appendTo (el) {
+      // Temporary fix
+      el = pen.type(el) === 'string' ? pen.$(el, !0) : el;
       pen(el).append(this);
       return this;
     },
@@ -276,6 +282,10 @@ Defines pen.
             throw new Error("This element has no parent");
         }
       } else {
+        if (args.length === 1 && pen.type(args[0]) === 'string' && args[0] === 'all') {
+          for (let child of this.children) {child.remove(!0)}
+          return this;
+        }
         for (let el of args) {
           if (pen.type(el) === 'object' && el instanceof pen) {
             el.remove(!0);

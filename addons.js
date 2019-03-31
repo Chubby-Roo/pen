@@ -13,21 +13,60 @@ end
 
 // by: Krorenshima
 /* addons:
-     rmattr, temp, removes attributes, without having to repeat yourself
+     pen.fn["<event>"], perm, adds events like 'click' and so on to the proto like in jQuery
+     pen["<element>"], perm, adds elements like in the original pen addon, which Pen was inspried by
+     sort've lazy implementation for these two ^
      eq (equal to), perm, compares the current element, to another element if they're the same
 */
-pen.fn.rmattr = function (...nms) {
-  for (let nm of nms) {
-    if (this.attr(nm) == null) {continue}
-    this.el.removeAttribute(nm);
+let events, elements;
+// add more if you can please, it'd help a lot.
+events = 'click dblclick error mouseover mousemove'.split(/ /);
+elements = 'p span div a button input h hr b i u'.split(/ /);
+for (let ev of events) {
+  if (pen.fn[ev] != null) {/* Already exists */;continue}
+  pen.fn[ev] = function (fn) {return pen.fn.on(ev, fn)}
+  pen.fn[ev].remove = function () {return pen.fn.off(ev, fn)}
+}
+for (let el of elements) {
+  el = pen('<'+el+'>');
+  pen[el] = function (ops = {}, ...children) {
+    if (ops.attrs != null) {el.attr(ops.attrs)}
+    if (ops.text != null) {el.html(ops.text)}
+    if (ops.parent != null) {el.appendTo(ops.parent)}
+    if (ops.name != null) {el[ops.name] = el}
+    for (let child of children) {
+      let type = pen.type(child);
+      if (type === 'function') {
+        child.call(this);
+      }
+    }
+    return el;
   }
-  return this;
+  pen.fn[el] = function (ops = {}, ...children) {
+    el.appendTo(this);
+    if (ops.attrs != null) {el.attr(ops.attrs)}
+    if (ops.text != null) {el.html(ops.text)}
+    if (ops.parent != null) {el.appendTo(ops.parent)}
+    if (ops.name != null) {el[ops.name] = el}
+    ops.parent = ops.parent || this;
+    if (ops.parent != null) {el.appendTo(ops.parent)}
+    for (let child of children) {
+      let type = pen.type(child);
+      if (type === 'function') {
+        child.call();
+      }
+    }
+    return el;
+  }
 }
 pen.fn.eqto = function (typ, el) {
   el = el instanceof pen ? el.el : el;
   switch (typ) {
     case 'this': return this.el === el;
     case 'parent': return this.parent === el;
+    default:
+      console.warn("Unknown type: "+typ+"\nResolving to 'this'");
+      return this.el === el;
   }
 }
 // end
