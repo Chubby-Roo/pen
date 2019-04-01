@@ -89,17 +89,16 @@ Defines pen.
   pen.handoff = (el, pr = !1) => pr ? pen(el) : el;
   pen.$ = (el, pr) => pen.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el;
   pen.$$ = (el, pr) => {
-    let res = pen.type(el) === 'string' ? document.querySelectorAll(el) : el;
-    for (let i = 0, len = res.length; i < len; i++) {
-      res[i] = pen.handoff(res[i], pr);
-    }
-    return res;
+    let res = pen.type(el) === 'string' ? document.querySelectorAll(el) : el,
+    akun = [];
+    for (let i = 0, len = res.length; i < len; i++) {akun.push(pen.handoff(res[i], pr))}
+    return akun;
   }
   pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
   pen.all = (arr, action, ...dt) => {for (let i = 0, len = arr; i < len; i++) {arr[i][action](...dt)}}
   pen.display = (selec, data) => {
     let el = pen.$(selec, !0);
-    el.text = el.text.replace(/-([^\n]*?)/g, (whole, word) => data[word]);
+    el.text = el.text.replace(/-([^\n]*?)-/g, (whole, word) => data[word]);
   }
   pen.start = function () {
     if (pen.type(this.el) === 'string') {
