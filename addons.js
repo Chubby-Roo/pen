@@ -23,9 +23,10 @@ end
 (function () {
   let events, elements, attributes;
   // add more if you can please, it'd help a lot.
-  elements = 'p span div a button input h hr b i u img'.split(/ /);
+  elements = 'p span div a button input h hr b i u img style link meta br hr table tr tb li ul template textarea'+
+  ''.split(/ /);
   events = 'click dblclick error mouseover mousemove mouseup mousedown keydown keyup keypress load'.split(/ /);
-  attributes = 'style title encoding href src rel target'.split(/ /);
+  attributes = 'style title encoding href src rel target cols width height'.split(/ /);
   attributes = attributes.concat(events.map(ev => 'on'+ev));
   for (let ev of events) {
     if (pen.fn[ev] != null) {/* Already exists */;continue}

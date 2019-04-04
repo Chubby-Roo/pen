@@ -242,13 +242,13 @@ Defines pen.
     on (evtp, cb, cp, name) {
       cp = cp != null ? cp : !1;
       this.el.events = this.el.events || {};
-      this.el.addEventListener(evtp, cb, cp);
-      this.el.events[evtp] = {capture:cp};
-      this.el.events[evtp][name!=null?name:(cb.name||'func')] = cb;
+      this.el.addEventListener(evtp, (e) => {cb.call(this, e, this)}, cp);
+      this.el.events[evtp] = {}
+      this.el.events[evtp][name != null ? name : (cb.name || 'func')] = {cp, func: cb}
       return this;
     },
     off (evtp, name, cb) {
-      this.el.removeEventListener(evtp, (name!=null?this.el.events[evtp][name]:cb));
+      this.el.removeEventListener(evtp, (name!=null?this.el.events[evtp][name].func:cb.name));
       delete this.el.events[evtp][name!=null?name:(cb.name||'func')];
       return this;
     },
