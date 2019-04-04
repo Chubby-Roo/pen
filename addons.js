@@ -23,8 +23,7 @@ end
 (function () {
   let events, elements, attributes;
   // add more if you can please, it'd help a lot.
-  elements = 'p span div a button input h hr b i u img style link meta br hr table tr tb li ul template textarea'+
-  ''.split(/ /);
+  elements = 'p span div a button input h hr b i u img style link meta br hr table tr tb li ul template textarea'.split(/ /);
   events = 'click dblclick error mouseover mousemove mouseup mousedown keydown keyup keypress load'.split(/ /);
   attributes = 'style title encoding href src rel target cols width height'.split(/ /);
   attributes = attributes.concat(events.map(ev => 'on'+ev));
@@ -47,7 +46,8 @@ end
       if (ops.src != null && el.tag === 'img') {el.attr('src', ops.src)}
       if (ops.attrs != null) {el.attr(ops.attrs)}
       if (ops.text != null) {el.html(ops.text)}
-      if (ops.parent != null && el.parent != null) {el.appendTo(ops.parent)}
+      if (ops.name != null && ops.parent != null) {ops.parent[ops.name] = el}
+      if (ops.parent != null && el.parent == null) {el.appendTo(ops.parent)}
     },
     handleChildren (it, children) {
       let child, type, comeback;
@@ -64,7 +64,7 @@ end
       tg += !tg.endsWith('>') ? '>' : '';
       let el = parent != null ? parent.create(tg, 'child') : pen(tg);
       if (child.attrs) {el.attr(child.attrs)}
-      if (child.text || chilld.html) {el.html(child.text || child.html)}
+      if (child.text || child.html) {el.html(child.text || child.html)}
       if (child.events) {
         //soon
         for (let eventl in child.events) {
@@ -90,6 +90,7 @@ end
     if (pen.fn[el] == null) {
       pen.fn[el] = function (ops = {}, ...children) {
         el = this.create(oel, 'child');
+        ops.parent = this;
         usuals.opler(ops, el);
         usuals.handleChildren(el, children);
         return (ops.returnEl != null) && ops.returnEl ? el : this;
