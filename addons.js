@@ -23,7 +23,7 @@ end
 (function () {
   let events, elements, attributes;
   // add more if you can please, it'd help a lot.
-  elements = 'p span div a button input h hr b i u img style link meta br hr table tr tb li ul template textarea'.split(/ /);
+  elements = 'p span div a button input h hr b i u img style link meta br hr table tr tb li ul template textarea video'.split(/ /);
   events = 'click dblclick error mouseover mousemove mouseup mousedown keydown keyup keypress load'.split(/ /);
   attributes = 'style title encoding href src rel target cols width height'.split(/ /);
   attributes = attributes.concat(events.map(ev => 'on'+ev));

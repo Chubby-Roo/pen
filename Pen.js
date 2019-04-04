@@ -89,7 +89,8 @@ Defines pen.
   pen.handoff = (el, pr = !1) => pr ? pen(el) : el;
   pen.$ = (el, pr) => pen.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el;
   pen.$$ = (el, pr) => {
-    let res = pen.type(el) === 'string' ? document.querySelectorAll(el) : el,
+    if ('string' !== pen.type(el)) {return pen.handoff(el, pr)}
+    let res = document.querySelectorAll(el);
     akun = [];
     for (let i = 0, len = res.length; i < len; i++) {akun.push(pen.handoff(res[i], pr))}
     return akun;
@@ -258,7 +259,7 @@ Defines pen.
     insert (boa = !0, ref, ...els) {
       ref = !(ref instanceof pen) ? pen(ref) : ref;
       let r = 'string' === pen.type(boa) ? ('before'===boa?ref.el:ref.siblings.next) : (boa?ref.el:ref.siblings.next);
-      for (let el of els.length) {
+      for (let el of els) {
         el = pen.$(el);
         if (pen.inst(el).parentNode === this.el) {console.warn("("+el+") is already a child of "+this);continue}
         ref.parent.insertBefore(pen.inst(el), r);
@@ -316,7 +317,7 @@ Defines pen.
     $$ (qur, pIt) {
       op = pIt != null ? pIt : this.ops.parseIt;
       let res = this.el.querySelectorAll(qur), arr = [];
-      for (let r of res) {arr.push(pen.handoff(r), op)}
+      for (let r of res) {arr.push(pen.handoff(r, op))}
       return arr;
     },
     create (el, ret) {
