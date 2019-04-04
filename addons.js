@@ -31,7 +31,7 @@ end
     if (pen.fn[ev] != null) {/* Already exists */;continue}
     pen.fn[ev] = function (fn, ...args) {return pen.fn.on.call(this, ev, fn, ...args)}
     pen.fn[ev].remove = function (fn, ...args) {return pen.fn.off.call(this, ev, fn, ...args)}
-    pen.fn[ev].trigger = function (...args) { return pen.fn.fire.call(this, ...args)}
+    pen.fn[ev].trigger = function (...args) {return pen.fn.fire.call(this, ...args)}
   }
   for (let attr of attributes) {
     if (pen.fn[attr] != null) {/* Already exists */;continue}
@@ -53,72 +53,66 @@ end
       for (child of children) {
         type = pen.type(child);
         if (type !== 'function') {throw new Error('a "child" must be a function')}
-        this.__parent = it;
-        comeback = child.call(this);
+        comeback = child.call(it, it);
         if (comeback == null || !(comeback instanceof pen)) {throw new Error('the child must return and must be an instance of pen')}
         if (comeback.parent == null) {comeback.appendTo(it)}
       }
+    }, handleChildify (child, parent) {
+      let tg = child.tag || child.el;
+      tg = !tg.startsWith('<') ? '<'+tg : tg;
+      tg += !tg.endsWith('>') ? '>' : '';
+      let el = parent != null ? parent.create(tg, 'child') : pen(tg);
+      if (child.attrs) {el.attr(child.attrs)}
+      if (child.text || chilld.html) {el.html(child.text || child.html)}
+      if (child.events) {
+        //soon
+        for (let eventl in child.events) {
+          console.log(eventl);
+        }
+      }
+      if (child.children) {
+        el.childify(child.children);
+      }
+      return el;
     }
   }
   for (let el of elements) {
-    el = pen('<'+el+'>');
-    pen[el] = function (ops = {}, ...children) {
-      usuals.opler(ops, el);
-      usuals.handleChildren(el, children);
-      return el;
+    let oel = '<'+el+'>';
+    if (pen[el] == null) {
+      pen[el] = function (ops = {}, ...children) {
+        el = pen(oel);
+        usuals.opler(ops, el);
+        usuals.handleChildren(el, children);
+        return el;
+      }
     }
-    if (pen.fn[el] != null) {continue}
-    pen.fn[el] = function (ops = {}, ...children) {
-      this.append(el);
-      el.appendTo(this);
-      usuals.opler(ops, el);
-      usuals.handleChildren(this, children);
-      return (ops.returnEl != null) && ops.returnEl ? el : this;
+    if (pen.fn[el] == null) {
+      pen.fn[el] = function (ops = {}, ...children) {
+        el = this.create(oel, 'child');
+        usuals.opler(ops, el);
+        usuals.handleChildren(el, children);
+        return (ops.returnEl != null) && ops.returnEl ? el : this;
+      }
+    }
+  }
+  pen.fn.childify = function (children) {
+    for (let child of children) {usuals.handleChildify(child, this)}
+    return this;
+  }
+  pen.childify = function (children) {
+    let els = [];
+    for (let child of children) {els.push(usuals.handleChildify(child))}
+    return els.length > 1 ? els : els[0];
+  }
+  pen.fn.eqto = function (typ, el) {
+    el = el instanceof pen ? el.el : el;
+    switch (typ) {
+      case 'this': return this.el === el;
+      case 'parent': return this.parent === el;
+      default:
+        console.warn("Unknown type: "+typ+"\nResolving to 'this'");
+        return this.el === el;
     }
   }
 })();
-pen.fn.childify = function (children) {
-  for (let child of children) {
-    let el = this.el.create((child.tag || child.el), 'child');
-    if (child.attrs) {el.attr(child.attrs)}
-    if (child.text || chilld.html) {el.html(child.text || child.html)}
-    if (child.events) {
-      //soon
-      for (let eventl in child.events) {
-        console.log(eventl);
-      }
-    }
-    if (child.children) {
-      el.childify(child.children);
-    }
-  }
-  return this;
-}
-pen.childify = function (children) {
-  for (let child of children) {
-    let el = pen(child.tag || child.el);
-    if (child.attrs) {el.attr(child.attrs)}
-    if (child.text || chilld.html) {el.html(child.text || child.html)}
-    if (child.events) {
-      //soon
-      for (let eventl in child.events) {
-        console.log(eventl);
-      }
-    }
-    if (child.children) {
-      el.childify(child.children);
-    }
-  }
-  return this;
-}
-pen.fn.eqto = function (typ, el) {
-  el = el instanceof pen ? el.el : el;
-  switch (typ) {
-    case 'this': return this.el === el;
-    case 'parent': return this.parent === el;
-    default:
-      console.warn("Unknown type: "+typ+"\nResolving to 'this'");
-      return this.el === el;
-  }
-}
 // end

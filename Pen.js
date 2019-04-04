@@ -96,7 +96,7 @@ Defines pen.
   }
   pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
   pen.all = (arr, action, ...dt) => {for (let i = 0, len = arr; i < len; i++) {arr[i][action](...dt)}}
-  pem.inst = (el) => el instanceof pen ? el.el : el;
+  pen.inst = (el) => el instanceof pen ? el.el : el;
   pen.display = (selec, data) => {
     let el = pen.$(selec, !0);
     el.text = el.text.replace(/-([^\n]*?)-/g, (whole, word) => data[word]);
@@ -260,6 +260,7 @@ Defines pen.
       let r = 'string' === pen.type(boa) ? ('before'===boa?ref.el:ref.siblings.next) : (boa?ref.el:ref.siblings.next);
       for (let el of els.length) {
         el = pen.$(el);
+        if (pen.inst(el).parentNode === this.el) {console.warn("("+el+") is already a child of "+this);continue}
         ref.parent.insertBefore(pen.inst(el), r);
       }
       return this;
@@ -267,6 +268,7 @@ Defines pen.
     append (...elements) {
       for (let i = 0, len = elements.length, el; i < len; i++) {
         el = pen.$(elements[i]);
+        if (pen.inst(el).parentNode === this.el) {console.warn("("+el+") is already a child of "+this);continue}
         this.el.appendChild(pen.inst(el));
       }
       return this;
