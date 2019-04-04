@@ -13,7 +13,7 @@ Defines pen.
     if (!(this instanceof pen)) {return new pen(el, ops)}
     if (el instanceof pen) {return el}
     this.el = el;
-    pen.start.call(this);
+    return pen.start.call(this);
   }
   pen.cc = (x) => x.replace(/[_\- ](\w)/g, (whole, letter) => letter.toUpperCase());
   pen.slice = (x) => ([]).slice.call(x);
@@ -96,6 +96,7 @@ Defines pen.
   }
   pen.create = (el, pr) => pen.handoff(document.createElement(el), pr);
   pen.all = (arr, action, ...dt) => {for (let i = 0, len = arr; i < len; i++) {arr[i][action](...dt)}}
+  pem.inst = (el) => el instanceof pen ? el.el : el;
   pen.display = (selec, data) => {
     let el = pen.$(selec, !0);
     el.text = el.text.replace(/-([^\n]*?)-/g, (whole, word) => data[word]);
@@ -206,9 +207,9 @@ Defines pen.
     attr (attr, value) {
       if (attr != null) {
         switch (true) {
-          case pen.type(attr) === 'object':
+          case 'object' === pen.type(attr):
             return pen.fracture.call(this, 'setAttribute', attr);
-          case pen.type(value) === 'boolean':
+          case 'boolean' === pen.type(value):
             this.el.removeAttribute(attr);
             return this;
           case value != null:
@@ -224,8 +225,10 @@ Defines pen.
     css (rule, rules) {
       if (rule != null) {
         switch (true) {
-          case pen.type(rule) === 'object':
+          case 'object' === pen.type(rule):
             return pen.fracture.call(this, 'style', rule);
+          case 'boolean' === pen.type(rules):
+            this.el.style[pen.cc(rule)] = '';
           case rules != null:
             this.el.style[pen.cc(rule)] = rules;
             return this;
@@ -237,31 +240,34 @@ Defines pen.
       }
     },
     on (evtp, cb, cp, name) {
-      cp = cp || !1;
+      cp = cp != null ? cp : !1;
       this.el.events = this.el.events || {};
       this.el.addEventListener(evtp, cb, cp);
       this.el.events[evtp] = {capture:cp};
       this.el.events[evtp][name!=null?name:(cb.name||'func')] = cb;
       return this;
     },
-    off (evtp, cb, name) {
+    off (evtp, name, cb) {
       this.el.removeEventListener(evtp, (name!=null?this.el.events[evtp][name]:cb));
       delete this.el.events[evtp][name!=null?name:(cb.name||'func')];
       return this;
     },
+    fire (info) {
+      return this.el.dispatchEvent(info);
+    },
     insert (boa = !0, ref, ...els) {
       ref = !(ref instanceof pen) ? pen(ref) : ref;
-      let r = pen.type(boa) === 'string' ? (boa === 'before'?ref.el:ref.siblings.next) : (boa?ref.el:ref.siblings.next);
-      for (let i = 0, len = els.length, el; i < len; i++) {
-        el = pen.$(els[i]);
-        ref.parent.insertBefore((el instanceof pen ? el.el : el), r);
+      let r = 'string' === pen.type(boa) ? ('before'===boa?ref.el:ref.siblings.next) : (boa?ref.el:ref.siblings.next);
+      for (let el of els.length) {
+        el = pen.$(el);
+        ref.parent.insertBefore(pen.inst(el), r);
       }
       return this;
     },
     append (...elements) {
       for (let i = 0, len = elements.length, el; i < len; i++) {
         el = pen.$(elements[i]);
-        this.el.appendChild((el instanceof pen ? el.el : el));
+        this.el.appendChild(pen.inst(el));
       }
       return this;
     },
@@ -274,24 +280,28 @@ Defines pen.
     remove () {
       args = pen.slice(arguments);
       if ('boolean' === pen.type(args[0])) {
-        if (args[0]) {
-          if (this.parent != null)
-            this.parent.removeChild(this.el);
-          else
-            throw new Error("This element has no parent");
-        }
+        if (!args[0]) {return this}
+        if (this.parent != null)
+          this.parent.removeChild(this.el);
+        else
+          console.warn("This element ("+this+") has no parent");
       } else {
         if (args.length === 1 && pen.type(args[0]) === 'string' && args[0] === 'all') {
           for (let child of this.children) {child.remove(!0)}
           return this;
         }
         for (let el of args) {
-          if (pen.type(el) === 'object' && el instanceof pen) {
-            el.remove(!0);
-          } else {
-            el = pen.$(el);
-            if (el == null) {throw new Error(`Couldn't find ${el}`)}
-            this.el.removeChild((el instanceof pen ? el.el : el));
+          switch (true) {
+            case 'object' === pen.type(el) && el instanceof pen:
+              el.remove(!0);
+              break;
+            case 'object' === pen.type(el) && !(el instanceof pen):
+              el.parentNode.removeChild(this.el);
+              break;
+            default:
+              el = pen.$(el);
+              if (el == null) {console.warn(`Couldn't find ${el}`);continue}
+              this.el.removeChild(pen.inst(el));
           }
         }
       }
@@ -303,15 +313,9 @@ Defines pen.
     },
     $$ (qur, pIt) {
       op = pIt != null ? pIt : this.ops.parseIt;
-      if (op) {
-        let res = this.el.querySelectorAll(qur), arr = [];
-        for (let i = 0, len = res.length; i < len; i++) {
-          arr.push(pen.handoff(res[i], op));
-        }
-        return arr;
-      } else {
-        return this.el.querySelectorAll(qur);
-      }
+      let res = this.el.querySelectorAll(qur), arr = [];
+      for (let r of res) {arr.push(pen.handoff(r), op)}
+      return arr;
     },
     create (el, ret) {
       el = pen(el);
@@ -319,11 +323,11 @@ Defines pen.
       return ret === 'parent' ? this : ret === 'child' ? el : this
     },
     toggle (...classes) {
-      classes.forEach(cls => this.el.classList.toggle(cls));
+      for (let cls of classes) {this.el.classList.toggle(cls)}
       return this;
     },
     hasClass (cls) {
-      for (let i = 0, len = this.classes.length; i < len; i++) {if (this.classes[i] === cls) {return true}}
+      for (let clss of this.classes) {if (clss === cls) {return !0}}
       return !1;
     }
   }
