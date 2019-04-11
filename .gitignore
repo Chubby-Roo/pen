@@ -2,5 +2,4 @@
 *.css.map
 *.sassc
 *.bat
-minifier.js
 test.html

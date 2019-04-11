@@ -8,6 +8,57 @@ Defines pen.
 */
 
 (function () {
+  // just to make it a little easier, though may not be recommended, if there's bugs
+  if (!Object.prototype.hasOwnProperty(Object.prototype, 'assign')) {
+    Object.defineProperty(Object.prototype, 'assign', {
+      writeable: !1,
+      value (...objs) {return Object.assign(this, ...objs)}
+    });
+  }
+  if (!Map.prototype.hasOwnProperty('arrayify')) {
+    Object.defineProperties(Map.prototype, {
+      arrayify: {
+        writeable: !0,
+        value () {
+          let it = this.entries(), res, arr;
+          res = it.next();
+          while (!res.done) {
+            arr.push(res.value);
+            res = it.next();
+          }
+          return arr;
+        }
+      },
+      filter: {
+        writeable: !0,
+        value (flt) {
+          if ('function' !== typeof(flt)) {throw new TypeError("The first argument must be a function")}
+          let nmp = new Map(); // a play on npm haaaaaaaaaaaaaaaa
+          this.forEach((v,k,m) => {
+            let resp = flt(v,k,m);
+            if ('boolean' === typeof(resp)) {
+              if (resp) {nmp.set(k,v)}
+            } else {
+              nmp.set(k,resp);
+            }
+          });
+          return nmp;
+        }
+      },
+      map: { //totally not contridictory ha
+        writeable: !0,
+        value (fn) {
+          if ('function' !== typeof(flt)) {throw new TypeError("The first argument must be a function")}
+          let nmp = new Map(); // a play on npm haaaaaaaaaaaaaaaa
+          this.forEach((v,k,m) => {
+            let resp = flt(v,k,m);
+            nmp.set(k,resp);
+          });
+          return nmp;
+        }
+      }
+    });
+  }
   let pen;
   pen = function (el, ops = {}) {
     if (!(this instanceof pen)) {return new pen(el, ops)}
@@ -22,6 +73,11 @@ Defines pen.
       arg = pen.type(fn) === 'string' ? (pn ? pen : window)[fn](arg) : fn(arg);
     }
     return arg;
+  }
+  pen.inherit = function (constructor, parent, ...ptinfo) {
+    if (ptinfo == null || ptinfo.length === 0) {return constructor.prototype = Object.create(parent.prototype)}
+    constructor.prototype = Object.create(parent.prototype).assign(constructor, ptinfo);
+    return constructor.prototype;
   }
   pen.type = ((function () {
     let cls2Typ = {}, names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
@@ -57,6 +113,7 @@ Defines pen.
     }
     return (!pen.empty(data) ? data : null);
   }
+  pen.insOf = function (it) {return it instanceof pen}
   pen.fracture = function (propz, props, nm) {
     let pz = pen.type(this.el[propz]), res, prop;
     for (prop in props) {
@@ -158,6 +215,10 @@ Defines pen.
     get parent () {return this.el.parentNode || null},
     set parent (x) {this.appendTo(x)},
 
+    get data () {return this.el.dataset},
+
+    get events () {return this.el.events},
+
     get classes () {return pen.slice(this.el.classList)},
     set classes (x) {return this.toggle(x)},
 
@@ -195,7 +256,7 @@ Defines pen.
     html (str, ops) {
       let parse, app, res;
       ({parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops);
-      res = this.tag === 'input' || this.tag === 'option' ? 'value' : (parse ? 'innerHTML' : 'innerText');
+      res = this.tag === 'input' || this.tag === 'option' ? 'value' : (parse ? 'innerHTML' : (this.el['textContent'] != null ? 'textContent' : 'innerText'));
       if (!pen.pipeline(arguments, pen.slice, pen.empty)) {
         res2 = app ? this.el[res]+str : str;
         this.el[res] = res2;

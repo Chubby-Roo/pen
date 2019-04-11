@@ -22,10 +22,11 @@ end
 */
 (function () {
   let events, elements, attributes;
+  let preops = {};
   // add more if you can please, it'd help a lot.
-  elements = 'p span div a button input h hr b i u img style link meta br hr table tr tb li ul template textarea video'.split(/ /);
+  elements = 'p span div a button input h1 h2 h3 h4 h5 h6 hr b i u img style link meta br hr table tr tb li ul template textarea video'.split(/ /);
   events = 'click dblclick error mouseover mousemove mouseup mousedown keydown keyup keypress load'.split(/ /);
-  attributes = 'style title encoding href src rel target cols width height'.split(/ /);
+  attributes = 'style title encoding href src rel target cols width height align class id type placeholder'.split(/ /);
   attributes = attributes.concat(events.map(ev => 'on'+ev));
   for (let ev of events) {
     if (pen.fn[ev] != null) {/* Already exists */;continue}
@@ -34,6 +35,7 @@ end
     pen.fn[ev].trigger = function (...args) {return pen.fn.fire.call(this, ...args)}
   }
   for (let attr of attributes) {
+    preops[attr] = attr;
     if (pen.fn[attr] != null) {/* Already exists */;continue}
     pen.fn[attr] = function (value) {
       if (value == null) {return pen.fn.attr.call(this, attr)}
@@ -43,11 +45,28 @@ end
   }
   let usuals = {
     opler (ops, el) {
-      if (ops.src != null && el.tag === 'img') {el.attr('src', ops.src)}
-      if (ops.attrs != null) {el.attr(ops.attrs)}
-      if (ops.text != null) {el.html(ops.text)}
-      if (ops.name != null && ops.parent != null) {ops.parent[ops.name] = el}
-      if (ops.parent != null && el.parent == null) {el.appendTo(ops.parent)}
+      if (ops.init != null) {
+        el = ops.init.call(el, el, ops);
+        if (el == null) {return}
+        delete ops.init;
+      }
+      for (let pref in preops) {
+        if (ops[pref] != null) {
+          el.attr(pref, ops[pref]);
+          delete ops[pref];
+        }
+      }
+      if (ops.src != null && el.tag === 'img') {el.attr('src', ops.src); delete ops.src;}
+      if (ops.attrs != null) {el.attr(ops.attrs); delete ops.attrs}
+      if (ops.text != null) {el.html(ops.text); delete ops.text}
+      if (ops.name != null && ops.parent != null) {ops.parent[ops.name] = el;delete ops.name}
+      if (ops.parent != null && el.parent == null) {el.appendTo(ops.parent); delete ops.parent}
+      for (let prof in ops) {
+        if (prof === 'returnEl') {continue}
+        if (ops[prof] != null && 'array' === pen.type(ops[prof])) {
+          el.on(prof, ...ops[prof]);
+        }
+      }
     },
     handleChildren (it, children) {
       let child, type, comeback;
@@ -63,17 +82,10 @@ end
       tg = !tg.startsWith('<') ? '<'+tg : tg;
       tg += !tg.endsWith('>') ? '>' : '';
       let el = parent != null ? parent.create(tg, 'child') : pen(tg);
-      if (child.attrs) {el.attr(child.attrs)}
-      if (child.text || child.html) {el.html(child.text || child.html)}
-      if (child.events) {
-        //soon
-        for (let eventl in child.events) {
-          console.log(eventl);
-        }
-      }
-      if (child.children) {
-        el.childify(child.children);
-      }
+      if (child.attrs != null) {el.attr(child.attrs)}
+      if (child.text != null || child.html != null) {el.html(child.text || child.html)}
+      if ((child.events != null) && 'objects' === pen.type(child.events)) {for (let eventl in child.events) {el.on(eventl, ...child.events[eventl])}}
+      if (child.children) {el.childify(child.children)}
       return el;
     }
   }
@@ -90,13 +102,59 @@ end
     if (pen.fn[el] == null) {
       pen.fn[el] = function (ops = {}, ...children) {
         el = this.create(oel, 'child');
-        ops.parent = this;
+        ops.parent = ops.parent != null ? ops.parent : this;
         usuals.opler(ops, el);
         usuals.handleChildren(el, children);
         return (ops.returnEl != null) && ops.returnEl ? el : this;
       }
     }
   }
+  // MAJOR: this
+  pen.define = function (ops1, ...els) {
+    let def = {}, olp = [];
+    for (let el of els) {
+      if (pen[el] == null) {
+        pen[el] = function (ops = {}, ...children) {
+          el = pen(oel);
+          usuals.opler(ops, el);
+          usuals.handleChildren(el, children);
+          return el;
+        }
+      }
+      if (pen.fn[el] == null) {
+        pen.fn[el] = function (ops = {}, ...children) {
+          el = this.create(oel, 'child');
+          ops.parent = this;
+          usuals.opler(ops, el);
+          usuals.handleChildren(el, children);
+          return (ops.returnEl != null) && ops.returnEl ? el : this;
+        }
+      }
+      let oel = '<'+el+'>';
+      def[el] = {
+        writeable: !1,
+        value (ops, ...children) {
+          let ins = pen.insOf(this);
+          el = ins ? this.create(oel, 'child') : pen(oel);
+          ops.parent = ops.parent != null ? ops.parent : (ins ? this : null);
+          usuals.opler(ops, el);
+          usuals.handleChildren(el, children);
+          return ins ? ((ops.returnEl != null) && ops.returnEl ? el : this) : el;
+        }
+      }
+    }
+    if (ops1.defineIn != null) {
+      if ('array' !== type(ops1.defineIn) && ops1.defineIn instanceof pen) {
+        olp = Object.defineProperties(ops1.defineIn, def);
+      } else {
+        for (let elp of ops1.defineIn) {
+          olp.push(Object.defineProperties(elp, def));
+        }
+      }
+      if ((ops1.onlyDefineIn != null) && ops1.onlyDefineIn) {return olp}
+    }
+  }
+  pen.define.isDefined = function (def) {return pen[def] != null && pen.fn[def] != null}
   pen.fn.childify = function (children) {
     for (let child of children) {usuals.handleChildify(child, this)}
     return this;
