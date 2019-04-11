@@ -256,7 +256,7 @@ Defines pen.
     html (str, ops) {
       let parse, app, res;
       ({parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops);
-      res = this.tag === 'input' || this.tag === 'option' ? 'value' : (parse ? 'innerHTML' : (this.el['textContent'] != null ? 'textContent' : 'innerText'));
+      res = /input|option|textarea/i.test(this.tag) ? 'value' : parse ? 'innerHTML' : this.el['textContent'] != null ? 'textContent' : 'innerText';
       if (!pen.pipeline(arguments, pen.slice, pen.empty)) {
         res2 = app ? this.el[res]+str : str;
         this.el[res] = res2;
