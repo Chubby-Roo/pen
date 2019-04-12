@@ -194,8 +194,62 @@ Defines pen.
       case this.tag === 'canvas':
         this.ctx = this.context = this.el.getContext('2d');
       break;
+      case this.tag === 'form':
+      // inputvns - input name's & value's
+        Object.defineProperty(this, 'inputvns', {
+          get () {
+            let elsf = this.el.elements, olp = {};
+            for (let i = 0, len = elsf.length, moo; i < len; i++) {
+              moo = elsf[i];
+              if (pen.empty(moo.name)) {continue}
+              if (olp[moo.name] != null) {
+                olp[moo.name+i] = !pen.empty(moo.value) ? moo.value : moo.name;
+              } else {
+                olp[moo.name] = !pen.empty(moo.value) ? moo.value : moo.name;
+              }
+            }
+            return olp;
+          }, enumerable: !0
+        });
+      break;
     }
     return this;
+  }
+  pen.ajax = function (ops) {
+    let xml = new window.XMLHttpRequest();
+    ops.progress = ops.progress != null ? ops.progress : function (ov) {console.log(ov.lengthComputable ? ((ov.loaded / ov.total * 100)+'%') : "Can't compute progress")};
+    ops.load = ops.load != null ? ops.load : function (ov) {console.log('Transfer complete.\n', ov)};
+    ops.error = ops.error != null ? ops.error : function (ov) {console.log("An error has occurred\n"+ov)};
+    ops.cancel = ops.cancel != null ? ops.cancel : function (ov) {console.log("The transfer was canceled")};
+    ops.data = ops.data != null ? ops.data : {};
+    ops.type = ops.type != null ? ops.type : 'GET';
+    xml.addEventListener('progress', ops.progress);
+    xml.addEventListener('load', ops.load);
+    xml.addEventListener('error', ops.error);
+    xml.addEventListener('abort', ops.cancel);
+    xml.upload.addEventListener('progress', ops.progress);
+    xml.upload.addEventListener('load', ops.load);
+    xml.upload.addEventListener('error', ops.error);
+    xml.upload.addEventListener('abort', ops.cancel);
+    if (ops.override) xml.overrideMimeType(ops.override);
+    if (ops.typer) xml.responseType = ops.typer;
+    let res = (function () {
+      if (!pen.empty(ops.data)) {
+        let s = [];
+        for (let prof in ops.data) {
+          s.push(`${prof}=${ops.escape ? window.escape(ops.data[prof]) : ops.data[prof]}`);
+        }
+        return ops.url += "?"+s.join('&')
+      } else {
+        return ops.url;
+      }
+    })();
+    xml.open(ops.type, res, (ops.sync || true), (ops.user || null), (ops.password || null));
+    if (ops.callback) {xml.callback = ops.callback}
+    if (ops.fpath) {xml.filepath = ops.fpath}
+    if (ops.hdr && ops.hdr.length > 1) xml.setRequestHeader(...ops.hdr);
+    xml.send();
+    return xml;
   }
   pen.fn = pen.prototype = {
     constructor: pen,
@@ -204,13 +258,21 @@ Defines pen.
 
     get text () {return this.html()},
     set text (x) {this.html(x)},
-
-    get children () {let children = pen.slice(this.el.children);for (let i = 0, len = children.length; i < len; i++) {children[i] = pen(children[i])}return children},
+    get children () {
+      let children = pen.slice((this.tag === 'form' ? this.el.elements : this.el.children));
+      for (let i = 0, len = children.length; i  < len; i++) {
+        children[i] = pen(children[i]);
+      }
+      return children
+    },
     set children (els) {if (pen.type(els) !== 'array') {throw new Error("Must be an array.")}this.append(...els)},
 
     get offset () {return {left: this.el.offsetLeft, top: this.el.offsetTop, width: this.el.offsetWidth, height: this.el.offsetHeight}},
 
     get center () {return {x: this.offset.left + this.offset.width / 2, y: this.offset.top + this.offset.height / 2}},
+
+    get selection () {return {start: this.el.selectionStart, end: this.el.selectionEnd}},
+    set selection (arr) {this.el.setSelectionRange(...arr)},
 
     get parent () {return this.el.parentNode || null},
     set parent (x) {this.appendTo(x)},
