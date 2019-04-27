@@ -9,11 +9,16 @@ Defines pen.
 
 (function () {
   // just to make it a little easier, though may not be recommended, if there's bugs
-  if (!Object.prototype.hasOwnProperty(Object.prototype, 'assign')) {
-    Object.defineProperty(Object.prototype, 'assign', {
+  if (!Object.prototype.hasOwnProperty(Object.prototype, 'inherit')) {
+    Object.defineProperty(Object.prototype, 'inherit', {
       writeable: !1,
-      value (...objs) {return Object.assign(this, ...objs)}
-    });
+      value (parent, ...ptinfo) {
+        this.prototype = Object.create(parent.prototype);
+        this.prototype.constructor = this;
+        if (ptinfo.length > 0) {Object.assign(this.prototype, ...ptinfo)}
+        return this;
+      }
+    })
   }
   if (!Map.prototype.hasOwnProperty('arrayify')) {
     Object.defineProperties(Map.prototype, {
@@ -73,11 +78,6 @@ Defines pen.
       arg = pen.type(fn) === 'string' ? (pn ? pen : window)[fn](arg) : fn(arg);
     }
     return arg;
-  }
-  pen.inherit = function (constructor, parent, ...ptinfo) {
-    if (ptinfo == null || ptinfo.length === 0) {return constructor.prototype = Object.create(parent.prototype)}
-    constructor.prototype = Object.create(parent.prototype).assign(constructor, ptinfo);
-    return constructor.prototype;
   }
   pen.type = ((function () {
     let cls2Typ = {}, names = ['Boolean','Number','String','Function','Array','Date','RegExp','Undefined','Null','Error','Symbol','Promise','NamedNodeMap','Map','NodeList','DOMTokenList','DOMStringMap','CSSStyleDeclaration'];
@@ -159,6 +159,24 @@ Defines pen.
     let el = pen.$(selec, !0);
     el.text = el.text.replace(/-([^\n]*?)-/g, (whole, word) => data[word]);
   }
+  pen.mid = function (x, y, by = 2, mthd = 0) {
+    switch (true) {
+      case x === y:
+        return x;
+
+      case by === 0:
+        return x;
+
+      case mthd === 0:
+        return x + y / 2;
+
+      case mthd === 1:
+        return (x + y) / 2;
+
+      default:
+        return (x + y) / 2;
+    }
+  }
   pen.start = function () {
     if (pen.type(this.el) === 'string') {
       if (!this.el.includes('<')) {
@@ -193,6 +211,20 @@ Defines pen.
       break;
       case this.tag === 'canvas':
         this.ctx = this.context = this.el.getContext('2d');
+        this.width = this.w = this.el.width;
+        this.height = this.h = this.el.height;
+        Object.defineProperty(this, 'resize', {
+          writeable: !1,
+          value (w, h) {
+            w = w || 0;
+            h = h || w;
+            this.el.width = w;
+            this.el.height = h;
+            this.width = this.w = this.el.width;
+            this.height = this.h = this.el.height;
+            return this;
+          }
+        });
       break;
       case this.tag === 'form':
       // inputvns - input name's & value's
@@ -224,11 +256,23 @@ Defines pen.
     ops.data = ops.data != null ? ops.data : {};
     ops.type = ops.type != null ? ops.type : 'GET';
     xml.addEventListener('progress', ops.progress);
-    xml.addEventListener('load', ops.load);
+    xml.addEventListener('load', function (ev) {
+      if (pen.ok(this.status)) {
+        ops.load.call(this, this.response, ev);
+      } else {
+        console.error("Status was faulty", this.status);
+      }
+    });
     xml.addEventListener('error', ops.error);
     xml.addEventListener('abort', ops.cancel);
     xml.upload.addEventListener('progress', ops.progress);
-    xml.upload.addEventListener('load', ops.load);
+    xml.upload.addEventListener('load', function (ev) {
+      if (pen.ok(this.status)) {
+        ops.load.call(this, this.response, ev);
+      } else {
+        console.error("Status was faulty", this.status);
+      }
+    });
     xml.upload.addEventListener('error', ops.error);
     xml.upload.addEventListener('abort', ops.cancel);
     if (ops.override) xml.overrideMimeType(ops.override);
