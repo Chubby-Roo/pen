@@ -56,7 +56,7 @@ Defines pen.
           if ('function' !== typeof(flt)) {throw new TypeError("The first argument must be a function")}
           let nmp = new Map(); // a play on npm haaaaaaaaaaaaaaaa
           this.forEach((v,k,m) => {
-            let resp = flt(v,k,m);
+            let resp = fn(v,k,m);
             nmp.set(k,resp);
           });
           return nmp;
@@ -147,7 +147,8 @@ Defines pen.
   pen.$ = (el, pr) => pen.type(el) === 'string' ? pen.handoff(document.querySelector(el), pr) : el;
   pen.$$ = (el, pr) => {
     if ('string' !== pen.type(el)) {return pen.handoff(el, pr)}
-    let res = document.querySelectorAll(el);
+    let res, akun;
+    res = document.querySelectorAll(el);
     akun = [];
     for (let i = 0, len = res.length; i < len; i++) {akun.push(pen.handoff(res[i], pr))}
     return akun;
@@ -185,7 +186,7 @@ Defines pen.
         let data = pen.parseEl(this.el);
         this.el = pen.create(data.tag);
         if (data.attrs != null) {let omage = pen.parse(data.attrs);if (omage != null) {this.attr(omage)}}
-        if (data.text != null && (!pen.empty(data.text))) {this.html(text, {parse: !0})}
+        if (data.text != null && (!pen.empty(data.text))) {this.html(data.text, {parse: !0})}
       }
     } else {
       this.el = pen.$(this.el);
@@ -244,20 +245,134 @@ Defines pen.
           }, enumerable: !0
         });
       break;
+      case this.tag === 'audio' || this.tag === 'video':
+        pen.prototype.nsrc = function (src, typ) {
+          let mosu = pen('<source>');
+          mosu.attr('src', src);
+          if (typ == null) {
+            switch (true) {
+              case src.endsWith('mp3'):
+                mosu.attr('type', 'audio/mpeg');
+              break;
+              case src.endsWith('ogg'):
+                mosu.attr('type', 'audio/ogg');
+            }
+          }
+          this.append(mosu);
+          return this;
+        }
+        Object.defineProperties(this, {
+          sources: {
+            get () {
+              let children = this.children, arr = [];
+              for (let i = 0, len = children.length; i < len; i++) {
+                arr.push(children[i].attr('src'));
+              }
+              return arr;
+            }, enumerable: !0
+          },
+
+          time: {
+            get () {return this.el.currentTime},
+            set (x) {this.el.currentTime = x}, enumerable: !0, changeable: !0
+          },
+
+          duration: {
+            get () {return this.el.duration}, enumerable: !0
+          },
+
+          ended: {
+            get () {return this.el.ended}, enumerable: !0
+          },
+
+          looping: {
+            get () {return this.el.loop},
+            set (x) {this.el.loop = x}, enumerable: !0, changeable: !0
+          },
+
+          speed: {
+            get () {return this.el.playbackRate},
+            set (x) {this.el.playbackRate = x}, enumerable: !0, changeable: !0
+          },
+
+          persevePitch: {
+            get () {return this.el.preservesPitch},
+            set (x) {this.el.preservesPitch = x}, enumerable: !0, changeable: !0
+          },
+
+          preload: {
+            get () {return this.el.preload},
+            set (x) {this.el.preload = x}, enumerable: !0, changeable: !0
+          },
+
+          source: {
+            get () {return this.el.currentSrc}, enumerable: !0
+          },
+
+          volume: {
+            get () {return this.el.volume},
+            set (x) {this.el.volume = x}, enumerable: !0, changeable: !0
+          },
+
+          paused: {
+            get () {return this.el.paused}, enumerable: !0
+          },
+
+          titles: {
+            get () {return this.sources.map(srcs => srcs.split('/').slice(-1)[0])}, enumerable: !0
+          },
+
+          play: {
+            value () {
+              if (!this.paused) {console.warn('Already playing');return this}
+              this.el.play();
+              return this;
+            }
+          },
+
+          pause: {
+            value () {
+              if (this.paused) {console.warn('Already paused');return this}
+              this.el.pause();
+              return this;
+            }
+          },
+
+          toggleA: {
+            value () {
+              this[this.paused ? 'play' : 'pause']();
+              return this;
+            }
+          },
+
+          set: {
+            value (typ, val) {
+              if (!/speed|volume|looping/i.test(typ)) {console.warn("Only allowed to change speed, volume or if its looping"); return this}
+              this[typ] = val;
+              return this;
+            }
+          }
+        });
+      break;
     }
     return this;
   }
+  pen.ok = function (status) {
+    return (status === 200 || status === 202);
+  }
   pen.ajax = function (ops) {
     let xml = new window.XMLHttpRequest();
+
     ops.progress = ops.progress != null ? ops.progress : function (ov) {console.log(ov.lengthComputable ? ((ov.loaded / ov.total * 100)+'%') : "Can't compute progress")};
     ops.load = ops.load != null ? ops.load : function (ov) {console.log('Transfer complete.\n', ov)};
     ops.error = ops.error != null ? ops.error : function (ov) {console.log("An error has occurred\n"+ov)};
-    ops.cancel = ops.cancel != null ? ops.cancel : function (ov) {console.log("The transfer was canceled")};
+    ops.cancel = ops.cancel != null ? ops.cancel : function (ov) {console.log("The transfer was canceled\n"+ov)};
     ops.data = ops.data != null ? ops.data : {};
     ops.type = ops.type != null ? ops.type : 'GET';
+
     xml.addEventListener('progress', ops.progress);
     xml.addEventListener('load', function (ev) {
-      if (pen.ok(this.status)) {
+      if (pen.ok(this.status, this.readyState)) {
         ops.load.call(this, this.response, ev);
       } else {
         console.error("Status was faulty", this.status);
@@ -265,34 +380,42 @@ Defines pen.
     });
     xml.addEventListener('error', ops.error);
     xml.addEventListener('abort', ops.cancel);
-    xml.upload.addEventListener('progress', ops.progress);
-    xml.upload.addEventListener('load', function (ev) {
-      if (pen.ok(this.status)) {
-        ops.load.call(this, this.response, ev);
-      } else {
-        console.error("Status was faulty", this.status);
-      }
-    });
-    xml.upload.addEventListener('error', ops.error);
-    xml.upload.addEventListener('abort', ops.cancel);
+    if ((ops['progressUpld'] != null && ops['loadUpld'] != null && ops['errorUpld'] != null && ops['cancelUpld'] != null) === true) {
+      xml.upload.addEventListener('progress', ops.progressUpld);
+      xml.upload.addEventListener('load', function (ev) {
+        if (pen.ok(this.status, this.readyState)) {
+          ops.loadUpld.call(this, this.response, ev);
+        } else {
+          console.error("Status was faulty", this.status);
+        }
+      });
+      xml.upload.addEventListener('error', ops.errorUpld);
+      xml.upload.addEventListener('abort', ops.cancelUpld);
+    }
+
     if (ops.override) xml.overrideMimeType(ops.override);
     if (ops.typer) xml.responseType = ops.typer;
     let res = (function () {
-      if (!pen.empty(ops.data)) {
-        let s = [];
-        for (let prof in ops.data) {
-          s.push(`${prof}=${ops.escape ? window.escape(ops.data[prof]) : ops.data[prof]}`);
-        }
-        return ops.url += "?"+s.join('&')
+      if (pen.type(ops.data) === 'string') {
+        return ops.data;
       } else {
-        return ops.url;
+        if (!pen.empty(ops.data)) {
+          let s = [];
+          for (let prof in ops.data) {
+            s.push(`${prof}=${ops.escape ? window.escape(ops.data[prof]) : ops.data[prof]}`);
+          }
+          return ops.type === 'POST' ? s.join('&') : ops.url + '?' + s.join('&') ;
+        } else {
+          return ops.url;
+        }
       }
     })();
-    xml.open(ops.type, res, (ops.sync || true), (ops.user || null), (ops.password || null));
+
+    xml.open(ops.type, (ops.type === 'POST' ? ops.url : res), (ops.sync || true), (ops.user || null), (ops.password || null));
     if (ops.callback) {xml.callback = ops.callback}
     if (ops.fpath) {xml.filepath = ops.fpath}
     if (ops.hdr && ops.hdr.length > 1) xml.setRequestHeader(...ops.hdr);
-    xml.send();
+    xml.send((ops.type === 'POST' ? res : null));
     return xml;
   }
   pen.fn = pen.prototype = {
@@ -364,7 +487,7 @@ Defines pen.
       ({parse, app} = ops == null ? (!pen.empty(this.cusOps) ? this.cusOps : this.ops) : ops);
       res = /input|option|textarea/i.test(this.tag) ? 'value' : parse ? 'innerHTML' : this.el['textContent'] != null ? 'textContent' : 'innerText';
       if (!pen.pipeline(arguments, pen.slice, pen.empty)) {
-        res2 = app ? this.el[res]+str : str;
+        let res2 = app ? this.el[res]+str : str;
         this.el[res] = res2;
         if (this.tag === 'option') {this.el.innerHTML = this.el[res]}
         return this;
@@ -397,6 +520,7 @@ Defines pen.
             return pen.fracture.call(this, 'style', rule);
           case 'boolean' === pen.type(rules):
             this.el.style[pen.cc(rule)] = '';
+            break;
           case rules != null:
             this.el.style[pen.cc(rule)] = rules;
             return this;
@@ -448,7 +572,7 @@ Defines pen.
       return this;
     },
     remove () {
-      args = pen.slice(arguments);
+      let args = pen.slice(arguments);
       if ('boolean' === pen.type(args[0])) {
         if (!args[0]) {return this}
         if (this.parent != null)
@@ -478,12 +602,14 @@ Defines pen.
       return this;
     },
     $ (qur, pIt) {
-      op = pIt != null ? pIt : this.ops.parseIt;
+      let op = pIt != null ? pIt : this.ops.parseIt;
       return pen.handoff(this.el.querySelector(qur), op);
     },
     $$ (qur, pIt) {
+      let op, res, arr;
       op = pIt != null ? pIt : this.ops.parseIt;
-      let res = this.el.querySelectorAll(qur), arr = [];
+      res = this.el.querySelectorAll(qur);
+      arr = [];
       for (let r of res) {arr.push(pen.handoff(r, op))}
       return arr;
     },
@@ -502,13 +628,11 @@ Defines pen.
     }
   }
   window.pen = pen; window.pDoc = pen(document); window.pWin = pen(window);
+  window.head = document.head;
+  window.pHead = pen(window.head);
   if (document.body) {
-    window.body = document.body; window.head = document.head;
-    window.pHead = pen(head); window.pBody = pen(body);
+    window.body = document.body; window.pBody = pen(window.body);
   } else {
-    document.addEventListener('DOMContentLoaded',()=>{
-      window.body = document.body; window.head = document.head;
-      window.pHead = pen(head); window.pBody = pen(body);
-    }, {once:true});
+    document.addEventListener('DOMContentLoaded',()=>{window.body = document.body; window.pBody = pen(window.body)}, {once:!0});
   }
 })(this);

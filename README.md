@@ -11,14 +11,12 @@ The object may look something like this:
 ```js
 //I'll be using a p element for this example
 pen: {
-  attrs: {id: 'moose'},
-  // events was moved inside the el object, because, its easier to manage
+  attrs: (...),
   text: (...),
-  el: 'p#moose',
-  cel: (...),
-  tag: 'p',
-  Children:['a'],
-  PARENT: null
+  el: 'p#moose', tag: 'p',
+  Children:(...), parent: null,
+  selector: 'p#moose',
+  ops: (...)
 }
 ```
 
@@ -55,4 +53,8 @@ It's much slower than: **pen("&lt;p&gt;").attr('id', 'someID');**
 ## Raw, Production Development links
 [Raw](https://raw.githubusercontent.com/Krorenshima/pen/master/Pen.js) | [min](https://raw.githubusercontent.com/Krorenshima/pen/master/Pen.min.js)
 
-[production](https://cdn.jsdelivr.net/gh/Krorenshima/pen@master/Pen.js) | [min](https://cdn.jsdelivr.net/gh/Krorenshima/pen@master/Pen.min.js)
+[Production](https://cdn.jsdelivr.net/gh/Krorenshima/pen@master/Pen.js) | [min](https://cdn.jsdelivr.net/gh/Krorenshima/pen@master/Pen.min.js)
+
+*(if you're viewing this at https://krorenshima.github.io/pen-web then
+
+[highlight.js](https://highlightjs.org/) & [markdown](https://markdown-it.github.io/))*
