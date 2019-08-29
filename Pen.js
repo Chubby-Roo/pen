@@ -376,6 +376,7 @@ Defines pen.
         ops.load.call(this, this.response, ev);
       } else {
         console.error("Status was faulty", this.status);
+        ops.staerr.call(this, this.response, ev);
       }
     });
     xml.addEventListener('error', ops.error);
@@ -387,6 +388,7 @@ Defines pen.
           ops.loadUpld.call(this, this.response, ev);
         } else {
           console.error("Status was faulty", this.status);
+          ops.staerr.call(this, this.response, ev);
         }
       });
       xml.upload.addEventListener('error', ops.errorUpld);
@@ -422,6 +424,10 @@ Defines pen.
     constructor: pen,
     toString() {return this.selector},
     get tag () {return (this.el.tagName||'UNPARSED-OR-IOS-ELEMENT').toLowerCase()},
+
+    get hasShadow () {return this.el.shadowRoot != null},
+
+    get shadow () {return this.el.shadowRoot},
 
     get text () {return this.html()},
     set text (x) {this.html(x)},
@@ -478,6 +484,11 @@ Defines pen.
     },
 
     get siblings () {return {next: this.el.nextSibling, previous: this.el.previousSibling}},
+
+    shadow (shd) {
+      console.warn('This function is not fully developed');
+      return this;
+    },
 
     clone (deep = !0, pn) {
       return pen.handoff(this.el.cloneNode(deep), pn);
