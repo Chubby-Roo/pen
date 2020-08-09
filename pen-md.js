@@ -151,7 +151,11 @@ Defines pen.
   pen.$ = (el, pr) => pen.type(el) === 'string' ? pen.handoff(doc.querySelector(el), pr) : el;
   pen.$$ = (el, pr) => {
     if ('string' !== pen.type(el)) {return pen.handoff(el, pr)}
-    return doc.querySelectorAll(el).map(r => pen.handoff(r, pr))
+    let res;
+    res = doc.querySelectorAll(el)
+    if (res.length === 0) {return null}
+    res = [].slice.call(res)
+    return res.map(r => pen.handoff(r, pr))
   }
   pen.create = (el, pr) => pen.handoff(doc.createElement(el), pr);
   pen.all = (arr, action, ...dt) => {
@@ -188,7 +192,7 @@ Defines pen.
   }
   pen.start = function () {
     if (pen.type(this.el) === 'string') {
-      if (!this.el.includes('<')) {
+      if (!(this.el.includes('<') && this.el.includes('>'))) {
         this.el = pen.$(this.el);
       } else {
         let data = pen.parseEl(this.el);
@@ -280,67 +284,92 @@ Defines pen.
     }
     return this;
   }
-  pen.ok = function (status) {
+  pen.ok = function (status, cb) {
+    if (cb != null) {cb(((status === 200 || status === 202) ? !1 : !0)); return}
     return (status === 200 || status === 202);
   }
-  pen.ajax = function (ops) {
+  pen.xjam = function () {
     let xml = new window.XMLHttpRequest();
-
-    ops.progress = ops.progress != null ? ops.progress : function (ov) {console.log(ov.lengthComputable ? ((ov.loaded / ov.total * 100)+'%') : "Can't compute progress")};
-    ops.load = ops.load != null ? ops.load : function (ov) {console.log('Transfer complete.\n', ov)};
-    ops.error = ops.error != null ? ops.error : function (ov) {console.log("An error has occurred\n"+ov)};
-    ops.cancel = ops.cancel != null ? ops.cancel : function (ov) {console.log("The transfer was canceled\n"+ov)};
-    ops.data = ops.data != null ? ops.data : {};
-    ops.type = ops.type != null ? ops.type : 'GET';
-
-    xml.addEventListener('progress', ops.progress);
-    xml.addEventListener('load', function (ev) {
-      if (pen.ok(this.status, this.readyState)) {
-        ops.load.call(this, this.response, ev);
-      } else {
-        console.error("Status was faulty", this.status);
-        ops.staerr.call(this, this.response, ev);
-      }
-    });
-    xml.addEventListener('error', ops.error);
-    xml.addEventListener('abort', ops.cancel);
-    if ((ops['progressUpld'] != null && ops['loadUpld'] != null && ops['errorUpld'] != null && ops['cancelUpld'] != null) === true) {
-      xml.upload.addEventListener('progress', ops.progressUpld);
-      xml.upload.addEventListener('load', function (ev) {
-        if (pen.ok(this.status, this.readyState)) {
-          ops.loadUpld.call(this, this.response, ev);
+    return {
+      oreg: xml,
+      on (ev, fn) {
+        this.oreg.addEventListener(ev, fn);
+        return this;
+      },
+      send (ops, dt) {
+        if (ops.type === 'POST') {
+          this.oreg.send(dt)
         } else {
-          console.error("Status was faulty", this.status);
-          ops.staerr.call(this, this.response, ev);
+          this.oreg.send();
         }
-      });
-      xml.upload.addEventListener('error', ops.errorUpld);
-      xml.upload.addEventListener('abort', ops.cancelUpld);
+        return this;
+      }
     }
-
-    if (ops.override) xml.overrideMimeType(ops.override);
-    if (ops.typer) xml.responseType = ops.typer;
-    let res = (function () {
-      if (pen.type(ops.data) === 'string') {
-        return ops.data;
-      } else {
-        if (!pen.empty(ops.data)) {
-          let s = [];
-          for (let prof in ops.data) {
-            s.push(`${prof}=${ops.escape ? window.escape(ops.data[prof]) : ops.data[prof]}`);
-          }
-          return ops.type === 'POST' ? s.join('&') : ops.url + '?' + s.join('&') ;
-        } else {
-          return ops.url;
+  }
+  pen.dparse = function (txt) {
+    return (new DOMParser()).parseFromString(txt, 'text/html');
+  }
+  pen.ajax = function (ops) {
+    let xml, res, zorgs;
+    xml = pen.xjam();
+    zorgs = [];
+    ops.load = ops['load'] != null ? ops.load : function (ov) {console.log('Transfer complete.\n', ov)};
+    ops.error = ops['error'] != null ? ops.error : function (ov) {console.log("An error has occurred\n"+ov)};
+    ops.abort = ops['abort'] != null ? ops.cancel : function (ov) {console.log("The transfer was canceled\n"+ov)};
+    ops.data = ops['data'] != null ? ops.data : {};
+    ops.type = ops['type'] != null ? ops.type : 'GET';
+    for (let name in ops) {
+      if (!(name.includes('load') || name.includes('error') || name.includes('abort') || name.includes('progress'))) {continue}
+      if (name.includes('Upld')) {
+        let oname = name.replace('Upld', '');
+        if (name === 'loadUpld') {
+          xml.on(oname, function (ev) {
+            pen.ok(this.status, (er) => {
+              if (er === !0) {ops.errorUpld.call(this, {msg: 'Status faulty', status: this.status}, ev); return}
+              ops.loadUpld.call(this, this.response, ev);
+            })
+          });
+          continue
         }
+        xml.on(oname, ops[name])
+      } else {
+        if (name === 'load') {
+          xml.on(name, function (ev) {
+            pen.ok(this.status, (er) => {
+              if (er === !0) {ops.error.call(this, {msg: 'Status faulty', status: this.status}, ev); return}
+              ops.load.call(this, this.response, ev);
+            })
+          });
+          continue
+        }
+        xml.on(name, ops[name])
       }
-    })();
-
-    xml.open(ops.type, (ops.type === 'POST' ? ops.url : res), (ops.sync || true), (ops.user || null), (ops.password || null));
-    if (ops.callback) {xml.callback = ops.callback}
-    if (ops.fpath) {xml.filepath = ops.fpath}
-    if (ops.hdr && ops.hdr.length > 1) xml.setRequestHeader(...ops.hdr);
-    xml.send((ops.type === 'POST' ? res : null));
+    }
+    if (ops['override'] != null) {xml.oreg.overrideMimeType(ops.override)}
+    if (ops['typer'] != null) {xml.oreg.responseType = ops.typer}
+    if (pen.type(ops.data, 'string')) {
+      res = ops.data
+    } else {
+      if (!pen.empty(ops.data)) {
+        let s = [];
+        for (let prof in ops.data) {s.push(`${prof}=${ops.escape ? window.escape(ops.data[prof]) : ops.data[prof]}`)}
+        res = ops.type === 'POST' ? s.join('&') : ops.url + '?' + s.join('&');
+      } else {
+        res = ops.url;
+      }
+    }
+    zorgs.push(ops.type, (ops.type === 'POST' ? ops.url : res), (ops['sync'] != null ? ops.sync : !0));
+    if (ops['user'] != null) {zorgs.push(ops.user)} if (ops['password'] != null) {zorgs.push(ops.password)}
+    xml.oreg.open(...zorgs);
+    if (ops['callback'] != null) {xml.oreg.callback = ops.callback} if (ops['fpath'] != null) {xml.oreg.filepath = ops.fpath}
+    if (ops['hdr'] != null && ops.hdr.length > 1) {xml.oreg.setRequestHeader(...ops.hdr)}
+    try {
+      xml.send(ops, res);
+    } catch (e) {
+      if (ops['gerror'] != null) {
+        ops.gerror(e);
+      }
+    }
     return xml;
   }
   pen.fn = pen.prototype = {
@@ -462,7 +491,25 @@ Defines pen.
     on (evtp, cb, cp, name) {
       cp = cp != null ? cp : !1;
       this.el.events = this.el.events || {};
-      this.el.addEventListener(evtp, (e) => {cb.call(this, e, this)}, cp);
+      this.el.addEventListener(evtp, (e) => {
+        e.sprb = function (ty) {
+          switch (ty) {
+            case 'all':
+              e.preventDefault();
+              e.stopPropagation();
+            break
+            case 'prop':
+              e.stopPropagation();
+            break
+            case 'prev':
+              e.preventDefault();
+            break
+          }
+          return this;
+        }
+        e.xpath = pen.slice(e.path);
+        cb.call(this, e, this, this.text);
+      }, cp);
       this.el.events[evtp] = {}
       this.el.events[evtp][name != null ? name : (cb.name || 'func')] = {cp, func: cb}
       return this;
